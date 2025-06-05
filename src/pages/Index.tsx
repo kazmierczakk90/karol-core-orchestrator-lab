@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Brain, Rocket, Command, Terminal, Database, Settings, Activity, Zap, Eye, Pause, Play } from 'lucide-react';
+import { Brain, Rocket, Command, Terminal, Database, Settings, Activity, Zap, Eye, Pause, Play, MessageSquare } from 'lucide-react';
 import AGIDashboard from '@/components/AGIDashboard';
 import StartupLab from '@/components/StartupLab';
 import CommandRoom from '@/components/CommandRoom';
 import DeveloperConsole from '@/components/DeveloperConsole';
+import FUKOConsole from '@/components/FUKOConsole';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('agi-core');
@@ -28,17 +29,17 @@ const Index = () => {
                 </h1>
               </div>
               <Badge variant="outline" className="border-green-500/50 text-green-400">
-                AGI Core v1.0
+                AGI Core v3.0 + FUKO-PZK
               </Badge>
             </div>
             
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm">
                 <Activity className="h-4 w-4 text-green-400" />
-                <span className="text-green-400">System Online</span>
+                <span className="text-green-400">FUKO System Online</span>
               </div>
               <Badge variant="outline" className="border-yellow-500/50 text-yellow-400">
-                Status: 87%
+                Status: 95%
               </Badge>
             </div>
           </div>
@@ -48,10 +49,14 @@ const Index = () => {
       {/* Main Navigation */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeModule} onValueChange={setActiveModule} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-800/50 border border-blue-800/30">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-blue-800/30">
             <TabsTrigger value="agi-core" className="flex items-center space-x-2">
               <Brain className="h-4 w-4" />
               <span>AGI Core</span>
+            </TabsTrigger>
+            <TabsTrigger value="fuko-console" className="flex items-center space-x-2">
+              <MessageSquare className="h-4 w-4" />
+              <span>FUKO-PZK</span>
             </TabsTrigger>
             <TabsTrigger value="startup-lab" className="flex items-center space-x-2">
               <Rocket className="h-4 w-4" />
@@ -69,6 +74,10 @@ const Index = () => {
 
           <TabsContent value="agi-core" className="mt-6">
             <AGIDashboard />
+          </TabsContent>
+
+          <TabsContent value="fuko-console" className="mt-6">
+            <FUKOConsole />
           </TabsContent>
 
           <TabsContent value="startup-lab" className="mt-6">
