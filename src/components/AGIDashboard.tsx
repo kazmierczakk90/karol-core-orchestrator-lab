@@ -160,7 +160,7 @@ const AGIDashboard = () => {
                 </div>
               ))}
             </div>
-          </CardHeader>
+          </CardContent>
         </Card>
 
         {/* FUKO & System Agents */}
