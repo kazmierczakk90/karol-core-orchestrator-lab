@@ -139,25 +139,25 @@ const Index = () => {
           </TabsList>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-hidden">
-          <TabsContent value="agi-core" className="h-full m-0 p-4 md:p-6">
+        {/* Content Area - naprawione scrollowanie */}
+        <div className="flex-1 overflow-auto">
+          <TabsContent value="agi-core" className="h-full m-0 p-4 md:p-6 overflow-auto">
             <AGIDashboard />
           </TabsContent>
           
-          <TabsContent value="mini-ai" className="h-full m-0 p-4 md:p-6">
+          <TabsContent value="mini-ai" className="h-full m-0 p-4 md:p-6 overflow-auto">
             <MiniAIDashboard />
           </TabsContent>
           
-          <TabsContent value="browser-core" className="h-full m-0">
+          <TabsContent value="browser-core" className="h-full m-0 overflow-auto">
             <BrowserCore onLinksExtracted={handleLinksExtracted} />
           </TabsContent>
           
-          <TabsContent value="link-collector" className="h-full m-0 p-4 md:p-6">
+          <TabsContent value="link-collector" className="h-full m-0 p-4 md:p-6 overflow-auto">
             <LinkCollector extractedLinks={extractedLinks} />
           </TabsContent>
           
-          <TabsContent value="mind-maps" className="h-full m-0 p-4 md:p-6">
+          <TabsContent value="mind-maps" className="h-full m-0 p-4 md:p-6 overflow-auto">
             <MindMapsCreator />
           </TabsContent>
         </div>
