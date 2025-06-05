@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Brain, Rocket, Command, Terminal, MessageSquare, Activity, Zap, Keyboard } from 'lucide-react';
+import { Brain, Rocket, Command, Terminal, MessageSquare, Activity, Zap, Keyboard, Bot } from 'lucide-react';
 import AGIDashboard from '@/components/AGIDashboard';
 import StartupLab from '@/components/StartupLab';
 import CommandRoom from '@/components/CommandRoom';
@@ -19,6 +19,7 @@ import FileUpload from '@/components/FileUpload';
 import ProjectCreator from '@/components/ProjectCreator';
 import AIMemory from '@/components/AIMemory';
 import DatabaseTables from '@/components/DatabaseTables';
+import MiniAIDashboard from '@/components/MiniAIDashboard';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('agi-core');
@@ -113,7 +114,7 @@ const Index = () => {
                 </h1>
               </div>
               <Badge variant="outline" className="border-green-500/50 text-green-400">
-                AGI Core v3.0 + FUKO-PZK
+                AGI Core v3.0 + FUKO-PZK + Mini AI
               </Badge>
               <Badge variant="outline" className={getStatusColor(systemStatus)}>
                 Status: {systemStatus}
@@ -146,10 +147,14 @@ const Index = () => {
       {/* Main Navigation */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeModule} onValueChange={setActiveModule} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 bg-slate-800/50 border border-blue-800/30">
+          <TabsList className="grid w-full grid-cols-8 bg-slate-800/50 border border-blue-800/30">
             <TabsTrigger value="agi-core" className="flex items-center space-x-2">
               <Brain className="h-4 w-4" />
               <span>AGI Core</span>
+            </TabsTrigger>
+            <TabsTrigger value="mini-ai" className="flex items-center space-x-2">
+              <Bot className="h-4 w-4" />
+              <span>Mini AI</span>
             </TabsTrigger>
             <TabsTrigger value="openai-chat" className="flex items-center space-x-2">
               <MessageSquare className="h-4 w-4" />
@@ -186,6 +191,10 @@ const Index = () => {
                 <MicrophoneControl />
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="mini-ai" className="mt-6">
+            <MiniAIDashboard />
           </TabsContent>
 
           <TabsContent value="openai-chat" className="mt-6">
