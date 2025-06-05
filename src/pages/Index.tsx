@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Brain, Rocket, Command, Terminal, MessageSquare, Activity, Zap, Keyboard, Bot } from 'lucide-react';
+import { Brain, Rocket, Command, Terminal, MessageSquare, Activity, Zap, Keyboard, Bot, Search, Map, Link, Database } from 'lucide-react';
 import AGIDashboard from '@/components/AGIDashboard';
 import StartupLab from '@/components/StartupLab';
 import CommandRoom from '@/components/CommandRoom';
@@ -20,6 +20,11 @@ import ProjectCreator from '@/components/ProjectCreator';
 import AIMemory from '@/components/AIMemory';
 import DatabaseTables from '@/components/DatabaseTables';
 import MiniAIDashboard from '@/components/MiniAIDashboard';
+import MindMapsCreator from '@/components/MindMapsCreator';
+import BrowserCore from '@/components/BrowserCore';
+import LinkCollector from '@/components/LinkCollector';
+import FloatingActionKey from '@/components/FloatingActionKey';
+import DataStructuresTables from '@/components/DataStructuresTables';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('agi-core');
@@ -102,33 +107,37 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
-      {/* Header */}
+      {/* Header - Improved Mobile Responsiveness */}
       <header className="border-b border-blue-800/30 bg-slate-900/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Brain className="h-8 w-8 text-cyan-400" />
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <div className="flex items-center space-x-1 md:space-x-2">
+                <Brain className="h-6 w-6 md:h-8 md:w-8 text-cyan-400" />
+                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   KAROL LAB
                 </h1>
               </div>
-              <Badge variant="outline" className="border-green-500/50 text-green-400">
-                AGI Core v3.0 + FUKO-PZK + Mini AI
-              </Badge>
-              <Badge variant="outline" className={getStatusColor(systemStatus)}>
-                Status: {systemStatus}
-              </Badge>
+              <div className="hidden md:flex items-center space-x-2">
+                <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
+                  AGI Core v3.0 + FUKO-PZK + Mini AI
+                </Badge>
+                <Badge variant="outline" className={getStatusColor(systemStatus)}>
+                  Status: {systemStatus}
+                </Badge>
+              </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm">
-                <Activity className="h-4 w-4 text-green-400" />
-                <span className="text-green-400">FUKO System Online</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <Keyboard className="h-4 w-4 text-cyan-400" />
-                <span className="text-cyan-400">Shortcuts Active</span>
+            <div className="flex items-center space-x-2">
+              <div className="hidden lg:flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm">
+                  <Activity className="h-4 w-4 text-green-400" />
+                  <span className="text-green-400">FUKO System Online</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm">
+                  <Keyboard className="h-4 w-4 text-cyan-400" />
+                  <span className="text-cyan-400">Shortcuts Active</span>
+                </div>
               </div>
               <Button
                 onClick={handleEmergencyStop}
@@ -136,49 +145,59 @@ const Index = () => {
                 size="sm"
                 className="border-red-500/50 text-red-400 hover:bg-red-500/10"
               >
-                <Zap className="h-4 w-4 mr-1" />
-                Emergency Stop
+                <Zap className="h-4 w-4 md:mr-1" />
+                <span className="hidden md:inline">Emergency Stop</span>
               </Button>
             </div>
+          </div>
+
+          {/* Mobile Status Badges */}
+          <div className="md:hidden mt-2 flex items-center space-x-2">
+            <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
+              AGI v3.0
+            </Badge>
+            <Badge variant="outline" className={getStatusColor(systemStatus)}>
+              {systemStatus}
+            </Badge>
           </div>
         </div>
       </header>
 
-      {/* Main Navigation */}
-      <div className="container mx-auto px-4 py-6">
+      {/* Main Navigation - Improved Mobile */}
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
         <Tabs value={activeModule} onValueChange={setActiveModule} className="w-full">
-          <TabsList className="grid w-full grid-cols-8 bg-slate-800/50 border border-blue-800/30">
-            <TabsTrigger value="agi-core" className="flex items-center space-x-2">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 bg-slate-800/50 border border-blue-800/30 h-auto">
+            <TabsTrigger value="agi-core" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
               <Brain className="h-4 w-4" />
-              <span>AGI Core</span>
+              <span className="text-xs md:text-sm">AGI Core</span>
             </TabsTrigger>
-            <TabsTrigger value="mini-ai" className="flex items-center space-x-2">
+            <TabsTrigger value="browser-core" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
+              <Search className="h-4 w-4" />
+              <span className="text-xs md:text-sm">Browser</span>
+            </TabsTrigger>
+            <TabsTrigger value="mind-maps" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
+              <Map className="h-4 w-4" />
+              <span className="text-xs md:text-sm">Mind Maps</span>
+            </TabsTrigger>
+            <TabsTrigger value="link-collector" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
+              <Link className="h-4 w-4" />
+              <span className="text-xs md:text-sm">Links</span>
+            </TabsTrigger>
+            <TabsTrigger value="mini-ai" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
               <Bot className="h-4 w-4" />
-              <span>Mini AI</span>
+              <span className="text-xs md:text-sm">Mini AI</span>
             </TabsTrigger>
-            <TabsTrigger value="openai-chat" className="flex items-center space-x-2">
+            <TabsTrigger value="openai-chat" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
               <MessageSquare className="h-4 w-4" />
-              <span>OpenAI Chat</span>
+              <span className="text-xs md:text-sm">OpenAI</span>
             </TabsTrigger>
-            <TabsTrigger value="fuko-console" className="flex items-center space-x-2">
-              <MessageSquare className="h-4 w-4" />
-              <span>FUKO-PZK</span>
+            <TabsTrigger value="data-tables" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
+              <Database className="h-4 w-4" />
+              <span className="text-xs md:text-sm">Data</span>
             </TabsTrigger>
-            <TabsTrigger value="startup-lab" className="flex items-center space-x-2">
-              <Rocket className="h-4 w-4" />
-              <span>Startup Lab</span>
-            </TabsTrigger>
-            <TabsTrigger value="command-room" className="flex items-center space-x-2">
-              <Command className="h-4 w-4" />
-              <span>Command Room</span>
-            </TabsTrigger>
-            <TabsTrigger value="memory-db" className="flex items-center space-x-2">
+            <TabsTrigger value="dev-console" className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-2 py-2 md:py-1">
               <Terminal className="h-4 w-4" />
-              <span>Memory & DB</span>
-            </TabsTrigger>
-            <TabsTrigger value="dev-console" className="flex items-center space-x-2">
-              <Terminal className="h-4 w-4" />
-              <span>Dev Console</span>
+              <span className="text-xs md:text-sm">Console</span>
             </TabsTrigger>
           </TabsList>
 
@@ -191,6 +210,18 @@ const Index = () => {
                 <MicrophoneControl />
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="browser-core" className="mt-6 h-[calc(100vh-200px)]">
+            <BrowserCore />
+          </TabsContent>
+
+          <TabsContent value="mind-maps" className="mt-6 h-[calc(100vh-200px)]">
+            <MindMapsCreator />
+          </TabsContent>
+
+          <TabsContent value="link-collector" className="mt-6">
+            <LinkCollector />
           </TabsContent>
 
           <TabsContent value="mini-ai" className="mt-6">
@@ -211,30 +242,24 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="fuko-console" className="mt-6">
-            <FUKOConsole />
-          </TabsContent>
-
-          <TabsContent value="startup-lab" className="mt-6">
-            <StartupLab />
-          </TabsContent>
-
-          <TabsContent value="command-room" className="mt-6">
-            <CommandRoom />
-          </TabsContent>
-
-          <TabsContent value="memory-db" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AIMemory />
-              <DatabaseTables />
-            </div>
+          <TabsContent value="data-tables" className="mt-6">
+            <DataStructuresTables />
           </TabsContent>
 
           <TabsContent value="dev-console" className="mt-6">
-            <DeveloperConsole />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <DeveloperConsole />
+              <div className="space-y-6">
+                <AIMemory />
+                <DatabaseTables />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Floating Action Key */}
+      <FloatingActionKey />
 
       {/* Keyboard Shortcuts Component */}
       <KeyboardShortcuts />
