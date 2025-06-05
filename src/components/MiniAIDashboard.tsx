@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bot, Plus, Pin, Play, Pause, Trash2, Zap, Memory, Link } from 'lucide-react';
+import { Bot, Plus, Pin, Play, Pause, Trash2, Zap, Brain, Link } from 'lucide-react';
 import { miniAIService } from '@/services/miniAIService';
 import { MiniAI, MiniAIExecution, MemoryEntry } from '@/types/miniAI';
 
@@ -170,7 +169,7 @@ const MiniAIDashboard = () => {
             <span>Wykonania</span>
           </TabsTrigger>
           <TabsTrigger value="memory" className="flex items-center space-x-2">
-            <Memory className="h-4 w-4" />
+            <Brain className="h-4 w-4" />
             <span>Pamięć</span>
           </TabsTrigger>
           <TabsTrigger value="creator" className="flex items-center space-x-2">
@@ -319,7 +318,7 @@ const MiniAIDashboard = () => {
                 ))}
                 {memory.length === 0 && (
                   <div className="text-center text-slate-400 py-8">
-                    <Memory className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>Pamięć jest pusta. Wykonaj akcje aby tworzyć wspomnienia.</p>
                   </div>
                 )}
