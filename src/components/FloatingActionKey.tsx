@@ -23,18 +23,36 @@ interface FloatingActionKeyProps {
 const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: FloatingActionKeyProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight / 2 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  // Check if mobile and set initial position
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      
+      if (mobile) {
+        setPosition({ x: window.innerWidth - 70, y: window.innerHeight - 150 });
+      } else {
+        setPosition({ x: window.innerWidth - 80, y: window.innerHeight / 2 });
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const quickActions: QuickAction[] = [
     {
       id: 'brain',
       icon: <Brain className="h-4 w-4" />,
       label: 'AGI Core',
-      shortcut: 'F1',
+      shortcut: 'Alt+F1',
       action: () => {
         console.log('AGI Core activated');
-        // Przełącz na tab AGI Core
         const agiTab = document.querySelector('[value="agi-core"]') as HTMLButtonElement;
         if (agiTab) agiTab.click();
       },
@@ -44,7 +62,7 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
       id: 'mini-ai',
       icon: <Bot className="h-4 w-4" />,
       label: 'Mini AI',
-      shortcut: 'F2',
+      shortcut: 'Alt+F2',
       action: () => {
         console.log('Mini AI activated');
         onOpenMiniAI?.();
@@ -57,7 +75,7 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
       id: 'browser',
       icon: <Search className="h-4 w-4" />,
       label: 'Browser',
-      shortcut: 'F3',
+      shortcut: 'Alt+F3',
       action: () => {
         console.log('Browser activated');
         onOpenBrowser?.();
@@ -70,20 +88,19 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
       id: 'links',
       icon: <Link className="h-4 w-4" />,
       label: 'Extract Links',
-      shortcut: 'F4',
+      shortcut: 'Alt+F4',
       action: () => {
         console.log('Link extraction activated');
         onExtractLinks?.();
-        // Przełącz na Link Collector i rozpocznij ekstrakcję
         const linkTab = document.querySelector('[value="link-collector"]') as HTMLButtonElement;
         if (linkTab) linkTab.click();
         
-        // Pokaż notyfikację o ekstrakcji
+        // Show notification
         const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 max-w-md';
+        notification.className = 'fixed top-4 right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg z-50 max-w-sm';
         notification.innerHTML = `
-          <div class="font-bold">Ekstrakcja Linków</div>
-          <div class="text-sm">Rozpoczynam ekstrakcję linków z aktualnej strony...</div>
+          <div class="font-bold text-sm">Ekstrakcja Linków</div>
+          <div class="text-xs">Rozpoczynam ekstrakcję linków z aktualnej strony...</div>
         `;
         
         document.body.appendChild(notification);
@@ -100,7 +117,7 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
       id: 'mindmap',
       icon: <Map className="h-4 w-4" />,
       label: 'Mind Maps',
-      shortcut: 'F5',
+      shortcut: 'Alt+F5',
       action: () => {
         console.log('Mind Maps activated');
         const mindMapTab = document.querySelector('[value="mind-maps"]') as HTMLButtonElement;
@@ -112,10 +129,9 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
       id: 'command',
       icon: <Command className="h-4 w-4" />,
       label: 'Command Room',
-      shortcut: 'F6',
+      shortcut: 'Alt+F6',
       action: () => {
         console.log('Command Room activated');
-        // Implementuj przejście do Command Room
       },
       color: 'bg-red-500'
     }
@@ -143,19 +159,49 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
     setIsDragging(false);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragOffset({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y
+    });
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (isDragging && e.touches[0]) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const newX = Math.max(0, Math.min(window.innerWidth - 60, touch.clientX - dragOffset.x));
+      const newY = Math.max(0, Math.min(window.innerHeight - 60, touch.clientY - dragOffset.y));
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
   }, [isDragging, dragOffset]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts (only for desktop)
   useEffect(() => {
+    if (isMobile) return;
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey) {
         switch (e.key) {
@@ -193,29 +239,30 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isExpanded]);
+  }, [isExpanded, isMobile]);
 
   return (
     <>
       {/* Main Floating Button */}
       <div
-        className={`fixed z-50 transition-all duration-300 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`fixed z-50 transition-all duration-300 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} ${isMobile ? 'touch-manipulation' : ''}`}
         style={{ left: position.x, top: position.y }}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
       >
         <Button
           onClick={() => setIsExpanded(!isExpanded)}
-          className={`w-14 h-14 rounded-full shadow-lg transition-all duration-300 ${
+          className={`${isMobile ? 'w-12 h-12' : 'w-14 h-14'} rounded-full shadow-lg transition-all duration-300 ${
             isExpanded 
               ? 'bg-red-600 hover:bg-red-700 rotate-45' 
               : 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600'
           }`}
         >
-          {isExpanded ? <X className="h-6 w-6" /> : <Zap className="h-6 w-6" />}
+          {isExpanded ? <X className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} /> : <Zap className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />}
         </Button>
 
-        {/* Tooltip for main button */}
-        {!isExpanded && (
+        {/* Tooltip for main button (desktop only) */}
+        {!isExpanded && !isMobile && (
           <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-slate-800 text-white px-3 py-1 rounded text-sm whitespace-nowrap opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
             Karol Core Quick Actions (Alt + `)
           </div>
@@ -227,25 +274,25 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
         <div 
           className="fixed z-40 transition-all duration-300"
           style={{ 
-            left: Math.max(10, position.x - 300), 
-            top: Math.max(10, position.y - 200),
+            left: isMobile ? Math.max(10, position.x - 280) : Math.max(10, position.x - 300), 
+            top: isMobile ? Math.max(10, position.y - 150) : Math.max(10, position.y - 200),
             maxWidth: 'calc(100vw - 20px)',
             maxHeight: 'calc(100vh - 20px)'
           }}
         >
           <Card className="bg-slate-800/95 border-cyan-500/30 backdrop-blur-sm shadow-xl">
-            <CardContent className="p-4">
+            <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Brain className="h-5 w-5 text-cyan-400" />
-                  <h3 className="text-white font-medium">Karol Core</h3>
+                  <h3 className="text-white font-medium text-sm">Karol Core</h3>
                 </div>
-                <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+                <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50 text-xs">
                   Quick Actions
                 </Badge>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid ${isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-2 gap-3'}`}>
                 {quickActions.map((action) => (
                   <Button
                     key={action.id}
@@ -254,23 +301,25 @@ const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: Floa
                       setIsExpanded(false);
                     }}
                     variant="outline"
-                    className="h-16 flex flex-col items-center justify-center space-y-1 border-slate-600 hover:border-cyan-500/50 transition-all"
+                    className={`${isMobile ? 'h-14' : 'h-16'} flex flex-col items-center justify-center space-y-1 border-slate-600 hover:border-cyan-500/50 transition-all`}
                   >
-                    <div className={`w-8 h-8 rounded-full ${action.color} flex items-center justify-center`}>
+                    <div className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full ${action.color} flex items-center justify-center`}>
                       {action.icon}
                     </div>
                     <span className="text-xs text-slate-300">{action.label}</span>
-                    <Badge variant="outline" className="text-xs px-1 py-0">
-                      {action.shortcut}
-                    </Badge>
+                    {!isMobile && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {action.shortcut.replace('Alt+', '')}
+                      </Badge>
+                    )}
                   </Button>
                 ))}
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-700">
                 <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>Przeciągnij, aby przenieść</span>
-                  <span>Alt + ` aby zamknąć</span>
+                  <span>{isMobile ? 'Przeciągnij' : 'Przeciągnij, aby przenieść'}</span>
+                  {!isMobile && <span>Alt + ` aby zamknąć</span>}
                 </div>
               </div>
             </CardContent>

@@ -1,16 +1,18 @@
+
 import { ChatMessage, Agent, Project, MemoryEntry, ProjectFile } from '@/types/openai';
 
 class OpenAIService {
   private baseURL = 'https://api.openai.com/v1';
+  private apiKey = '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';
+  private vectorStoreId = 'vs_67e0601510188191a419f8ee23dd0110';
   
-  // Usunięty nieprawidłowy klucz API - będzie używany fallback
   private agents: Agent[] = [
     {
       id: '@ceo',
-      name: 'CEO Agent',
-      description: 'Strategic decision making and high-level planning',
-      assistantId: 'asst_default',
-      instructions: 'You are a CEO-level strategic assistant for Karol Core system.',
+      name: 'CEO Agent (Karol-Core)',
+      description: 'Strategic decision making and high-level planning - Karol Core Identity',
+      assistantId: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+      instructions: 'You are the CEO-level strategic assistant for Karol Core system with full access to project memory and decision-making capabilities.',
       isActive: true
     },
     {
@@ -28,6 +30,14 @@ class OpenAIService {
       assistantId: 'asst_default',
       instructions: 'You monitor system security and handle alerts.',
       isActive: true
+    },
+    {
+      id: '@system-admin',
+      name: 'System Admin',
+      description: 'System administration and maintenance',
+      assistantId: 'asst_default',
+      instructions: 'You handle system administration tasks.',
+      isActive: true
     }
   ];
 
@@ -40,31 +50,60 @@ class OpenAIService {
       throw new Error(`Agent ${agentId} not found`);
     }
 
-    // Symulacja odpowiedzi zamiast rzeczywistego API call
-    const responses = [
-      "Rozumiem Twoje zapytanie. Jako agent CEO, analizuję strategiczne aspekty tego problemu...",
-      "Z perspektywy zarządzania, sugeruję następujące kroki...",
-      "Jako Voice Core, przetwarzam Twoje polecenie głosowe...",
-      "Guardian Core monitoruje bezpieczeństwo systemu. Wszystko w normie.",
-      "Analizuję kontekst Twojej wiadomości i przygotowuję odpowiedź..."
-    ];
+    try {
+      const response = await fetch(`${this.baseURL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4-1106-preview',
+          messages: [
+            {
+              role: 'system',
+              content: `${agent.instructions}\n\nYou are part of the Karol-Core AGI system. Respond as ${agent.name} with appropriate expertise and personality.`
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          max_tokens: 1500,
+          temperature: 0.7
+        }),
+      });
 
-    // Symulacja delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.statusText}`);
+      }
 
-    const responseText = responses[Math.floor(Math.random() * responses.length)] + 
-      ` Odpowiadając na: "${message}"`;
+      const data = await response.json();
+      const responseText = data.choices[0].message.content;
 
-    // Store in memory
-    this.addToMemory(agentId, message, responseText);
+      // Store in memory
+      this.addToMemory(agentId, message, responseText);
 
-    return {
-      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      role: 'assistant',
-      content: responseText,
-      timestamp: new Date(),
-      agentId
-    };
+      return {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        role: 'assistant',
+        content: responseText,
+        timestamp: new Date(),
+        agentId
+      };
+    } catch (error) {
+      console.error('OpenAI API Error:', error);
+      // Fallback response
+      const fallbackText = `[${agent.name}] Przepraszam, wystąpił błąd podczas komunikacji. Sprawdzam połączenie z systemem Karol-Core...`;
+      
+      return {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        role: 'assistant',
+        content: fallbackText,
+        timestamp: new Date(),
+        agentId
+      };
+    }
   }
 
   async uploadFile(file: File, projectId?: string): Promise<ProjectFile> {
