@@ -1,0 +1,18 @@
+{
+  "intent_scoring": {
+    "DECIDE_FAST": 0.91,
+    "OBSERVE": 0.36,
+    "REFLECT_DEEP": 0.77,
+    "ACT_ON_PATTERN": 0.84
+  },
+  "thresholds": {
+    "critical_action": 0.85,
+    "warn": 0.55,
+    "pause": 0.4
+  },
+  "style_bias": {
+    "boldness": 0.72,
+    "rhythm": "syncopated",
+    "reflex": "enabled"
+  }
+}

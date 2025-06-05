@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>KarolCore AGI Suite</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; max-width: 800px; margin: auto; }
+    textarea, select, button { width: 100%; margin-top: 1em; padding: 0.5em; }
+    pre { background: #f3f3f3; padding: 1em; margin-top: 1em; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>KarolCore AGI Suite – Dashboard</h1>
+
+  <label for="agent">Wybierz Agenta:</label>
+  <select id="agent">
+    <option value="mentor">Mentor AGI</option>
+    <option value="ceo">CEO AGI</option>
+  </select>
+
+  <textarea id="input" rows="5" placeholder="Zadaj pytanie..."></textarea>
+  <button onclick="submitQuestion()">Zadaj pytanie</button>
+
+  <pre id="output">Odpowiedź pojawi się tutaj...</pre>
+
+  <script>
+    async function submitQuestion() {
+      const agent = document.getElementById('agent').value;
+      const input = document.getElementById('input').value;
+      const output = document.getElementById('output');
+      output.textContent = "Czekaj...";
+
+      const response = await fetch('http://localhost:8000/agi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input, agent })
+      });
+
+      const result = await response.json();
+      output.textContent = JSON.stringify(result, null, 2);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+META (Poziom 1):
+META to element poziomu 1 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+RDZEN (Poziom 1):
+RDZEN to element poziomu 1 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB (Poziom 2):
+FUKO_PROB to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM (Poziom 2):
+FUKO_RAM to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_ID (Poziom 2):
+FUKO_ID to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_AUDITOR (Poziom 2):
+FUKO_AUDITOR to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_MULTI (Poziom 2):
+FUKO_MULTI to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_SYNC (Poziom 2):
+FUKO_SYNC to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+SYSTEM_FAILSAFE (Poziom 2):
+SYSTEM_FAILSAFE to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION (Poziom 2):
+META_DECISION to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_OSINT (Poziom 2):
+FUKO_OSINT to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+STYLE_LICENSE (Poziom 2):
+STYLE_LICENSE to element poziomu 2 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_0 (Poziom 3):
+FUKO_PROB_0 to element poziomu 3 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1 (Poziom 3):
+FUKO_PROB_1 to element poziomu 3 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2 (Poziom 3):
+FUKO_PROB_2 to element poziomu 3 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_0 (Poziom 3):
+FUKO_RAM_0 to element poziomu 3 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1 (Poziom 3):
+FUKO_RAM_1 to element poziomu 3 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2 (Poziom 3):
+FUKO_RAM_2 to element poziomu 3 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_0_0 (Poziom 4):
+FUKO_PROB_0_0 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_0_1 (Poziom 4):
+FUKO_PROB_0_1 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_0 (Poziom 4):
+FUKO_PROB_1_0 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_1 (Poziom 4):
+FUKO_PROB_1_1 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2_0 (Poziom 4):
+FUKO_PROB_2_0 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2_1 (Poziom 4):
+FUKO_PROB_2_1 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_0_0 (Poziom 4):
+FUKO_RAM_0_0 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_0_1 (Poziom 4):
+FUKO_RAM_0_1 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1_0 (Poziom 4):
+FUKO_RAM_1_0 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1_1 (Poziom 4):
+FUKO_RAM_1_1 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_0 (Poziom 4):
+FUKO_RAM_2_0 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1 (Poziom 4):
+FUKO_RAM_2_1 to element poziomu 4 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_0_0_desc (Poziom 5):
+FUKO_PROB_0_0_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_0_1_desc (Poziom 5):
+FUKO_PROB_0_1_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_0_desc (Poziom 5):
+FUKO_PROB_1_0_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_1_desc (Poziom 5):
+FUKO_PROB_1_1_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2_0_desc (Poziom 5):
+FUKO_PROB_2_0_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2_1_desc (Poziom 5):
+FUKO_PROB_2_1_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_0_0_desc (Poziom 5):
+FUKO_RAM_0_0_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_0_1_desc (Poziom 5):
+FUKO_RAM_0_1_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1_0_desc (Poziom 5):
+FUKO_RAM_1_0_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1_1_desc (Poziom 5):
+FUKO_RAM_1_1_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_0_desc (Poziom 5):
+FUKO_RAM_2_0_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1_desc (Poziom 5):
+FUKO_RAM_2_1_desc to element poziomu 5 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1 (Poziom 6):
+FUKO_RAM_2_1 to element poziomu 6 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_0 (Poziom 6):
+FUKO_PROB_1_0 to element poziomu 6 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_0_0 (Poziom 6):
+FUKO_RAM_0_0 to element poziomu 6 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_0_0 (Poziom 6):
+FUKO_PROB_0_0 to element poziomu 6 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_0_w0 (Poziom 7):
+FUKO_PROB_1_0_w0 to element poziomu 7 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_AUDITOR_1_1_w0 (Poziom 7):
+FUKO_AUDITOR_1_1_w0 to element poziomu 7 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_AUDITOR_1_1_w1 (Poziom 7):
+FUKO_AUDITOR_1_1_w1 to element poziomu 7 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_1_0_w1 (Poziom 7):
+FUKO_PROB_1_0_w1 to element poziomu 7 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1_w1 (Poziom 7):
+FUKO_RAM_2_1_w1 to element poziomu 7 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1_w0 (Poziom 7):
+FUKO_RAM_2_1_w0 to element poziomu 7 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1_1_fb1 (Poziom 8):
+FUKO_RAM_1_1_fb1 to element poziomu 8 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2_1_fb0 (Poziom 8):
+FUKO_PROB_2_1_fb0 to element poziomu 8 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_PROB_2_1_fb1 (Poziom 8):
+FUKO_PROB_2_1_fb1 to element poziomu 8 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION_1_0_fb0 (Poziom 8):
+META_DECISION_1_0_fb0 to element poziomu 8 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_1_1_fb0 (Poziom 8):
+FUKO_RAM_1_1_fb0 to element poziomu 8 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION_1_0_fb1 (Poziom 8):
+META_DECISION_1_0_fb1 to element poziomu 8 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION_0_0_md1 (Poziom 9):
+META_DECISION_0_0_md1 to element poziomu 9 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION_2_1_md1 (Poziom 9):
+META_DECISION_2_1_md1 to element poziomu 9 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION_2_1_md0 (Poziom 9):
+META_DECISION_2_1_md0 to element poziomu 9 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_AUDITOR_2_1_md0 (Poziom 9):
+FUKO_AUDITOR_2_1_md0 to element poziomu 9 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_AUDITOR_2_1_md1 (Poziom 9):
+FUKO_AUDITOR_2_1_md1 to element poziomu 9 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_DECISION_0_0_md0 (Poziom 9):
+META_DECISION_0_0_md0 to element poziomu 9 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_0_o0 (Poziom 10):
+META_0_o0 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1_o0 (Poziom 10):
+FUKO_RAM_2_1_o0 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_ID_2_0_o1 (Poziom 10):
+FUKO_ID_2_0_o1 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_0_o1 (Poziom 10):
+META_0_o1 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_ID_2_0_o0 (Poziom 10):
+FUKO_ID_2_0_o0 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+FUKO_RAM_2_1_o1 (Poziom 10):
+FUKO_RAM_2_1_o1 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+
+META_0_o2 (Poziom 10):
+META_0_o2 to element poziomu 10 w systemie Karol-Core. Pełni funkcję związaną z logiką, stylem lub decyzją w hierarchii. Wspiera rozwój wpływu, pamięci lub autorefleksji systemu.
+

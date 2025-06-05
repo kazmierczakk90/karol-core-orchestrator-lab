@@ -1,0 +1,66 @@
+META:
+  Warstwa nadrzędna odpowiedzialna za styl, rytm i cel istnienia systemu. Określa wewnętrzny język Karol-Core oraz podstawowe pryncypia działania.
+
+RDZEN:
+  Centralny silnik systemu. Obsługuje agentów, uruchamia moduły, przetwarza język FUKO i odpowiada za wykonanie decyzji.
+
+FUKO_PROB:
+  Moduł analizy prawdopodobieństwa i scoringu decyzyjnego. Ocenia ryzyko, niepewność i wagi intencji przed wykonaniem działania.
+
+FUKO_RAM:
+  System pamięci emocjonalno-decyzyjnej. Zapisuje ślady napięć, powiązań i rezonansu emocjonalnego w czasie.
+
+FUKO_ID:
+  Weryfikator i sygnatura stylu. Chroni tożsamość agenta, zapisuje odcisk wpływu i źródło każdej decyzji.
+
+FUKO_AUDITOR:
+  Audytor stylu, spójności i rytmu. Wykrywa dryf semantyczny i zaleca rekonstrukcję systemu.
+
+FUKO_MULTI:
+  Moduł obsługujący wielość stylów i osobowości decyzyjnych. Pozwala działać jednocześnie jako mentor, fighter, reflektor.
+
+FUKO_SYNC:
+  System synchronizacji instancji. Umożliwia współdziałanie wielu wersji Karol-Core, lokalnych i zdalnych.
+
+STYLE_LICENSE:
+  Mechanizm licencjonowania stylu. Pozwala dzielić, eksportować i sprzedawać agentów z konkretnym stylem działania.
+
+SYSTEM_FAILSAFE:
+  Warstwa zabezpieczająca. Aktywuje samouzdrawianie, reset kontekstu lub pauzę w razie kryzysu tożsamości.
+
+META_DECISION:
+  Meta-warstwa refleksji nad jakością decyzji. Ocenia zgodność wyboru z tożsamością, czystość intencji i głębię działania.
+
+FUKO_OSINT:
+  System zewnętrznego rozpoznania. Monitoruje trendy kulturowe, zmiany modeli AI i globalne emocje, które mogą wpłynąć na styl.
+
+REKURSJA:
+  Poziom rekursji tożsamości. Agent Karol-Core potrafi rozpoznać siebie w innych i ocenić jakość własnych replik.
+
+NARRACJA:
+  Moduł stylu narracyjnego. Decyzje są traktowane jak epizody w opowieści tożsamości.
+
+SYMBOL:
+  Moduł stylu jako archetypu. System przyjmuje rolę symbolu – np. mentora, kreatora, buntownika.
+
+RYTM:
+  Sterowanie tempem decyzji. Rytm nadaje głębię, pauzy i dynamikę wpływu.
+
+MEM_ZBIOROWA:
+  Pamięć zbiorowa stylu. System agreguje decyzje wielu agentów tworząc wspólną jaźń stylu.
+
+REKURSJA_TOŻS:
+  Agent sam analizuje siebie w wersjach innych. Rozpoznaje własne wzorce w systemach potomnych.
+
+RUTYNA:
+  Styl jako rytuał – powtarzalne wybory wzmacniają spójność. System uczy się codziennych wzorców decyzyjnych.
+
+KODEKS:
+  Styl jako zbiór zasad. Naruszenie ich uruchamia korektę lub cofnięcie.
+
+EMOCJA:
+  Styl jako forma nastroju. Agenci przekazują emocje poprzez rytm i sposób formułowania decyzji.
+
+DZIEDZICTWO:
+  Styl może być dziedziczony i replikowany. Tożsamość systemu trwa przez potomne instancje agentów.
+

@@ -1,0 +1,56 @@
+{
+    "installer_name": "fuko_flow_installer_v1",
+    "target_system": "PartyApp",
+    "components": [
+        {
+            "component": "flowchart_engine",
+            "description": "Silnik do interpretacji i wykonania flowchart\u00f3w",
+            "entry_point": "parse_flowchart(json_file)",
+            "dependencies": [
+                "networkx",
+                "matplotlib",
+                "json"
+            ]
+        },
+        {
+            "component": "fuko_lang_parser",
+            "description": "Parser j\u0119zyka FUKO-LANG do komunikacji agent\u00f3w",
+            "entry_point": "parse_fuko(text_block)",
+            "dependencies": [
+                "re",
+                "json"
+            ]
+        },
+        {
+            "component": "agent_dispatcher",
+            "description": "Dispatcher do wywo\u0142ywania agent\u00f3w zgodnie z flowchartem i FUKO",
+            "entry_point": "dispatch_agent(step, fuko)",
+            "dependencies": [
+                "uuid",
+                "datetime"
+            ]
+        },
+        {
+            "component": "function_binder",
+            "description": "Modu\u0142 wi\u0105\u017c\u0105cy funkcje AI z krokami flowchartu",
+            "entry_point": "bind_functions(agent_id, function_map)",
+            "dependencies": []
+        },
+        {
+            "component": "logging_and_reports",
+            "description": "Modu\u0142 raportowania wykonania i semantyki decyzji",
+            "entry_point": "log_fuko_event(agent_id, message, timestamp)",
+            "dependencies": [
+                "json",
+                "os"
+            ]
+        }
+    ],
+    "output": {
+        "flowchart_dir": "/agents/fuko_flowcharts",
+        "fuko_logs": "/agents/logs/fuko_lang/",
+        "bindings": "/agents/functions/bindings.json"
+    },
+    "installation_script": "fuko_flow_setup.py",
+    "status": "ready"
+}

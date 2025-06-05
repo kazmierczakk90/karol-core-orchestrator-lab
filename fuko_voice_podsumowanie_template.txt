@@ -1,0 +1,29 @@
+1. Wstęp: Cel rozmowy i kierunek rozwoju
+{...}
+
+2. System agentów FUKO-FLOW – podstawy i wdrożenie
+{...}
+
+3. Rozbudowa reguł decyzyjnych – FUKO-LANG i flowcharty
+{...}
+
+4. Przejście do systemu głosowego – @voice i analiza tonu
+{...}
+
+5. Reguły głosowe – struktura, kontekst, zastosowanie
+{...}
+
+6. Personalizacja przez persony AI
+{...}
+
+7. Roadmapa wdrożeniowa dla systemu głosowego
+{...}
+
+8. Pliki i integracje: JSON, YAML, CSV, BAT, ICS
+{...}
+
+9. Interfejsy i narzędzia: dashboardy, edytory, kreatory
+{...}
+
+10. Zakończenie: kolejny etap i potencjał systemu
+{...}

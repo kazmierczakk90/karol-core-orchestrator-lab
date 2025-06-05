@@ -1,0 +1,38 @@
+{
+    "module": "FUKO-FLOW_AGENT_LIVE_LOG",
+    "version": "1.0",
+    "author": "Karol Kaźmierczak",
+    "description": "Aktywuje tryb LIVE do rejestrowania relacji między agentami FUKO-FLOW.",
+    "activation": {
+        "mode": "LIVE",
+        "status": "enabled",
+        "start_timestamp": "auto",
+        "agents_in_scope": [
+            "@voice-core",
+            "@logger",
+            "@ceo",
+            "@router"
+        ],
+        "log_structure": [
+            "agent_source",
+            "agent_target",
+            "intent",
+            "data_payload",
+            "context",
+            "condition",
+            "action",
+            "timestamp",
+            "confidence_score",
+            "response_expected",
+            "priority",
+            "relation_type"
+        ],
+        "integration_ready": true,
+        "compatible_with": [
+            "Make.com",
+            "Zapier",
+            "ChatGPT Assistants",
+            "OpenAI Agents"
+        ]
+    }
+}

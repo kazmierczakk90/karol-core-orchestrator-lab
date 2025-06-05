@@ -1,0 +1,19 @@
+{
+    "module": "FUKO-FLOW_AGENT_LIVE_LOG",
+    "version": "1.0",
+    "author": "Karol Kaźmierczak",
+    "description": "Dezaktywuje tryb LIVE do rejestrowania relacji między agentami FUKO-FLOW.",
+    "activation": {
+        "mode": "LIVE",
+        "status": "disabled",
+        "deactivation_timestamp": "auto",
+        "agents_in_scope": [
+            "@voice-core",
+            "@logger",
+            "@ceo",
+            "@router"
+        ],
+        "log_structure": "unchanged",
+        "integration_ready": false
+    }
+}

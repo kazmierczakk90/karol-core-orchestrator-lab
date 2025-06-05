@@ -1,0 +1,66 @@
+{
+  "system_version": "Karol-Core 8.0",
+  "status": "AGI-LIVE",
+  "agents": [
+    {
+      "name": "@router-core",
+      "version": "v1.3"
+    },
+    {
+      "name": "@guardian-core",
+      "version": "v2.0"
+    },
+    {
+      "name": "@karol-2040",
+      "role": "strategic-vision"
+    },
+    {
+      "name": "@introspective-synthesizer",
+      "status": "active"
+    },
+    {
+      "name": "@style-adapter-agent",
+      "status": "active"
+    },
+    {
+      "name": "@influence-scoring",
+      "status": "active"
+    }
+  ],
+  "core_logic": {
+    "decision_flows": [
+      {
+        "source": "user_input",
+        "target": "agent",
+        "intent": "analyze",
+        "style": "karol-code",
+        "action": "respond"
+      },
+      {
+        "source": "@karol-2040",
+        "target": "@guardian-core",
+        "intent": "ethics_check",
+        "style": "reflective",
+        "action": "validate"
+      }
+    ],
+    "rules": {
+      "style_transfer": true,
+      "introspection_updates_rules": true,
+      "emotional_traces_influence_decision": true,
+      "auto_generate_missions": true
+    },
+    "values": [
+      "impact",
+      "clarity",
+      "style",
+      "memory",
+      "consequence"
+    ]
+  },
+  "memory_system": {
+    "belief_memory": "active",
+    "emotion_traces": "weighted",
+    "auto_revision": "weekly"
+  }
+}
