@@ -1,464 +1,510 @@
-
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, Command, AlertTriangle, Activity, Zap, MessageSquare } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { 
+  MessageSquare, 
+  Send, 
+  Activity, 
+  AlertTriangle, 
+  CheckCircle, 
+  Clock, 
+  XCircle,
+  Zap,
+  Brain,
+  Settings,
+  Play,
+  Pause
+} from 'lucide-react';
 import { fukoCore } from '@/services/fukoCore';
-import { FUKOMessage, Agent } from '@/types/fuko';
+import { FUKOMessage, Agent, KPIData } from '@/types/fuko';
 
 const FUKOConsole = () => {
   const [messages, setMessages] = useState<FUKOMessage[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [alerts, setAlerts] = useState<string[]>([]);
-  const [kpiData, setKpiData] = useState<any>({});
+  const [kpiData, setKpiData] = useState<KPIData>({});
+  const [activeTab, setActiveTab] = useState('messages');
   
-  // FUKO Message creation form
-  const [newMessage, setNewMessage] = useState({
-    F: '',
-    U: '',
-    K: '',
-    O: '',
-    P: '',
-    Z: '',
-    K2: '',
-    sourceAgent: '@ceo',
-    priority: 'medium' as const
-  });
+  // FUKO Message Form State
+  const [F, setF] = useState('');
+  const [U, setU] = useState('');
+  const [K, setK] = useState('');
+  const [O, setO] = useState('');
+  const [P, setP] = useState('');
+  const [Z, setZ] = useState('');
+  const [K2, setK2] = useState('');
+  const [sourceAgent, setSourceAgent] = useState('@user');
+  const [targetAgent, setTargetAgent] = useState('');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
 
   useEffect(() => {
     refreshData();
-    
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(refreshData, 5000);
+    const interval = setInterval(refreshData, 2000);
     return () => clearInterval(interval);
   }, []);
 
   const refreshData = () => {
     setMessages(fukoCore.getMessages());
     setAgents(fukoCore.getAgents());
-    setAlerts(fukoCore.getAlerts());
     setKpiData(fukoCore.getKPIData());
   };
 
   const createFUKOMessage = () => {
-    if (!newMessage.F || !newMessage.U || !newMessage.K2) {
-      alert('Funkcja (F), Uzasadnienie (U) i Komenda (K2) są wymagane');
+    if (!F.trim() || !U.trim()) {
+      alert('Funkcja (F) i Uzasadnienie (U) są wymagane');
       return;
     }
 
-    fukoCore.createFUKOMessage(
-      newMessage.F,
-      newMessage.U,
-      newMessage.K,
-      newMessage.O,
-      newMessage.P,
-      newMessage.Z,
-      newMessage.K2,
-      newMessage.sourceAgent,
-      newMessage.priority
-    );
-
-    // Reset form
-    setNewMessage({
-      F: '',
-      U: '',
-      K: '',
-      O: '',
-      P: '',
-      Z: '',
-      K2: '',
-      sourceAgent: '@ceo',
-      priority: 'medium'
-    });
-
+    fukoCore.createFUKOMessage(F, U, K, O, P, Z, K2, sourceAgent, priority as 'low' | 'medium' | 'high' | 'urgent');
+    
+    // Clear form
+    setF('');
+    setU('');
+    setK('');
+    setO('');
+    setP('');
+    setZ('');
+    setK2('');
+    setTargetAgent('');
+    
     refreshData();
   };
 
-  const executeScenario = (scenarioName: string) => {
-    const scenarios = {
-      'senior_health_check': { userId: 'senior_001' },
-      'lead_nurturing': { leadId: 'lead_12345', score: 85 },
-      'system_optimization': { currentLoad: 85 },
-      'emergency_response': { alertType: 'system_critical' }
-    };
-
-    fukoCore.executeScenario(scenarioName, scenarios[scenarioName]);
-    refreshData();
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return <CheckCircle className="h-4 w-4 text-green-400" />;
+      case 'processing': return <Clock className="h-4 w-4 text-blue-400" />;
+      case 'failed': return <XCircle className="h-4 w-4 text-red-400" />;
+      default: return <Clock className="h-4 w-4 text-yellow-400" />;
+    }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-500/20 text-red-400 border-red-500/50';
-      case 'high': return 'bg-orange-500/20 text-orange-400 border-orange-500/50';
-      case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
-      case 'low': return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
+      case 'urgent': return 'text-red-400 border-red-400/50';
+      case 'high': return 'text-orange-400 border-orange-400/50';
+      case 'medium': return 'text-blue-400 border-blue-400/50';
+      case 'low': return 'text-gray-400 border-gray-400/50';
+      default: return 'text-gray-400 border-gray-400/50';
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getAgentStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-500/20 text-green-400 border-green-500/50';
-      case 'processing': return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
-      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
-      case 'failed': return 'bg-red-500/20 text-red-400 border-red-500/50';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
+      case 'active': return 'text-green-400 border-green-400/50';
+      case 'dormant': return 'text-yellow-400 border-yellow-400/50';
+      case 'monitoring': return 'text-blue-400 border-blue-400/50';
+      default: return 'text-gray-400 border-gray-400/50';
     }
+  };
+
+  const executePresetScenario = (scenario: string) => {
+    switch (scenario) {
+      case 'club-onboarding':
+        fukoCore.createFUKOMessage(
+          'club_onboarding_initiate',
+          'New club registration detected',
+          'club_profile_incomplete',
+          'Complete club setup and activation',
+          'new_club_registered',
+          'club_database_access',
+          '/onboard_club',
+          '@club-manager',
+          'high'
+        );
+        break;
+      case 'lead-scoring':
+        fukoCore.createFUKOMessage(
+          'lead_qualification_analysis',
+          'Optimize lead conversion rates',
+          'lead_database_active',
+          'Update lead scores and priorities',
+          'lead_activity_detected',
+          'crm_system_online',
+          '/score_leads',
+          '@sales-agent',
+          'medium'
+        );
+        break;
+      case 'system-health':
+        fukoCore.createFUKOMessage(
+          'system_health_check',
+          'Routine system monitoring',
+          'all_agents_responsive',
+          'Generate health report',
+          'scheduled_maintenance',
+          'monitoring_tools',
+          '/health_check',
+          '@system-monitor',
+          'low'
+        );
+        break;
+    }
+    refreshData();
   };
 
   return (
     <div className="space-y-6">
-      <Card className="bg-slate-800/50 border-blue-800/30">
-        <CardHeader>
-          <CardTitle className="text-cyan-400 flex items-center space-x-2">
-            <Brain className="h-5 w-5" />
-            <span>FUKO-PZK Decision System</span>
-          </CardTitle>
-          <CardDescription className="text-slate-300">
-            Advanced agent decision framework with automated routing and execution
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-cyan-400">FUKO-PZK Console</h2>
+          <p className="text-slate-400">System Decyzyjny dla Agentów</p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
+            FUKO Active
+          </Badge>
+          <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+            {messages.length} Messages
+          </Badge>
+        </div>
+      </div>
 
-      <Tabs defaultValue="messages" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-blue-800/30">
-          <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="create">Create FUKO</TabsTrigger>
-          <TabsTrigger value="agents">Agents</TabsTrigger>
-          <TabsTrigger value="scenarios">Scenarios</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+      {/* Tabs */}
+      <div className="flex space-x-1 bg-slate-800/50 p-1 rounded-lg">
+        {[
+          { id: 'messages', label: 'Messages', icon: MessageSquare },
+          { id: 'create', label: 'Create FUKO', icon: Send },
+          { id: 'agents', label: 'Agents', icon: Brain },
+          { id: 'analytics', label: 'Analytics', icon: Activity }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
+              activeTab === tab.id 
+                ? 'bg-blue-600 text-white' 
+                : 'text-slate-400 hover:text-white hover:bg-slate-700'
+            }`}
+          >
+            <tab.icon className="h-4 w-4" />
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="messages">
-          <Card className="bg-slate-800/50 border-blue-800/30">
-            <CardHeader>
-              <CardTitle className="text-cyan-400 flex items-center space-x-2">
-                <MessageSquare className="h-5 w-5" />
-                <span>FUKO Messages</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                {messages.map((message) => (
-                  <Card key={message.id} className="bg-slate-900/50 border-slate-700/50">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Badge className={getPriorityColor(message.priority)}>
-                            {message.priority}
-                          </Badge>
-                          <Badge className={getStatusColor(message.status)}>
-                            {message.status}
-                          </Badge>
-                          <span className="text-sm text-slate-400">
-                            {message.sourceAgent} → {message.targetAgent || 'routing...'}
-                          </span>
-                        </div>
-                        <span className="text-xs text-slate-500">
-                          {message.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-cyan-400 font-semibold">F (Funkcja):</p>
-                          <p className="text-white">{message.F}</p>
-                        </div>
-                        <div>
-                          <p className="text-cyan-400 font-semibold">U (Uzasadnienie):</p>
-                          <p className="text-white">{message.U}</p>
-                        </div>
-                        <div>
-                          <p className="text-cyan-400 font-semibold">K (Kontekst):</p>
-                          <p className="text-white">{message.K}</p>
-                        </div>
-                        <div>
-                          <p className="text-cyan-400 font-semibold">O (Oczekiwany efekt):</p>
-                          <p className="text-white">{message.O}</p>
-                        </div>
-                        <div>
-                          <p className="text-cyan-400 font-semibold">P (Próg aktywacji):</p>
-                          <p className="text-white">{message.P}</p>
-                        </div>
-                        <div>
-                          <p className="text-cyan-400 font-semibold">Z (Zależność):</p>
-                          <p className="text-white">{message.Z}</p>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="text-cyan-400 font-semibold">K2 (Komenda):</p>
-                          <p className="text-white font-mono">{message.K2}</p>
-                        </div>
-                        {message.executionResult && (
-                          <div className="col-span-2">
-                            <p className="text-green-400 font-semibold">Wynik wykonania:</p>
-                            <p className="text-green-300">{message.executionResult}</p>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="create">
-          <Card className="bg-slate-800/50 border-blue-800/30">
-            <CardHeader>
-              <CardTitle className="text-cyan-400">Create FUKO Message</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="F" className="text-slate-300">F - Funkcja (Function)</Label>
-                  <Input
-                    id="F"
-                    value={newMessage.F}
-                    onChange={(e) => setNewMessage({...newMessage, F: e.target.value})}
-                    placeholder="Co agent ma wykonać"
-                    className="bg-slate-900/50 border-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="U" className="text-slate-300">U - Uzasadnienie (Justification)</Label>
-                  <Input
-                    id="U"
-                    value={newMessage.U}
-                    onChange={(e) => setNewMessage({...newMessage, U: e.target.value})}
-                    placeholder="Dlaczego to robi"
-                    className="bg-slate-900/50 border-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="K" className="text-slate-300">K - Kontekst (Context)</Label>
-                  <Input
-                    id="K"
-                    value={newMessage.K}
-                    onChange={(e) => setNewMessage({...newMessage, K: e.target.value})}
-                    placeholder="Warunki działania"
-                    className="bg-slate-900/50 border-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="O" className="text-slate-300">O - Oczekiwany efekt (Expected outcome)</Label>
-                  <Input
-                    id="O"
-                    value={newMessage.O}
-                    onChange={(e) => setNewMessage({...newMessage, O: e.target.value})}
-                    placeholder="Co ma się wydarzyć"
-                    className="bg-slate-900/50 border-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="P" className="text-slate-300">P - Próg aktywacji (Activation trigger)</Label>
-                  <Input
-                    id="P"
-                    value={newMessage.P}
-                    onChange={(e) => setNewMessage({...newMessage, P: e.target.value})}
-                    placeholder="Kiedy to uruchomić"
-                    className="bg-slate-900/50 border-slate-700/50 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="Z" className="text-slate-300">Z - Zależność (Dependencies)</Label>
-                  <Input
-                    id="Z"
-                    value={newMessage.Z}
-                    onChange={(e) => setNewMessage({...newMessage, Z: e.target.value})}
-                    placeholder="Od czego zależy wykonanie"
-                    className="bg-slate-900/50 border-slate-700/50 text-white"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label htmlFor="K2" className="text-slate-300">K2 - Komenda (Command)</Label>
-                  <Input
-                    id="K2"
-                    value={newMessage.K2}
-                    onChange={(e) => setNewMessage({...newMessage, K2: e.target.value})}
-                    placeholder="/command lub &agent-command"
-                    className="bg-slate-900/50 border-slate-700/50 text-white font-mono"
-                  />
-                </div>
-                <div className="flex space-x-4 col-span-2">
-                  <Button onClick={createFUKOMessage} className="bg-blue-600 hover:bg-blue-700">
-                    <Zap className="h-4 w-4 mr-2" />
-                    Create FUKO Message
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fukoCore.checkKPIThresholds()}
-                    className="border-yellow-500/50 text-yellow-400"
-                  >
-                    Check KPI Thresholds
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="agents">
-          <Card className="bg-slate-800/50 border-blue-800/30">
-            <CardHeader>
-              <CardTitle className="text-cyan-400">Active Agents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {agents.map((agent) => (
-                  <Card key={agent.id} className="bg-slate-900/50 border-slate-700/50">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-white text-sm">{agent.name}</CardTitle>
-                        <Badge className={agent.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}>
-                          {agent.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="text-slate-400">Mode:</span>
-                          <span className="text-cyan-400 ml-2">{agent.mode}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-400">Performance:</span>
-                          <span className="text-white ml-2">{agent.performance.toFixed(0)}%</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-400">Capabilities:</span>
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {agent.capabilities.slice(0, 3).map(cap => (
-                              <Badge key={cap} variant="outline" className="text-xs">
-                                {cap}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="scenarios">
-          <Card className="bg-slate-800/50 border-blue-800/30">
-            <CardHeader>
-              <CardTitle className="text-cyan-400">FUKO Scenarios</CardTitle>
-              <CardDescription className="text-slate-300">
-                Pre-configured decision scenarios for common use cases
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button 
-                  onClick={() => executeScenario('senior_health_check')}
-                  className="bg-green-600 hover:bg-green-700 h-auto p-4"
-                >
-                  <div className="text-left">
-                    <p className="font-semibold">Senior Health Check</p>
-                    <p className="text-sm opacity-80">Monitor senior activity and health metrics</p>
-                  </div>
-                </Button>
-                <Button 
-                  onClick={() => executeScenario('lead_nurturing')}
-                  className="bg-blue-600 hover:bg-blue-700 h-auto p-4"
-                >
-                  <div className="text-left">
-                    <p className="font-semibold">Lead Nurturing</p>
-                    <p className="text-sm opacity-80">Convert high-scoring leads to customers</p>
-                  </div>
-                </Button>
-                <Button 
-                  onClick={() => executeScenario('system_optimization')}
-                  className="bg-purple-600 hover:bg-purple-700 h-auto p-4"
-                >
-                  <div className="text-left">
-                    <p className="font-semibold">System Optimization</p>
-                    <p className="text-sm opacity-80">Optimize system performance and resources</p>
-                  </div>
-                </Button>
-                <Button 
-                  onClick={() => executeScenario('emergency_response')}
-                  className="bg-red-600 hover:bg-red-700 h-auto p-4"
-                >
-                  <div className="text-left">
-                    <p className="font-semibold">Emergency Response</p>
-                    <p className="text-sm opacity-80">Handle critical system alerts</p>
-                  </div>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Messages Tab */}
+      {activeTab === 'messages' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
             <Card className="bg-slate-800/50 border-blue-800/30">
               <CardHeader>
-                <CardTitle className="text-cyan-400 flex items-center space-x-2">
-                  <Activity className="h-5 w-5" />
-                  <span>KPI Monitoring</span>
-                </CardTitle>
+                <CardTitle className="text-cyan-400">Recent FUKO Messages</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {Object.entries(kpiData).map(([key, data]) => (
-                    <div key={key} className="p-3 bg-slate-900/50 rounded">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-white capitalize">{key.replace('_', ' ')}</span>
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {messages.map((message) => (
+                    <div key={message.id} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700/50">
+                      <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
-                          <span className="text-white">{data.value}</span>
-                          <Badge className={data.value >= data.threshold ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}>
-                            {data.trend}
+                          {getStatusIcon(message.status)}
+                          <span className="font-semibold text-white">{message.F}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className={getPriorityColor(message.priority)}>
+                            {message.priority}
+                          </Badge>
+                          <Badge variant="outline" className="text-slate-400">
+                            {message.sourceAgent}
                           </Badge>
                         </div>
                       </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${data.value >= data.threshold ? 'bg-green-500' : 'bg-red-500'}`}
-                          style={{ width: `${Math.min(100, (data.value / data.threshold) * 100)}%` }}
-                        ></div>
+                      
+                      <div className="space-y-2 text-sm">
+                        <div><span className="text-cyan-400">U:</span> <span className="text-slate-300">{message.U}</span></div>
+                        <div><span className="text-cyan-400">K:</span> <span className="text-slate-300">{message.K}</span></div>
+                        <div><span className="text-cyan-400">O:</span> <span className="text-slate-300">{message.O}</span></div>
+                        {message.K2 && (
+                          <div><span className="text-cyan-400">K2:</span> <span className="text-slate-300">{message.K2}</span></div>
+                        )}
+                      </div>
+                      
+                      <div className="flex justify-between items-center mt-3 text-xs text-slate-400">
+                        <span>{message.timestamp.toLocaleTimeString()}</span>
+                        {message.executionResult && (
+                          <span className="text-green-400">✓ {message.executionResult}</span>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+          </div>
 
+          <div>
             <Card className="bg-slate-800/50 border-blue-800/30">
               <CardHeader>
-                <CardTitle className="text-cyan-400 flex items-center space-x-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>System Alerts</span>
-                </CardTitle>
+                <CardTitle className="text-cyan-400">Quick Scenarios</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {alerts.length === 0 ? (
-                    <p className="text-slate-400">No active alerts</p>
-                  ) : (
-                    alerts.map((alert, index) => (
-                      <div key={index} className="p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
-                        {alert}
-                      </div>
-                    ))
-                  )}
+                <div className="space-y-3">
+                  <Button 
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => executePresetScenario('club-onboarding')}
+                  >
+                    Club Onboarding
+                  </Button>
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => executePresetScenario('lead-scoring')}
+                  >
+                    Lead Scoring
+                  </Button>
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    onClick={() => executePresetScenario('system-health')}
+                  >
+                    System Health Check
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
+
+      {/* Create FUKO Tab */}
+      {activeTab === 'create' && (
+        <Card className="bg-slate-800/50 border-blue-800/30">
+          <CardHeader>
+            <CardTitle className="text-cyan-400">Create New FUKO Message</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="F" className="text-cyan-400">F - Funkcja (wymagane)</Label>
+                  <Input
+                    id="F"
+                    value={F}
+                    onChange={(e) => setF(e.target.value)}
+                    placeholder="Co agent ma wykonać..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="U" className="text-cyan-400">U - Uzasadnienie (wymagane)</Label>
+                  <Textarea
+                    id="U"
+                    value={U}
+                    onChange={(e) => setU(e.target.value)}
+                    placeholder="Dlaczego to robi..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="K" className="text-cyan-400">K - Kontekst</Label>
+                  <Input
+                    id="K"
+                    value={K}
+                    onChange={(e) => setK(e.target.value)}
+                    placeholder="Warunki działania..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="O" className="text-cyan-400">O - Oczekiwany efekt</Label>
+                  <Input
+                    id="O"
+                    value={O}
+                    onChange={(e) => setO(e.target.value)}
+                    placeholder="Co ma się wydarzyć..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="P" className="text-cyan-400">P - Próg aktywacji</Label>
+                  <Input
+                    id="P"
+                    value={P}
+                    onChange={(e) => setP(e.target.value)}
+                    placeholder="Kiedy uruchomić..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="Z" className="text-cyan-400">Z - Zależność</Label>
+                  <Input
+                    id="Z"
+                    value={Z}
+                    onChange={(e) => setZ(e.target.value)}
+                    placeholder="Od czego zależy..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="K2" className="text-cyan-400">K - Komenda</Label>
+                  <Input
+                    id="K2"
+                    value={K2}
+                    onChange={(e) => setK2(e.target.value)}
+                    placeholder="/komenda lub &wyrażenie..."
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="sourceAgent" className="text-cyan-400">Source Agent</Label>
+                  <Input
+                    id="sourceAgent"
+                    value={sourceAgent}
+                    onChange={(e) => setSourceAgent(e.target.value)}
+                    placeholder="@agent-name"
+                    className="bg-slate-900/50 border-slate-600"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="priority" className="text-cyan-400">Priority</Label>
+                  <select
+                    id="priority"
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high' | 'urgent')}
+                    className="w-full p-2 bg-slate-900/50 border border-slate-600 rounded-md text-white"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+                
+                <Button 
+                  onClick={createFUKOMessage}
+                  className="w-full bg-cyan-600 hover:bg-cyan-700"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Create FUKO Message
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Agents Tab */}
+      {activeTab === 'agents' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {['core', 'fuko', 'system', 'project'].map((category) => {
+            const categoryAgents = agents.filter(a => a.category === category);
+            if (categoryAgents.length === 0) return null;
+            
+            return (
+              <Card key={category} className="bg-slate-800/50 border-blue-800/30">
+                <CardHeader>
+                  <CardTitle className="text-cyan-400 capitalize">{category} Agents</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {categoryAgents.map((agent) => (
+                      <div key={agent.id} className="p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-semibold text-white">{agent.name}</span>
+                          <Badge variant="outline" className={getAgentStatusColor(agent.status)}>
+                            {agent.status}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-slate-400">
+                          Mode: {agent.mode} | Performance: {agent.performance.toFixed(0)}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-slate-800/50 border-blue-800/30">
+            <CardHeader>
+              <CardTitle className="text-cyan-400">System KPIs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(kpiData).map(([key, data]) => (
+                  <div key={key}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-slate-300 capitalize">{key.replace('_', ' ')}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-white">{data.value}%</span>
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            data.value >= data.threshold 
+                              ? 'text-green-400 border-green-400/50' 
+                              : 'text-red-400 border-red-400/50'
+                          }
+                        >
+                          {data.trend}
+                        </Badge>
+                      </div>
+                    </div>
+                    <Progress 
+                      value={data.value} 
+                      className={`h-2 ${data.value >= data.threshold ? 'bg-green-500/20' : 'bg-red-500/20'}`} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-800/50 border-blue-800/30">
+            <CardHeader>
+              <CardTitle className="text-cyan-400">Message Statistics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-400">
+                      {messages.filter(m => m.status === 'completed').length}
+                    </div>
+                    <div className="text-slate-400">Completed</div>
+                  </div>
+                  <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-400">
+                      {messages.filter(m => m.status === 'processing').length}
+                    </div>
+                    <div className="text-slate-400">Processing</div>
+                  </div>
+                  <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+                    <div className="text-2xl font-bold text-red-400">
+                      {messages.filter(m => m.status === 'failed').length}
+                    </div>
+                    <div className="text-slate-400">Failed</div>
+                  </div>
+                  <div className="text-center p-4 bg-slate-900/50 rounded-lg">
+                    <div className="text-2xl font-bold text-yellow-400">
+                      {messages.filter(m => m.status === 'pending').length}
+                    </div>
+                    <div className="text-slate-400">Pending</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
