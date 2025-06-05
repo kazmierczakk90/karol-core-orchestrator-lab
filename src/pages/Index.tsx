@@ -30,6 +30,7 @@ const Index = () => {
   const [activeModule, setActiveModule] = useState('agi-core');
   const [systemStatus, setSystemStatus] = useState('INITIALIZING');
   const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [extractedLinks, setExtractedLinks] = useState<any[]>([]);
 
   useEffect(() => {
     // Initialize services
@@ -102,6 +103,20 @@ const Index = () => {
       case 'MAINTENANCE': return 'text-orange-400 border-orange-500/50';
       case 'OFFLINE': return 'text-red-400 border-red-500/50';
       default: return 'text-gray-400 border-gray-500/50';
+    }
+  };
+
+  const handleLinksExtracted = (links: any[]) => {
+    setExtractedLinks(links);
+    // Automatycznie przełącz na Link Collector po ekstrakcji
+    setActiveModule('link-collector');
+  };
+
+  const handleExtractLinksFromBrowser = () => {
+    // Znajdź aktywny Browser Core i wywołaj ekstrakcję
+    const browserExtractButton = document.querySelector('[data-browser-extract]') as HTMLButtonElement;
+    if (browserExtractButton) {
+      browserExtractButton.click();
     }
   };
 
@@ -213,7 +228,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="browser-core" className="mt-6 h-[calc(100vh-200px)]">
-            <BrowserCore />
+            <BrowserCore onLinksExtracted={handleLinksExtracted} />
           </TabsContent>
 
           <TabsContent value="mind-maps" className="mt-6 h-[calc(100vh-200px)]">
@@ -221,7 +236,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="link-collector" className="mt-6">
-            <LinkCollector />
+            <LinkCollector extractedLinks={extractedLinks} />
           </TabsContent>
 
           <TabsContent value="mini-ai" className="mt-6">
@@ -258,8 +273,12 @@ const Index = () => {
         </Tabs>
       </div>
 
-      {/* Floating Action Key */}
-      <FloatingActionKey />
+      {/* Floating Action Key z callback functions */}
+      <FloatingActionKey 
+        onExtractLinks={handleExtractLinksFromBrowser}
+        onOpenBrowser={() => setActiveModule('browser-core')}
+        onOpenMiniAI={() => setActiveModule('mini-ai')}
+      />
 
       {/* Keyboard Shortcuts Component */}
       <KeyboardShortcuts />

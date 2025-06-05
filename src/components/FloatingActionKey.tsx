@@ -14,7 +14,13 @@ interface QuickAction {
   color: string;
 }
 
-const FloatingActionKey = () => {
+interface FloatingActionKeyProps {
+  onExtractLinks?: () => void;
+  onOpenBrowser?: () => void;
+  onOpenMiniAI?: () => void;
+}
+
+const FloatingActionKey = ({ onExtractLinks, onOpenBrowser, onOpenMiniAI }: FloatingActionKeyProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight / 2 });
@@ -26,7 +32,12 @@ const FloatingActionKey = () => {
       icon: <Brain className="h-4 w-4" />,
       label: 'AGI Core',
       shortcut: 'F1',
-      action: () => console.log('AGI Core activated'),
+      action: () => {
+        console.log('AGI Core activated');
+        // Przełącz na tab AGI Core
+        const agiTab = document.querySelector('[value="agi-core"]') as HTMLButtonElement;
+        if (agiTab) agiTab.click();
+      },
       color: 'bg-cyan-500'
     },
     {
@@ -34,7 +45,12 @@ const FloatingActionKey = () => {
       icon: <Bot className="h-4 w-4" />,
       label: 'Mini AI',
       shortcut: 'F2',
-      action: () => console.log('Mini AI activated'),
+      action: () => {
+        console.log('Mini AI activated');
+        onOpenMiniAI?.();
+        const miniAITab = document.querySelector('[value="mini-ai"]') as HTMLButtonElement;
+        if (miniAITab) miniAITab.click();
+      },
       color: 'bg-purple-500'
     },
     {
@@ -42,15 +58,42 @@ const FloatingActionKey = () => {
       icon: <Search className="h-4 w-4" />,
       label: 'Browser',
       shortcut: 'F3',
-      action: () => console.log('Browser activated'),
+      action: () => {
+        console.log('Browser activated');
+        onOpenBrowser?.();
+        const browserTab = document.querySelector('[value="browser-core"]') as HTMLButtonElement;
+        if (browserTab) browserTab.click();
+      },
       color: 'bg-blue-500'
     },
     {
       id: 'links',
       icon: <Link className="h-4 w-4" />,
-      label: 'Link Collector',
+      label: 'Extract Links',
       shortcut: 'F4',
-      action: () => console.log('Link Collector activated'),
+      action: () => {
+        console.log('Link extraction activated');
+        onExtractLinks?.();
+        // Przełącz na Link Collector i rozpocznij ekstrakcję
+        const linkTab = document.querySelector('[value="link-collector"]') as HTMLButtonElement;
+        if (linkTab) linkTab.click();
+        
+        // Pokaż notyfikację o ekstrakcji
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 max-w-md';
+        notification.innerHTML = `
+          <div class="font-bold">Ekstrakcja Linków</div>
+          <div class="text-sm">Rozpoczynam ekstrakcję linków z aktualnej strony...</div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 4000);
+      },
       color: 'bg-green-500'
     },
     {
@@ -58,7 +101,11 @@ const FloatingActionKey = () => {
       icon: <Map className="h-4 w-4" />,
       label: 'Mind Maps',
       shortcut: 'F5',
-      action: () => console.log('Mind Maps activated'),
+      action: () => {
+        console.log('Mind Maps activated');
+        const mindMapTab = document.querySelector('[value="mind-maps"]') as HTMLButtonElement;
+        if (mindMapTab) mindMapTab.click();
+      },
       color: 'bg-orange-500'
     },
     {
@@ -66,7 +113,10 @@ const FloatingActionKey = () => {
       icon: <Command className="h-4 w-4" />,
       label: 'Command Room',
       shortcut: 'F6',
-      action: () => console.log('Command Room activated'),
+      action: () => {
+        console.log('Command Room activated');
+        // Implementuj przejście do Command Room
+      },
       color: 'bg-red-500'
     }
   ];
