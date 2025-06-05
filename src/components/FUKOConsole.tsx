@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ const FUKOConsole = () => {
   const [messages, setMessages] = useState<FUKOMessage[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [alerts, setAlerts] = useState<string[]>([]);
-  const [kpiData, setKpiData] = useState<any>({});
+  const [kpiData, setKpiData] = useState<Record<string, { value: number; threshold: number; trend: string }>>({});
   
   // FUKO Message creation form
   const [newMessage, setNewMessage] = useState({
