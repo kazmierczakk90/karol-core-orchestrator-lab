@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -140,6 +139,37 @@ const CommandRoom = () => {
                 <p className="text-sm text-slate-400">Duration</p>
                 <p className="text-cyan-400">14 days remaining</p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800/50 border-blue-800/30">
+          <CardHeader>
+            <CardTitle className="text-cyan-400">Database Access</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Button 
+                variant="outline" 
+                className="w-full border-purple-500/50 text-purple-400 text-sm"
+                onClick={() => window.open('#memory-db', '_self')}
+              >
+                📊 System Variables
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full border-purple-500/50 text-purple-400 text-sm"
+                onClick={() => window.open('#memory-db', '_self')}
+              >
+                🧠 Agent Memory
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full border-purple-500/50 text-purple-400 text-sm"
+                onClick={() => window.open('#memory-db', '_self')}
+              >
+                🔍 Reasoning Database
+              </Button>
             </div>
           </CardContent>
         </Card>

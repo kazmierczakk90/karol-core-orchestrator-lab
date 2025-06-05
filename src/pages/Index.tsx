@@ -14,6 +14,11 @@ import KeyboardShortcuts from '@/components/KeyboardShortcuts';
 import MicrophoneControl from '@/components/MicrophoneControl';
 import { keyboardService } from '@/services/keyboardService';
 import { voiceService } from '@/services/voiceService';
+import OpenAIChat from '@/components/OpenAIChat';
+import FileUpload from '@/components/FileUpload';
+import ProjectCreator from '@/components/ProjectCreator';
+import AIMemory from '@/components/AIMemory';
+import DatabaseTables from '@/components/DatabaseTables';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('agi-core');
@@ -141,10 +146,14 @@ const Index = () => {
       {/* Main Navigation */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeModule} onValueChange={setActiveModule} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-blue-800/30">
+          <TabsList className="grid w-full grid-cols-7 bg-slate-800/50 border border-blue-800/30">
             <TabsTrigger value="agi-core" className="flex items-center space-x-2">
               <Brain className="h-4 w-4" />
               <span>AGI Core</span>
+            </TabsTrigger>
+            <TabsTrigger value="openai-chat" className="flex items-center space-x-2">
+              <MessageSquare className="h-4 w-4" />
+              <span>OpenAI Chat</span>
             </TabsTrigger>
             <TabsTrigger value="fuko-console" className="flex items-center space-x-2">
               <MessageSquare className="h-4 w-4" />
@@ -157,6 +166,10 @@ const Index = () => {
             <TabsTrigger value="command-room" className="flex items-center space-x-2">
               <Command className="h-4 w-4" />
               <span>Command Room</span>
+            </TabsTrigger>
+            <TabsTrigger value="memory-db" className="flex items-center space-x-2">
+              <Terminal className="h-4 w-4" />
+              <span>Memory & DB</span>
             </TabsTrigger>
             <TabsTrigger value="dev-console" className="flex items-center space-x-2">
               <Terminal className="h-4 w-4" />
@@ -175,6 +188,20 @@ const Index = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="openai-chat" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <OpenAIChat />
+              </div>
+              <div className="space-y-4">
+                <FileUpload />
+                <ProjectCreator onProjectCreated={(project) => {
+                  console.log('New project created:', project);
+                }} />
+              </div>
+            </div>
+          </TabsContent>
+
           <TabsContent value="fuko-console" className="mt-6">
             <FUKOConsole />
           </TabsContent>
@@ -185,6 +212,13 @@ const Index = () => {
 
           <TabsContent value="command-room" className="mt-6">
             <CommandRoom />
+          </TabsContent>
+
+          <TabsContent value="memory-db" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AIMemory />
+              <DatabaseTables />
+            </div>
           </TabsContent>
 
           <TabsContent value="dev-console" className="mt-6">
