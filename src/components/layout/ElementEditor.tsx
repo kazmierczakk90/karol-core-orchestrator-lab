@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import {
   Palette, 
   Type, 
   Layout, 
-  Spacing, 
   Monitor,
   Settings,
   Save,
