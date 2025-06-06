@@ -7,23 +7,67 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Users, Target, Copy, Play } from 'lucide-react';
+import { Zap, Users, Target, Copy, Play, Building2, Bot, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
 
 const AgentCommander = () => {
   const [formData, setFormData] = useState({
-    zadanie: '',
+    // Nowe pola kontekstowe
+    industry: '',
+    botFunction: '',
+    typZadania: '',
+    opisZadania: '',
+    // Istniejące pola
     cel: '',
     agent: '@ceo',
     priorytet: 'normalny',
-    tryb: 'natychmiastowy',
     ton: 'profesjonalny',
-    zakres: 'pojedyncza-akcja',
-    format: 'raport'
+    timeZakres: 'standardowa-praca',
+    format: 'raport',
+    trybWykonania: 'natychmiastowy'
   });
 
   const [generatedCommand, setGeneratedCommand] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const industries = [
+    { value: 'healthcare', label: 'Healthcare', icon: '🏥' },
+    { value: 'finance', label: 'Finance', icon: '💰' },
+    { value: 'retail', label: 'Retail', icon: '🛍️' },
+    { value: 'technology', label: 'Technology', icon: '💻' },
+    { value: 'education', label: 'Education', icon: '📚' },
+    { value: 'hospitality', label: 'Hospitality', icon: '🏨' },
+    { value: 'manufacturing', label: 'Manufacturing', icon: '🏭' },
+    { value: 'insurance', label: 'Insurance', icon: '🛡️' },
+    { value: 'telecommunications', label: 'Telecommunications', icon: '📡' },
+    { value: 'real-estate', label: 'Real Estate', icon: '🏘️' },
+    { value: 'other', label: 'Other', icon: '📋' }
+  ];
+
+  const botFunctions = [
+    { value: 'customer-service', label: 'Customer Service', icon: '🎧' },
+    { value: 'sales-marketing', label: 'Sales & Marketing', icon: '📈' },
+    { value: 'technical-support', label: 'Technical Support', icon: '🔧' },
+    { value: 'it-helpdesk', label: 'IT Helpdesk', icon: '💻' },
+    { value: 'lead-generation', label: 'Lead Generation', icon: '🎯' },
+    { value: 'appointment-booking', label: 'Appointment Booking', icon: '📅' },
+    { value: 'faq', label: 'FAQ', icon: '❓' },
+    { value: 'customer-onboarding', label: 'Customer Onboarding', icon: '👋' },
+    { value: 'billing-payments', label: 'Billing & Payments', icon: '💳' },
+    { value: 'feedback-collection', label: 'Feedback Collection', icon: '📝' },
+    { value: 'other', label: 'Other', icon: '⚙️' }
+  ];
+
+  const typyZadan = [
+    { value: 'napisz', label: 'Napisz (content creation)', icon: FileText },
+    { value: 'poszukaj', label: 'Poszukaj w sieci (web research)', icon: Search },
+    { value: 'zredaguj', label: 'Zredaguj (editing)', icon: Edit },
+    { value: 'wykreuj', label: 'Wykreuj (creative design)', icon: Palette },
+    { value: 'przeanalizuj', label: 'Przeanalizuj (analysis)', icon: BarChart3 },
+    { value: 'zorganizuj', label: 'Zorganizuj (organization)', icon: FolderTree },
+    { value: 'sprawdz', label: 'Sprawdź (verification)', icon: CheckCircle },
+    { value: 'przetlumacz', label: 'Przetłumacz (translation)', icon: Languages }
+  ];
 
   const agents = [
     { id: '@ceo', name: 'CEO Agent (Karol-Core)', opis: 'Strategiczne decyzje i planowanie' },
@@ -41,7 +85,14 @@ const AgentCommander = () => {
     { value: 'niski', label: 'Niski (LOW)', color: 'bg-gray-500' }
   ];
 
-  const tryby = [
+  const timeZakresy = [
+    { value: 'szybka-akcja', label: 'Szybka akcja (5-15 min)' },
+    { value: 'standardowa-praca', label: 'Standardowa praca (30-60 min)' },
+    { value: 'gleboka-analiza', label: 'Głęboka analiza (1-3 h)' },
+    { value: 'projekt-dlugoterminowy', label: 'Projekt długoterminowy (dni/tygodnie)' }
+  ];
+
+  const trybyWykonania = [
     { value: 'natychmiastowy', label: 'Natychmiastowy (LIVE)' },
     { value: 'zaplanowany', label: 'Zaplanowany (SCHEDULED)' },
     { value: 'analityczny', label: 'Analityczny (DEEP)' },
@@ -49,25 +100,35 @@ const AgentCommander = () => {
   ];
 
   const handleGenerate = async () => {
-    if (!formData.zadanie.trim()) return;
+    if (!formData.opisZadania.trim()) return;
 
     setIsGenerating(true);
     
     const selectedAgent = agents.find(a => a.id === formData.agent);
     const selectedPriorytet = priorytety.find(p => p.value === formData.priorytet);
+    const selectedIndustry = industries.find(i => i.value === formData.industry);
+    const selectedBotFunction = botFunctions.find(b => b.value === formData.botFunction);
+    const selectedTypZadania = typyZadan.find(t => t.value === formData.typZadania);
+    const selectedTimeZakres = timeZakresy.find(t => t.value === formData.timeZakres);
     
     const command = `
 🎯 KOMENDA AGENTA: ${selectedAgent?.name}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📋 ZADANIE: ${formData.zadanie}
+📊 KONTEKST BIZNESOWY:
+${formData.industry ? `🏢 Branża: ${selectedIndustry?.icon} ${selectedIndustry?.label}` : ''}
+${formData.botFunction ? `🤖 Funkcja Bota: ${selectedBotFunction?.icon} ${selectedBotFunction?.label}` : ''}
+
+📋 ZADANIE: ${formData.typZadania ? `${selectedTypZadania?.label}` : 'Wykonanie zadania'}
+
+📝 OPIS: ${formData.opisZadania}
 
 🎯 CEL: ${formData.cel || 'Wykonanie zadania zgodnie z instrukcjami'}
 
 ⚡ PRIORYTET: ${selectedPriorytet?.label}
-🔄 TRYB: ${tryby.find(t => t.value === formData.tryb)?.label}
+⏱️ TIME/ZAKRES: ${selectedTimeZakres?.label}
 🗣️ TON: ${formData.ton}
-📊 ZAKRES: ${formData.zakres}
+🔄 TRYB WYKONANIA: ${trybyWykonania.find(t => t.value === formData.trybWykonania)?.label}
 📝 FORMAT: ${formData.format}
 
 🚀 AKTYWACJA: NATYCHMIAST
@@ -79,9 +140,8 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
     setGeneratedCommand(command);
 
     try {
-      // Wysłanie rzeczywistej komendy do agenta
       await openaiService.sendMessage(
-        `${formData.zadanie}\n\nCel: ${formData.cel}\nTryb: ${formData.tryb}\nPriorytet: ${formData.priorytet}`,
+        `${formData.opisZadania}\n\nCel: ${formData.cel}\nTryb: ${formData.trybWykonania}\nPriorytet: ${formData.priorytet}`,
         formData.agent
       );
     } catch (error) {
@@ -125,25 +185,141 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Zadanie */}
-            <div className="md:col-span-2">
-              <Label htmlFor="zadanie" className="text-slate-300 font-semibold">
-                Zadanie do wykonania
+          {/* Sekcja kontekstowa */}
+          <div className="space-y-4">
+            <h3 className="text-white font-semibold flex items-center space-x-2">
+              <Building2 className="h-5 w-5 text-cyan-400" />
+              <span>Kontekst biznesowy</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Industry */}
+              <div>
+                <Label htmlFor="industry" className="text-slate-300 font-semibold">
+                  Branża/Sektor
+                </Label>
+                <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue placeholder="Wybierz branżę..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {industries.map((industry) => (
+                      <SelectItem key={industry.value} value={industry.value}>
+                        <div className="flex items-center space-x-2">
+                          <span>{industry.icon}</span>
+                          <span>{industry.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Bot Function */}
+              <div>
+                <Label htmlFor="botFunction" className="text-slate-300 font-semibold">
+                  Funkcja Bota
+                </Label>
+                <Select value={formData.botFunction} onValueChange={(value) => setFormData({ ...formData, botFunction: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue placeholder="Wybierz funkcję..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {botFunctions.map((func) => (
+                      <SelectItem key={func.value} value={func.value}>
+                        <div className="flex items-center space-x-2">
+                          <span>{func.icon}</span>
+                          <span>{func.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Sekcja agenta i typu zadania */}
+          <div className="space-y-4">
+            <h3 className="text-white font-semibold flex items-center space-x-2">
+              <Bot className="h-5 w-5 text-cyan-400" />
+              <span>Agent i typ zadania</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Agent */}
+              <div>
+                <Label htmlFor="agent" className="text-slate-300 font-semibold">
+                  Agent do wywołania
+                </Label>
+                <Select value={formData.agent} onValueChange={(value) => setFormData({ ...formData, agent: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {agents.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id}>
+                        <div>
+                          <div className="font-semibold">{agent.name}</div>
+                          <div className="text-xs text-slate-400">{agent.opis}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Typ zadania */}
+              <div>
+                <Label htmlFor="typZadania" className="text-slate-300 font-semibold">
+                  Typ zadania
+                </Label>
+                <Select value={formData.typZadania} onValueChange={(value) => setFormData({ ...formData, typZadania: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue placeholder="Wybierz typ zadania..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {typyZadan.map((typ) => {
+                      const Icon = typ.icon;
+                      return (
+                        <SelectItem key={typ.value} value={typ.value}>
+                          <div className="flex items-center space-x-2">
+                            <Icon className="h-4 w-4" />
+                            <span>{typ.label}</span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Sekcja zadania */}
+          <div className="space-y-4">
+            <h3 className="text-white font-semibold flex items-center space-x-2">
+              <Target className="h-5 w-5 text-cyan-400" />
+              <span>Definicja zadania</span>
+            </h3>
+            
+            {/* Opis zadania */}
+            <div>
+              <Label htmlFor="opisZadania" className="text-slate-300 font-semibold">
+                Opis zadania
               </Label>
-              <Input
-                id="zadanie"
-                value={formData.zadanie}
-                onChange={(e) => setFormData({ ...formData, zadanie: e.target.value })}
-                placeholder="Opisz konkretne zadanie dla agenta..."
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              <Textarea
+                id="opisZadania"
+                value={formData.opisZadania}
+                onChange={(e) => setFormData({ ...formData, opisZadania: e.target.value })}
+                placeholder="W czym mogę Ci pomóc jako AI?"
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1 min-h-[100px]"
+                rows={4}
               />
             </div>
 
             {/* Cel */}
-            <div className="md:col-span-2">
+            <div>
               <Label htmlFor="cel" className="text-slate-300 font-semibold">
-                Cel końcowy
+                Cel jaki Cię interesuje
               </Label>
               <Input
                 id="cel"
@@ -153,124 +329,114 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
                 className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
               />
             </div>
+          </div>
 
-            {/* Agent */}
-            <div>
-              <Label htmlFor="agent" className="text-slate-300 font-semibold">
-                Agent do wywołania
-              </Label>
-              <Select value={formData.agent} onValueChange={(value) => setFormData({ ...formData, agent: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {agents.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id}>
-                      <div>
-                        <div className="font-semibold">{agent.name}</div>
-                        <div className="text-xs text-slate-400">{agent.opis}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Sekcja parametrów */}
+          <div className="space-y-4">
+            <h3 className="text-white font-semibold flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-cyan-400" />
+              <span>Parametry wykonania</span>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Priorytet */}
+              <div>
+                <Label htmlFor="priorytet" className="text-slate-300 font-semibold">
+                  Priorytet
+                </Label>
+                <Select value={formData.priorytet} onValueChange={(value) => setFormData({ ...formData, priorytet: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {priorytety.map((priorytet) => (
+                      <SelectItem key={priorytet.value} value={priorytet.value}>
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${priorytet.color}`}></div>
+                          <span>{priorytet.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Priorytet */}
-            <div>
-              <Label htmlFor="priorytet" className="text-slate-300 font-semibold">
-                Priorytet misji
-              </Label>
-              <Select value={formData.priorytet} onValueChange={(value) => setFormData({ ...formData, priorytet: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {priorytety.map((priorytet) => (
-                    <SelectItem key={priorytet.value} value={priorytet.value}>
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${priorytet.color}`}></div>
-                        <span>{priorytet.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Ton */}
+              <div>
+                <Label htmlFor="ton" className="text-slate-300 font-semibold">
+                  Ton
+                </Label>
+                <Select value={formData.ton} onValueChange={(value) => setFormData({ ...formData, ton: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectItem value="profesjonalny">Profesjonalny</SelectItem>
+                    <SelectItem value="bezposredni">Bezpośredni</SelectItem>
+                    <SelectItem value="analityczny">Analityczny</SelectItem>
+                    <SelectItem value="kreatywny">Kreatywny</SelectItem>
+                    <SelectItem value="techniczny">Techniczny</SelectItem>
+                    <SelectItem value="przyjazny">Przyjazny</SelectItem>
+                    <SelectItem value="formalny">Formalny</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Tryb */}
-            <div>
-              <Label htmlFor="tryb" className="text-slate-300 font-semibold">
-                Tryb operacyjny
-              </Label>
-              <Select value={formData.tryb} onValueChange={(value) => setFormData({ ...formData, tryb: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {tryby.map((tryb) => (
-                    <SelectItem key={tryb.value} value={tryb.value}>
-                      {tryb.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Time/Zakres */}
+              <div>
+                <Label htmlFor="timeZakres" className="text-slate-300 font-semibold">
+                  Time/Zakres akcji
+                </Label>
+                <Select value={formData.timeZakres} onValueChange={(value) => setFormData({ ...formData, timeZakres: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {timeZakresy.map((zakres) => (
+                      <SelectItem key={zakres.value} value={zakres.value}>
+                        {zakres.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Ton */}
-            <div>
-              <Label htmlFor="ton" className="text-slate-300 font-semibold">
-                Ton komunikacji
-              </Label>
-              <Select value={formData.ton} onValueChange={(value) => setFormData({ ...formData, ton: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="profesjonalny">Profesjonalny</SelectItem>
-                  <SelectItem value="bezposredni">Bezpośredni</SelectItem>
-                  <SelectItem value="analityczny">Analityczny</SelectItem>
-                  <SelectItem value="kreatywny">Kreatywny</SelectItem>
-                  <SelectItem value="techniczny">Techniczny</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Format */}
+              <div>
+                <Label htmlFor="format" className="text-slate-300 font-semibold">
+                  Format
+                </Label>
+                <Select value={formData.format} onValueChange={(value) => setFormData({ ...formData, format: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    <SelectItem value="raport">Raport tekstowy</SelectItem>
+                    <SelectItem value="lista-punktowa">Lista punktowa</SelectItem>
+                    <SelectItem value="json">Struktura JSON</SelectItem>
+                    <SelectItem value="tabela">Tabela danych</SelectItem>
+                    <SelectItem value="schemat">Schemat/Diagram</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Zakres */}
-            <div>
-              <Label htmlFor="zakres" className="text-slate-300 font-semibold">
-                Zakres akcji
-              </Label>
-              <Select value={formData.zakres} onValueChange={(value) => setFormData({ ...formData, zakres: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="pojedyncza-akcja">Pojedyncza akcja</SelectItem>
-                  <SelectItem value="sekwencja-zadan">Sekwencja zadań</SelectItem>
-                  <SelectItem value="projekt-dlugookresowy">Projekt długookresowy</SelectItem>
-                  <SelectItem value="wspolpraca-agentow">Współpraca agentów</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Format */}
-            <div>
-              <Label htmlFor="format" className="text-slate-300 font-semibold">
-                Format wyniku
-              </Label>
-              <Select value={formData.format} onValueChange={(value) => setFormData({ ...formData, format: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="raport">Raport tekstowy</SelectItem>
-                  <SelectItem value="lista-punktowa">Lista punktowa</SelectItem>
-                  <SelectItem value="json">Struktura JSON</SelectItem>
-                  <SelectItem value="tabela">Tabela danych</SelectItem>
-                  <SelectItem value="schemat">Schemat/Diagram</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* Tryb wykonania */}
+              <div>
+                <Label htmlFor="trybWykonania" className="text-slate-300 font-semibold">
+                  Tryb wykonania
+                </Label>
+                <Select value={formData.trybWykonania} onValueChange={(value) => setFormData({ ...formData, trybWykonania: value })}>
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {trybyWykonania.map((tryb) => (
+                      <SelectItem key={tryb.value} value={tryb.value}>
+                        {tryb.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -278,7 +444,7 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
           <div className="flex space-x-3">
             <Button
               onClick={handleGenerate}
-              disabled={!formData.zadanie.trim() || isGenerating}
+              disabled={!formData.opisZadania.trim() || isGenerating}
               className="bg-green-600 hover:bg-green-700 flex items-center space-x-2"
             >
               {isGenerating ? (
