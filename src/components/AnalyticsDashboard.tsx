@@ -19,9 +19,15 @@ import {
   BarChart3,
   Target,
   Lightbulb,
-  Cpu
+  Cpu,
+  TreePine,
+  Table as TableIcon
 } from 'lucide-react';
 import { autoImprovementService, SystemMetrics, ImprovementSuggestion, ImprovementEvent } from '@/services/autoImprovementService';
+import NavigationTree from './NavigationTree';
+import EnhancedTimeline from './EnhancedTimeline';
+import SmartTable from './SmartTable';
+import AgentPreferencesHub from './AgentPreferencesHub';
 
 interface AnalyticsDashboardProps {
   isOpen: boolean;
@@ -48,6 +54,32 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
     setRecentEvents(autoImprovementService.getRecentEvents(20));
   };
 
+  const handleNodeSelect = (node: any) => {
+    console.log('Selected node:', node);
+    // Navigate to specific component/function/agent
+    if (node.type === 'agent') {
+      setActiveTab('agents');
+    } else if (node.type === 'function') {
+      // Open specific function details
+      console.log('Opening function:', node.functionId);
+    }
+  };
+
+  const handleGroupOperation = (operation: string, nodes: any[]) => {
+    console.log(`Group operation: ${operation} on nodes:`, nodes);
+    // Handle bulk operations on selected nodes
+  };
+
+  const handleNavigateToFunction = (functionId: string, filePath?: string) => {
+    console.log('Navigate to function:', functionId, filePath);
+    // Implement navigation logic
+  };
+
+  const handleNavigateToAgent = (agentId: string) => {
+    console.log('Navigate to agent:', agentId);
+    setActiveTab('agents');
+  };
+
   if (!isOpen || !metrics) return null;
 
   const getStatusColor = (status: string) => {
@@ -72,9 +104,9 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="flex h-full">
-        {/* Sidebar */}
-        <div className="w-80 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6">
-          <div className="flex items-center justify-between mb-8">
+        {/* Enhanced Sidebar with Navigation Tree */}
+        <div className="w-96 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6 overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-cyan-400 animate-pulse" />
               <div>
@@ -88,7 +120,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
           </div>
 
           {/* Quick Stats */}
-          <div className="space-y-4 mb-8">
+          <div className="space-y-4 mb-6">
             <div className="bg-slate-800/50 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -108,23 +140,24 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
               </div>
               <Progress value={metrics.averageEfficiency} className="h-2" />
             </div>
+          </div>
 
-            <div className="bg-slate-800/50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-300">Quality Score</span>
-                <span className="text-sm text-white">{metrics.qualityScore.toFixed(1)}%</span>
-              </div>
-              <Progress value={metrics.qualityScore} className="h-2" />
-            </div>
+          {/* Navigation Tree */}
+          <div className="flex-1 min-h-0">
+            <NavigationTree 
+              onNodeSelect={handleNodeSelect}
+              onGroupOperation={handleGroupOperation}
+              className="h-full"
+            />
           </div>
 
           {/* Navigation */}
-          <nav className="space-y-2">
+          <nav className="space-y-2 mt-4">
             {[
               { id: 'overview', label: 'Overview', icon: BarChart3 },
+              { id: 'timeline', label: 'Timeline', icon: Clock },
               { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
-              { id: 'events', label: 'Recent Events', icon: Clock },
-              { id: 'agents', label: 'Agent Performance', icon: Users },
+              { id: 'agents', label: 'Agent Hub', icon: Users },
               { id: 'improvement', label: 'Auto-Improvement', icon: TrendingUp }
             ].map((item) => {
               const Icon = item.icon;
@@ -147,9 +180,10 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 bg-slate-900 p-8 overflow-auto">
+        <div className="flex-1 bg-slate-900 overflow-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsContent value="overview" className="space-y-6">
+            <TabsContent value="overview" className="p-8 space-y-6">
+              {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card className="bg-slate-800/50 border-slate-700/50">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -196,36 +230,22 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
                 </Card>
               </div>
 
-              {/* System Health */}
-              <Card className="bg-slate-800/50 border-slate-700/50">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center space-x-2">
-                    <Cpu className="h-5 w-5 text-cyan-400" />
-                    <span>System Health</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm text-slate-300">Efficiency Rate</span>
-                        <span className="text-sm text-white">{metrics.averageEfficiency.toFixed(1)}%</span>
-                      </div>
-                      <Progress value={metrics.averageEfficiency} className="h-3" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm text-slate-300">Quality Score</span>
-                        <span className="text-sm text-white">{metrics.qualityScore.toFixed(1)}%</span>
-                      </div>
-                      <Progress value={metrics.qualityScore} className="h-3" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Enhanced Timeline */}
+              <EnhancedTimeline className="mb-8" />
+
+              {/* Smart Table - always last element with anchor */}
+              <SmartTable className="mt-8" />
             </TabsContent>
 
-            <TabsContent value="suggestions" className="space-y-4">
+            <TabsContent value="timeline" className="p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">System Timeline</h2>
+                <p className="text-slate-400">Real-time view of live events and planned actions</p>
+              </div>
+              <EnhancedTimeline />
+            </TabsContent>
+
+            <TabsContent value="suggestions" className="p-8 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white">Auto-Improvement Suggestions</h2>
                 <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
@@ -263,75 +283,18 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
               </div>
             </TabsContent>
 
-            <TabsContent value="events" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white">Recent System Events</h2>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
-                  Live Feed
-                </Badge>
+            <TabsContent value="agents" className="p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Agent Preferences Hub</h2>
+                <p className="text-slate-400">Central navigation and management for all system agents</p>
               </div>
-              
-              <div className="space-y-2">
-                {recentEvents.map((event) => (
-                  <Card key={event.id} className="bg-slate-800/30 border-slate-700/30">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-2 h-2 rounded-full ${
-                            event.eventType === 'decision' ? 'bg-purple-400' :
-                            event.eventType === 'action' ? 'bg-blue-400' :
-                            event.eventType === 'chat' ? 'bg-green-400' :
-                            event.eventType === 'command' ? 'bg-yellow-400' :
-                            'bg-cyan-400'
-                          }`} />
-                          <span className="text-white text-sm">{event.context}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {event.eventType}
-                          </Badge>
-                          {event.agentId && (
-                            <Badge variant="outline" className="text-xs text-cyan-400">
-                              {event.agentId}
-                            </Badge>
-                          )}
-                        </div>
-                        <span className="text-xs text-slate-500">
-                          {event.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <AgentPreferencesHub 
+                onNavigateToFunction={handleNavigateToFunction}
+                onNavigateToAgent={handleNavigateToAgent}
+              />
             </TabsContent>
 
-            <TabsContent value="agents" className="space-y-4">
-              <h2 className="text-xl font-bold text-white">Agent Performance</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(metrics.agentPerformance).map(([agent, performance]) => (
-                  <Card key={agent} className="bg-slate-800/50 border-slate-700/50">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <Users className="h-4 w-4 text-cyan-400" />
-                          <span className="text-white font-medium">{agent}</span>
-                        </div>
-                        <Badge className={
-                          performance > 80 ? 'bg-green-500/20 text-green-400 border-green-500/50' :
-                          performance > 60 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' :
-                          'bg-red-500/20 text-red-400 border-red-500/50'
-                        }>
-                          {performance.toFixed(1)}%
-                        </Badge>
-                      </div>
-                      <Progress value={performance} className="h-2" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="improvement" className="space-y-4">
+            <TabsContent value="improvement" className="p-8 space-y-4">
               <h2 className="text-xl font-bold text-white">Auto-Improvement Engine</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
