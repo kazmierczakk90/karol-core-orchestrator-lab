@@ -55,6 +55,71 @@
     "callingAgent": "Calling agent...",
     "copyCommand": "Copy command",
     "generatedCommand": "Generated agent command",
-    "selectedAgent": "Selected Agent"
+    "selectedAgent": "Selected Agent",
+    "priorities": {
+      "critical": "Critical (RED ALERT)",
+      "high": "High (HIGH)",
+      "normal": "Normal (STANDARD)",
+      "low": "Low (LOW)"
+    },
+    "tones": {
+      "professional": "Professional",
+      "direct": "Direct",
+      "analytical": "Analytical",
+      "creative": "Creative",
+      "technical": "Technical",
+      "friendly": "Friendly",
+      "formal": "Formal"
+    },
+    "timeScopes": {
+      "quickAction": "Quick action (5-15 min)",
+      "standardWork": "Standard work (30-60 min)",
+      "deepAnalysis": "Deep analysis (1-3 h)",
+      "longTermProject": "Long-term project (days/weeks)"
+    },
+    "executionModes": {
+      "immediate": "Immediate (LIVE)",
+      "scheduled": "Scheduled (SCHEDULED)",
+      "analytical": "Analytical (DEEP)",
+      "exploratory": "Exploratory (SCOUT)"
+    },
+    "formats": {
+      "report": "Text report",
+      "bulletList": "Bullet list",
+      "json": "JSON structure",
+      "table": "Data table",
+      "schema": "Schema/Diagram"
+    }
+  },
+  "browser": {
+    "title": "Browser Core",
+    "description": "Web browser with content extraction",
+    "ready": "Ready",
+    "urlPlaceholder": "Enter URL or search in Google...",
+    "history": "History",
+    "bookmarks": "Bookmarks",
+    "extractedLinks": "Extracted Links",
+    "loadingContent": "Loading content...",
+    "openInNewTab": "Open in new tab",
+    "errorLoading": "Cannot load page. Page may block iframe display.",
+    "features": [
+      "Web page rendering",
+      "Content extraction for AI",
+      "Link Collector integration",
+      "Automatic link extraction",
+      "Zoom and navigation control"
+    ]
+  },
+  "miniAI": {
+    "title": "Mini AI Dashboard",
+    "myMiniAIs": "My Mini AIs",
+    "executions": "Executions",
+    "memory": "Memory",
+    "creator": "Creator"
+  },
+  "status": {
+    "active": "Active",
+    "allSystemsOperational": "All systems operational",
+    "ready": "Ready"
   }
 }
