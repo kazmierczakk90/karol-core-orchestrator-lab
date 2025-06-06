@@ -6,8 +6,9 @@ import MiniAIDashboard from '@/components/MiniAIDashboard';
 import BrowserCore from '@/components/BrowserCore';
 import LinkCollector from '@/components/LinkCollector';
 import MindMapsCreator from '@/components/MindMapsCreator';
+import AgentCommander from '@/components/AgentCommander';
 import FloatingActionKey from '@/components/FloatingActionKey';
-import { Brain, Bot, Globe, Link, Map, Menu, X } from 'lucide-react';
+import { Brain, Bot, Globe, Link, Map, Users, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ExtractedLink {
@@ -46,8 +47,14 @@ const Index = () => {
     setMobileMenuOpen(false);
   };
 
+  const handleOpenCommander = () => {
+    setActiveTab('commander');
+    setMobileMenuOpen(false);
+  };
+
   const tabs = [
     { value: 'agi-core', label: 'AGI Core', icon: Brain },
+    { value: 'commander', label: 'Commander', icon: Users },
     { value: 'mini-ai', label: 'Mini AI', icon: Bot },
     { value: 'browser-core', label: 'Browser', icon: Globe },
     { value: 'link-collector', label: 'Links', icon: Link },
@@ -92,15 +99,21 @@ const Index = () => {
                   );
                 })}
               </TabsList>
-              <TabsList className="grid w-full grid-cols-1 bg-slate-700/50">
-                <TabsTrigger 
-                  value="mind-maps"
-                  className="flex items-center space-x-2 text-xs"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Map className="h-4 w-4" />
-                  <span>Mind Maps</span>
-                </TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 bg-slate-700/50">
+                {tabs.slice(4).map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <TabsTrigger 
+                      key={tab.value} 
+                      value={tab.value}
+                      className="flex items-center space-x-2 text-xs"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
               </TabsList>
             </div>
           )}
@@ -122,7 +135,7 @@ const Index = () => {
             </div>
           </div>
           
-          <TabsList className="grid w-full grid-cols-5 bg-slate-700/50">
+          <TabsList className="grid w-full grid-cols-6 bg-slate-700/50">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -139,10 +152,14 @@ const Index = () => {
           </TabsList>
         </div>
 
-        {/* Content Area - naprawione scrollowanie */}
-        <div className="flex-1 overflow-auto">
+        {/* Content Area */}
+        <div className="flex-1 overflow-hidden">
           <TabsContent value="agi-core" className="h-full m-0 p-4 md:p-6 overflow-auto">
             <AGIDashboard />
+          </TabsContent>
+          
+          <TabsContent value="commander" className="h-full m-0 p-4 md:p-6 overflow-auto">
+            <AgentCommander />
           </TabsContent>
           
           <TabsContent value="mini-ai" className="h-full m-0 p-4 md:p-6 overflow-auto">
@@ -167,6 +184,7 @@ const Index = () => {
           onExtractLinks={handleExtractLinks}
           onOpenBrowser={handleOpenBrowser}
           onOpenMiniAI={handleOpenMiniAI}
+          onOpenCommander={handleOpenCommander}
         />
       </Tabs>
     </div>

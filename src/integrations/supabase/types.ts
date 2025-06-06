@@ -9,20 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      dashboard: {
+      employees: {
         Row: {
+          created_at: string | null
+          department: string | null
+          email: string | null
+          id: number
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          email?: string | null
+          id?: never
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          email?: string | null
+          id?: never
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      POSTS: {
+        Row: {
+          CONTENT: string | null
           created_at: string
-          dashboard: string
           id: number
         }
         Insert: {
+          CONTENT?: string | null
           created_at?: string
-          dashboard: string
           id?: number
         }
         Update: {
+          CONTENT?: string | null
           created_at?: string
-          dashboard?: string
           id?: number
         }
         Relationships: []
@@ -32,7 +59,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      custom_access_token_hook: {
+        Args: { event: Json }
+        Returns: Json
+      }
+      get_employee_by_id: {
+        Args: { emp_id: number }
+        Returns: {
+          id: number
+          name: string
+          email: string
+          created_at: string
+          department: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
