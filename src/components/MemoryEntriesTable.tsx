@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Memory, Search, Trash2, Eye, Plus, Filter } from 'lucide-react';
+import { Database, Search, Trash2, Eye, Plus, Filter } from 'lucide-react';
 
 interface MemoryEntry {
   id: string;
@@ -73,7 +72,7 @@ const MemoryEntriesTable = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-cyan-400 flex items-center space-x-2">
-              <Memory className="h-6 w-6" />
+              <Database className="h-6 w-6" />
               <span>Memory Entries</span>
             </CardTitle>
             <CardDescription className="text-slate-300">
@@ -230,7 +229,7 @@ const MemoryEntriesTable = () => {
 
         {filteredEntries.length === 0 && (
           <div className="text-center py-16 text-slate-400">
-            <Memory className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <Database className="h-16 w-16 mx-auto mb-4 opacity-50" />
             <p className="text-lg">No memory entries found</p>
             <p>Try adjusting your search or filter criteria</p>
           </div>

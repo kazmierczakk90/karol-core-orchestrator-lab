@@ -51,7 +51,7 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
 
   // Initialize with extracted links
   useEffect(() => {
-    const newEntries = extractedLinks.map((link, index) => ({
+    const newEntries: URLScrapEntry[] = extractedLinks.map((link, index) => ({
       id: `scrap_${Date.now()}_${index}`,
       url: link.url,
       title: link.title,
@@ -64,10 +64,10 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
           description: 'Basic page information',
           createdAt: new Date(),
           variables: [
-            { id: `var_${Date.now()}_${index}_1`, name: 'Page Title', value: link.title, type: 'string', updatedAt: new Date(), autoUpdate: true },
-            { id: `var_${Date.now()}_${index}_2`, name: 'Domain', value: link.domain, type: 'string', updatedAt: new Date(), autoUpdate: true },
-            { id: `var_${Date.now()}_${index}_3`, name: 'URL Length', value: link.url.length, type: 'number', updatedAt: new Date(), autoUpdate: true },
-            { id: `var_${Date.now()}_${index}_4`, name: 'Is HTTPS', value: link.url.startsWith('https'), type: 'boolean', updatedAt: new Date(), autoUpdate: true }
+            { id: `var_${Date.now()}_${index}_1`, name: 'Page Title', value: link.title, type: 'string' as const, updatedAt: new Date(), autoUpdate: true },
+            { id: `var_${Date.now()}_${index}_2`, name: 'Domain', value: link.domain, type: 'string' as const, updatedAt: new Date(), autoUpdate: true },
+            { id: `var_${Date.now()}_${index}_3`, name: 'URL Length', value: link.url.length, type: 'number' as const, updatedAt: new Date(), autoUpdate: true },
+            { id: `var_${Date.now()}_${index}_4`, name: 'Is HTTPS', value: link.url.startsWith('https'), type: 'boolean' as const, updatedAt: new Date(), autoUpdate: true }
           ]
         },
         {
@@ -76,9 +76,9 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
           description: 'SEO and metadata information',
           createdAt: new Date(),
           variables: [
-            { id: `var_${Date.now()}_${index}_5`, name: 'Meta Description', value: 'Auto-extracted meta description', type: 'string', updatedAt: new Date(), autoUpdate: true },
-            { id: `var_${Date.now()}_${index}_6`, name: 'Meta Keywords', value: 'Auto-extracted keywords', type: 'string', updatedAt: new Date(), autoUpdate: true },
-            { id: `var_${Date.now()}_${index}_7`, name: 'Page Score', value: Math.floor(Math.random() * 100), type: 'number', updatedAt: new Date(), autoUpdate: true }
+            { id: `var_${Date.now()}_${index}_5`, name: 'Meta Description', value: 'Auto-extracted meta description', type: 'string' as const, updatedAt: new Date(), autoUpdate: true },
+            { id: `var_${Date.now()}_${index}_6`, name: 'Meta Keywords', value: 'Auto-extracted keywords', type: 'string' as const, updatedAt: new Date(), autoUpdate: true },
+            { id: `var_${Date.now()}_${index}_7`, name: 'Page Score', value: Math.floor(Math.random() * 100), type: 'number' as const, updatedAt: new Date(), autoUpdate: true }
           ]
         }
       ]

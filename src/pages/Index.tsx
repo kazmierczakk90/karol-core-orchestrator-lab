@@ -17,7 +17,7 @@ import MiniAIInstancesTable from '@/components/MiniAIInstancesTable';
 import MemoryEntriesTable from '@/components/MemoryEntriesTable';
 import SystemConnectionsTable from '@/components/SystemConnectionsTable';
 import FloatingActionKey from '@/components/FloatingActionKey';
-import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Memory, Zap } from 'lucide-react';
+import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -115,7 +115,7 @@ const IndexContent = () => {
   const dataTabs = [
     { value: 'system-agents', label: 'System Agents', icon: Bot },
     { value: 'mini-ai', label: 'Mini AI Instances', icon: Brain },
-    { value: 'memory', label: 'Memory Entries', icon: Memory },
+    { value: 'memory', label: 'Memory Entries', icon: Database },
     { value: 'connections', label: 'System Connections', icon: Zap },
     { value: 'url-scrap', label: 'URL Scrap', icon: Search },
   ];

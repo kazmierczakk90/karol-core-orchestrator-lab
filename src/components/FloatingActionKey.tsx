@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -33,11 +34,46 @@ const FloatingActionKey = ({
   const [showKeyboardHints, setShowKeyboardHints] = useState(false);
 
   const quickActions = [
-    { key: 'E', action: onExtractLinks, label: 'Extract Links', icon: Link },
-    { key: 'B', action: onOpenBrowser, label: 'Open Browser', icon: Globe },
-    { key: 'M', action: onOpenMiniAI, label: 'Mini AI', icon: Bot },
-    { key: 'C', action: onOpenCommander, label: 'Commander', icon: Users },
-    { key: 'T', action: onOpenTrainingCall, label: 'Training Call', icon: Phone }
+    { 
+      key: 'E', 
+      action: onExtractLinks, 
+      label: 'Extract Links', 
+      icon: Link,
+      shortcut: 'Alt+F4',
+      color: 'bg-blue-500 hover:bg-blue-600'
+    },
+    { 
+      key: 'B', 
+      action: onOpenBrowser, 
+      label: 'Open Browser', 
+      icon: Globe,
+      shortcut: 'Alt+F2',
+      color: 'bg-green-500 hover:bg-green-600'
+    },
+    { 
+      key: 'M', 
+      action: onOpenMiniAI, 
+      label: 'Mini AI', 
+      icon: Bot,
+      shortcut: 'Alt+F3',
+      color: 'bg-purple-500 hover:bg-purple-600'
+    },
+    { 
+      key: 'C', 
+      action: onOpenCommander, 
+      label: 'Commander', 
+      icon: Users,
+      shortcut: 'Alt+F1',
+      color: 'bg-cyan-500 hover:bg-cyan-600'
+    },
+    { 
+      key: 'T', 
+      action: onOpenTrainingCall, 
+      label: 'Training Call', 
+      icon: Phone,
+      shortcut: 'Alt+F5',
+      color: 'bg-orange-500 hover:bg-orange-600'
+    }
   ].filter(action => action.action); // Filter out undefined actions
 
   useEffect(() => {
