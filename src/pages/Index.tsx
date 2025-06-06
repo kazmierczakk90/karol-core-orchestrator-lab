@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -18,6 +17,7 @@ import MemoryEntriesTable from '@/components/MemoryEntriesTable';
 import SystemConnectionsTable from '@/components/SystemConnectionsTable';
 import FloatingActionKey from '@/components/FloatingActionKey';
 import MenuLevelManager from '@/components/MenuLevelManager';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
@@ -39,6 +39,7 @@ const IndexContent = () => {
   const [showTrainingCallModal, setShowTrainingCallModal] = useState(false);
   const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
   const [collapsedMenus, setCollapsedMenus] = useState<{[key: string]: boolean}>({});
+  const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
     try {
@@ -139,7 +140,10 @@ const IndexContent = () => {
       {/* Header z logo */}
       <div className="bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div 
+            className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => setShowAnalyticsDashboard(true)}
+          >
             <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
             <div>
               <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
@@ -160,6 +164,12 @@ const IndexContent = () => {
           </div>
         </div>
       </div>
+
+      {/* Analytics Dashboard */}
+      <AnalyticsDashboard 
+        isOpen={showAnalyticsDashboard} 
+        onClose={() => setShowAnalyticsDashboard(false)} 
+      />
 
       <MenuLevelManager
         menuLevel={menuLevel}

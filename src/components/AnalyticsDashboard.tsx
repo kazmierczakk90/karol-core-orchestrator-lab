@@ -1,0 +1,414 @@
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { 
+  Activity, 
+  TrendingUp, 
+  Brain, 
+  Zap, 
+  CheckCircle, 
+  AlertCircle, 
+  Clock,
+  Users,
+  Database,
+  Settings,
+  BarChart3,
+  Target,
+  Lightbulb,
+  Cpu
+} from 'lucide-react';
+import { autoImprovementService, SystemMetrics, ImprovementSuggestion, ImprovementEvent } from '@/services/autoImprovementService';
+
+interface AnalyticsDashboardProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
+  const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
+  const [suggestions, setSuggestions] = useState<ImprovementSuggestion[]>([]);
+  const [recentEvents, setRecentEvents] = useState<ImprovementEvent[]>([]);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  useEffect(() => {
+    if (isOpen) {
+      loadDashboardData();
+      const interval = setInterval(loadDashboardData, 5000); // Refresh co 5 sekund
+      return () => clearInterval(interval);
+    }
+  }, [isOpen]);
+
+  const loadDashboardData = () => {
+    setMetrics(autoImprovementService.getMetrics());
+    setSuggestions(autoImprovementService.getSuggestions());
+    setRecentEvents(autoImprovementService.getRecentEvents(20));
+  };
+
+  if (!isOpen || !metrics) return null;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'implemented': return 'bg-green-500/20 text-green-400 border-green-500/50';
+      case 'approved': return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
+      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
+      case 'rejected': return 'bg-red-500/20 text-red-400 border-red-500/50';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
+    }
+  };
+
+  const getImpactColor = (impact: string) => {
+    switch (impact) {
+      case 'high': return 'text-red-400';
+      case 'medium': return 'text-yellow-400';
+      case 'low': return 'text-green-400';
+      default: return 'text-gray-400';
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
+      <div className="flex h-full">
+        {/* Sidebar */}
+        <div className="w-80 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3">
+              <Brain className="h-8 w-8 text-cyan-400 animate-pulse" />
+              <div>
+                <h1 className="text-xl font-bold text-white">Analytics Hub</h1>
+                <p className="text-sm text-slate-400">Auto-Improvement Control</p>
+              </div>
+            </div>
+            <Button onClick={onClose} variant="ghost" size="sm">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="space-y-4 mb-8">
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5 text-cyan-400" />
+                  <span className="text-sm text-slate-300">System Status</span>
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
+                  Active
+                </Badge>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-slate-300">Efficiency</span>
+                <span className="text-sm text-white">{metrics.averageEfficiency.toFixed(1)}%</span>
+              </div>
+              <Progress value={metrics.averageEfficiency} className="h-2" />
+            </div>
+
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-slate-300">Quality Score</span>
+                <span className="text-sm text-white">{metrics.qualityScore.toFixed(1)}%</span>
+              </div>
+              <Progress value={metrics.qualityScore} className="h-2" />
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="space-y-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: BarChart3 },
+              { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
+              { id: 'events', label: 'Recent Events', icon: Clock },
+              { id: 'agents', label: 'Agent Performance', icon: Users },
+              { id: 'improvement', label: 'Auto-Improvement', icon: TrendingUp }
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                    activeTab === item.id 
+                      ? 'bg-cyan-500/20 text-cyan-400' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 bg-slate-900 p-8 overflow-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Total Events</CardTitle>
+                    <Database className="h-4 w-4 text-cyan-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.totalEvents}</div>
+                    <p className="text-xs text-slate-400">System interactions</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Suggestions</CardTitle>
+                    <Lightbulb className="h-4 w-4 text-yellow-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.totalSuggestions}</div>
+                    <p className="text-xs text-slate-400">Improvement ideas</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Implemented</CardTitle>
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.implementedSuggestions}</div>
+                    <p className="text-xs text-slate-400">Applied changes</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Weekly Growth</CardTitle>
+                    <TrendingUp className="h-4 w-4 text-purple-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.weeklyImprovement}</div>
+                    <p className="text-xs text-slate-400">This week</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* System Health */}
+              <Card className="bg-slate-800/50 border-slate-700/50">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center space-x-2">
+                    <Cpu className="h-5 w-5 text-cyan-400" />
+                    <span>System Health</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-slate-300">Efficiency Rate</span>
+                        <span className="text-sm text-white">{metrics.averageEfficiency.toFixed(1)}%</span>
+                      </div>
+                      <Progress value={metrics.averageEfficiency} className="h-3" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-slate-300">Quality Score</span>
+                        <span className="text-sm text-white">{metrics.qualityScore.toFixed(1)}%</span>
+                      </div>
+                      <Progress value={metrics.qualityScore} className="h-3" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="suggestions" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white">Auto-Improvement Suggestions</h2>
+                <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+                  {suggestions.length} Total
+                </Badge>
+              </div>
+              
+              <div className="space-y-3">
+                {suggestions.slice(0, 10).map((suggestion) => (
+                  <Card key={suggestion.id} className="bg-slate-800/50 border-slate-700/50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Badge className={getStatusColor(suggestion.status)}>
+                              {suggestion.status}
+                            </Badge>
+                            <Badge variant="outline" className={getImpactColor(suggestion.impact)}>
+                              {suggestion.impact} impact
+                            </Badge>
+                            <span className="text-xs text-slate-400">
+                              {suggestion.category}
+                            </span>
+                          </div>
+                          <p className="text-white text-sm mb-2">{suggestion.description}</p>
+                          <p className="text-slate-400 text-xs">{suggestion.implementation}</p>
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {suggestion.timestamp.toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="events" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white">Recent System Events</h2>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
+                  Live Feed
+                </Badge>
+              </div>
+              
+              <div className="space-y-2">
+                {recentEvents.map((event) => (
+                  <Card key={event.id} className="bg-slate-800/30 border-slate-700/30">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-2 h-2 rounded-full ${
+                            event.eventType === 'decision' ? 'bg-purple-400' :
+                            event.eventType === 'action' ? 'bg-blue-400' :
+                            event.eventType === 'chat' ? 'bg-green-400' :
+                            event.eventType === 'command' ? 'bg-yellow-400' :
+                            'bg-cyan-400'
+                          }`} />
+                          <span className="text-white text-sm">{event.context}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {event.eventType}
+                          </Badge>
+                          {event.agentId && (
+                            <Badge variant="outline" className="text-xs text-cyan-400">
+                              {event.agentId}
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="text-xs text-slate-500">
+                          {event.timestamp.toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="agents" className="space-y-4">
+              <h2 className="text-xl font-bold text-white">Agent Performance</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(metrics.agentPerformance).map(([agent, performance]) => (
+                  <Card key={agent} className="bg-slate-800/50 border-slate-700/50">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          <Users className="h-4 w-4 text-cyan-400" />
+                          <span className="text-white font-medium">{agent}</span>
+                        </div>
+                        <Badge className={
+                          performance > 80 ? 'bg-green-500/20 text-green-400 border-green-500/50' :
+                          performance > 60 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' :
+                          'bg-red-500/20 text-red-400 border-red-500/50'
+                        }>
+                          {performance.toFixed(1)}%
+                        </Badge>
+                      </div>
+                      <Progress value={performance} className="h-2" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="improvement" className="space-y-4">
+              <h2 className="text-xl font-bold text-white">Auto-Improvement Engine</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Active Agents</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { name: '@optymalizator', status: 'active', role: 'Analysis & Quality' },
+                      { name: '@system-admin', status: 'active', role: 'Implementation' },
+                      { name: '@logger', status: 'active', role: 'Event Tracking' },
+                      { name: '@ceo', status: 'active', role: 'Approval Process' }
+                    ].map((agent) => (
+                      <div key={agent.name} className="flex items-center justify-between">
+                        <div>
+                          <span className="text-white text-sm font-medium">{agent.name}</span>
+                          <p className="text-xs text-slate-400">{agent.role}</p>
+                        </div>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
+                          {agent.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Improvement Cycle</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-cyan-400 text-xs">1</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Event Detection</span>
+                        <p className="text-xs text-slate-400">Continuous monitoring</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-yellow-400 text-xs">2</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Analysis</span>
+                        <p className="text-xs text-slate-400">@optymalizator review</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-blue-400 text-xs">3</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Approval</span>
+                        <p className="text-xs text-slate-400">@ceo decision</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-green-400 text-xs">4</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Implementation</span>
+                        <p className="text-xs text-slate-400">@system-admin deploy</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AnalyticsDashboard;
