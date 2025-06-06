@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -10,6 +9,7 @@ import AgentCommander from '@/components/AgentCommander';
 import FloatingActionKey from '@/components/FloatingActionKey';
 import { Brain, Bot, Globe, Link, Map, Users, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/sonner';
 
 interface ExtractedLink {
   url: string;
@@ -22,6 +22,54 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('agi-core');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const extractCurrentPageLinks = (): ExtractedLink[] => {
+    try {
+      // Skanowanie wszystkich linków na aktualnej stronie
+      const allLinks = document.querySelectorAll('a[href]');
+      const extractedLinks: ExtractedLink[] = [];
+      const seenUrls = new Set<string>();
+
+      allLinks.forEach((link) => {
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        // Filtrowanie niepotrzebnych linków
+        if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+          return;
+        }
+
+        // Konwersja relative URLs na absolute URLs
+        let absoluteUrl: string;
+        try {
+          absoluteUrl = new URL(href, window.location.origin).href;
+        } catch (error) {
+          return; // Pomiń nieprawidłowe URLs
+        }
+
+        // Sprawdzenie duplikatów
+        if (seenUrls.has(absoluteUrl)) return;
+        seenUrls.add(absoluteUrl);
+
+        // Wyciągnięcie tytułu z tekstu linku lub href
+        const title = link.textContent?.trim() || link.getAttribute('title') || new URL(absoluteUrl).pathname;
+        
+        // Określenie domeny
+        const domain = new URL(absoluteUrl).hostname;
+
+        extractedLinks.push({
+          url: absoluteUrl,
+          title: title || domain,
+          domain
+        });
+      });
+
+      return extractedLinks;
+    } catch (error) {
+      console.error('Błąd podczas ekstrakcji linków:', error);
+      return [];
+    }
+  };
+
   const handleLinksExtracted = (links: ExtractedLink[]) => {
     console.log('Links received from Browser:', links);
     setExtractedLinks(prev => [...links, ...prev]);
@@ -32,9 +80,27 @@ const Index = () => {
   };
 
   const handleExtractLinks = () => {
-    // Trigger link extraction from browser
-    console.log('Extract links triggered from Floating Action Key');
-    setActiveTab('browser-core');
+    // Prawdziwa ekstrakcja linków z bieżącej strony
+    console.log('Rozpoczynam ekstrakcję linków z aktualnej strony...');
+    
+    const currentPageLinks = extractCurrentPageLinks();
+    
+    if (currentPageLinks.length > 0) {
+      // Przekaż linki do handleLinksExtracted
+      handleLinksExtracted(currentPageLinks);
+      
+      // Pokaż powiadomienie o sukcesie
+      toast.success(`Ekstrakcja zakończona!`, {
+        description: `Znaleziono ${currentPageLinks.length} linków na tej stronie`,
+        duration: 3000
+      });
+    } else {
+      // Powiadomienie gdy nie znaleziono linków
+      toast.info('Brak linków', {
+        description: 'Nie znaleziono żadnych linków na tej stronie',
+        duration: 3000
+      });
+    }
   };
 
   const handleOpenBrowser = () => {
