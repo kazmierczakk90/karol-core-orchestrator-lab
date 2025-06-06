@@ -21,16 +21,13 @@ import {
   Lightbulb,
   Cpu,
   TreePine,
-  Table as TableIcon,
-  Layout
+  Table as TableIcon
 } from 'lucide-react';
 import { autoImprovementService, SystemMetrics, ImprovementSuggestion, ImprovementEvent } from '@/services/autoImprovementService';
 import NavigationTree from './NavigationTree';
 import EnhancedTimeline from './EnhancedTimeline';
 import SmartTable from './SmartTable';
 import AgentPreferencesHub from './AgentPreferencesHub';
-import DashboardLayoutManager from './layout/DashboardLayoutManager';
-import ElementEditor from './layout/ElementEditor';
 
 interface AnalyticsDashboardProps {
   isOpen: boolean;
@@ -42,9 +39,6 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
   const [suggestions, setSuggestions] = useState<ImprovementSuggestion[]>([]);
   const [recentEvents, setRecentEvents] = useState<ImprovementEvent[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
-  const [showElementEditor, setShowElementEditor] = useState(false);
-  const [selectedElement, setSelectedElement] = useState<any>(null);
-  const [layoutMode, setLayoutMode] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -110,7 +104,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="flex h-full">
-        {/* Enhanced Sidebar with Navigation Tree ALWAYS AT BOTTOM */}
+        {/* Enhanced Sidebar with Navigation Tree */}
         <div className="w-96 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -120,18 +114,9 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
                 <p className="text-sm text-slate-400">Auto-Improvement Control</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button 
-                onClick={() => setLayoutMode(!layoutMode)}
-                variant={layoutMode ? "default" : "ghost"} 
-                size="sm"
-              >
-                <Layout className="h-4 w-4" />
-              </Button>
-              <Button onClick={onClose} variant="ghost" size="sm">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button onClick={onClose} variant="ghost" size="sm">
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Quick Stats */}
@@ -157,7 +142,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
             </div>
           </div>
 
-          {/* Navigation Tree - ZAWSZE OSTATNI ELEMENT */}
+          {/* Navigation Tree */}
           <div className="flex-1 min-h-0">
             <NavigationTree 
               onNodeSelect={handleNodeSelect}
@@ -166,7 +151,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
             />
           </div>
 
-          {/* Navigation Menu */}
+          {/* Navigation */}
           <nav className="space-y-2 mt-4">
             {[
               { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -194,403 +179,197 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
           </nav>
         </div>
 
-        {/* Main Content z Layout Manager */}
+        {/* Main Content */}
         <div className="flex-1 bg-slate-900 overflow-auto">
-          {layoutMode ? (
-            <DashboardLayoutManager
-              className="h-full"
-              onLayoutChange={(layout) => console.log('Layout changed:', layout)}
-            >
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsContent value="overview" className="p-8 space-y-6">
-                  {/* Stats Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Card className="bg-slate-800/50 border-slate-700/50">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-300">Total Events</CardTitle>
-                        <Database className="h-4 w-4 text-cyan-400" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-white">{metrics.totalEvents}</div>
-                        <p className="text-xs text-slate-400">System interactions</p>
-                      </CardContent>
-                    </Card>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsContent value="overview" className="p-8 space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Total Events</CardTitle>
+                    <Database className="h-4 w-4 text-cyan-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.totalEvents}</div>
+                    <p className="text-xs text-slate-400">System interactions</p>
+                  </CardContent>
+                </Card>
 
-                    <Card className="bg-slate-800/50 border-slate-700/50">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-300">Suggestions</CardTitle>
-                        <Lightbulb className="h-4 w-4 text-yellow-400" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-white">{metrics.totalSuggestions}</div>
-                        <p className="text-xs text-slate-400">Improvement ideas</p>
-                      </CardContent>
-                    </Card>
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Suggestions</CardTitle>
+                    <Lightbulb className="h-4 w-4 text-yellow-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.totalSuggestions}</div>
+                    <p className="text-xs text-slate-400">Improvement ideas</p>
+                  </CardContent>
+                </Card>
 
-                    <Card className="bg-slate-800/50 border-slate-700/50">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-300">Implemented</CardTitle>
-                        <CheckCircle className="h-4 w-4 text-green-400" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-white">{metrics.implementedSuggestions}</div>
-                        <p className="text-xs text-slate-400">Applied changes</p>
-                      </CardContent>
-                    </Card>
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Implemented</CardTitle>
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.implementedSuggestions}</div>
+                    <p className="text-xs text-slate-400">Applied changes</p>
+                  </CardContent>
+                </Card>
 
-                    <Card className="bg-slate-800/50 border-slate-700/50">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-300">Weekly Growth</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-purple-400" />
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-white">{metrics.weeklyImprovement}</div>
-                        <p className="text-xs text-slate-400">This week</p>
-                      </CardContent>
-                    </Card>
-                  </div>
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-300">Weekly Growth</CardTitle>
+                    <TrendingUp className="h-4 w-4 text-purple-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white">{metrics.weeklyImprovement}</div>
+                    <p className="text-xs text-slate-400">This week</p>
+                  </CardContent>
+                </Card>
+              </div>
 
-                  {/* Enhanced Timeline */}
-                  <EnhancedTimeline className="mb-8" />
+              {/* Enhanced Timeline */}
+              <EnhancedTimeline className="mb-8" />
 
-                  {/* Smart Table - always last element with anchor */}
-                  <SmartTable className="mt-8" />
-                </TabsContent>
+              {/* Smart Table - always last element with anchor */}
+              <SmartTable className="mt-8" />
+            </TabsContent>
 
-                <TabsContent value="timeline" className="p-8">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-white mb-2">System Timeline</h2>
-                    <p className="text-slate-400">Real-time view of live events and planned actions</p>
-                  </div>
-                  <EnhancedTimeline />
-                </TabsContent>
+            <TabsContent value="timeline" className="p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">System Timeline</h2>
+                <p className="text-slate-400">Real-time view of live events and planned actions</p>
+              </div>
+              <EnhancedTimeline />
+            </TabsContent>
 
-                <TabsContent value="suggestions" className="p-8 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-white">Auto-Improvement Suggestions</h2>
-                    <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
-                      {suggestions.length} Total
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {suggestions.slice(0, 10).map((suggestion) => (
-                      <Card key={suggestion.id} className="bg-slate-800/50 border-slate-700/50">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <Badge className={getStatusColor(suggestion.status)}>
-                                  {suggestion.status}
-                                </Badge>
-                                <Badge variant="outline" className={getImpactColor(suggestion.impact)}>
-                                  {suggestion.impact} impact
-                                </Badge>
-                                <span className="text-xs text-slate-400">
-                                  {suggestion.category}
-                                </span>
-                              </div>
-                              <p className="text-white text-sm mb-2">{suggestion.description}</p>
-                              <p className="text-slate-400 text-xs">{suggestion.implementation}</p>
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {suggestion.timestamp.toLocaleTimeString()}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="agents" className="p-8">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-white mb-2">Agent Preferences Hub</h2>
-                    <p className="text-slate-400">Central navigation and management for all system agents</p>
-                  </div>
-                  <AgentPreferencesHub 
-                    onNavigateToFunction={handleNavigateToFunction}
-                    onNavigateToAgent={handleNavigateToAgent}
-                  />
-                </TabsContent>
-
-                <TabsContent value="improvement" className="p-8 space-y-4">
-                  <h2 className="text-xl font-bold text-white">Auto-Improvement Engine</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-slate-800/50 border-slate-700/50">
-                      <CardHeader>
-                        <CardTitle className="text-white">Active Agents</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {[
-                          { name: '@optymalizator', status: 'active', role: 'Analysis & Quality' },
-                          { name: '@system-admin', status: 'active', role: 'Implementation' },
-                          { name: '@logger', status: 'active', role: 'Event Tracking' },
-                          { name: '@ceo', status: 'active', role: 'Approval Process' }
-                        ].map((agent) => (
-                          <div key={agent.name} className="flex items-center justify-between">
-                            <div>
-                              <span className="text-white text-sm font-medium">{agent.name}</span>
-                              <p className="text-xs text-slate-400">{agent.role}</p>
-                            </div>
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
-                              {agent.status}
+            <TabsContent value="suggestions" className="p-8 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white">Auto-Improvement Suggestions</h2>
+                <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
+                  {suggestions.length} Total
+                </Badge>
+              </div>
+              
+              <div className="space-y-3">
+                {suggestions.slice(0, 10).map((suggestion) => (
+                  <Card key={suggestion.id} className="bg-slate-800/50 border-slate-700/50">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Badge className={getStatusColor(suggestion.status)}>
+                              {suggestion.status}
                             </Badge>
+                            <Badge variant="outline" className={getImpactColor(suggestion.impact)}>
+                              {suggestion.impact} impact
+                            </Badge>
+                            <span className="text-xs text-slate-400">
+                              {suggestion.category}
+                            </span>
                           </div>
-                        ))}
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-slate-800/50 border-slate-700/50">
-                      <CardHeader>
-                        <CardTitle className="text-white">Improvement Cycle</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                            <span className="text-cyan-400 text-xs">1</span>
-                          </div>
-                          <div>
-                            <span className="text-white text-sm">Event Detection</span>
-                            <p className="text-xs text-slate-400">Continuous monitoring</p>
-                          </div>
+                          <p className="text-white text-sm mb-2">{suggestion.description}</p>
+                          <p className="text-slate-400 text-xs">{suggestion.implementation}</p>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                            <span className="text-yellow-400 text-xs">2</span>
-                          </div>
-                          <div>
-                            <span className="text-white text-sm">Analysis</span>
-                            <p className="text-xs text-slate-400">@optymalizator review</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-                            <span className="text-blue-400 text-xs">3</span>
-                          </div>
-                          <div>
-                            <span className="text-white text-sm">Approval</span>
-                            <p className="text-xs text-slate-400">@ceo decision</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                            <span className="text-green-400 text-xs">4</span>
-                          </div>
-                          <div>
-                            <span className="text-white text-sm">Implementation</span>
-                            <p className="text-xs text-slate-400">@system-admin deploy</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </DashboardLayoutManager>
-          ) : (
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsContent value="overview" className="p-8 space-y-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">Total Events</CardTitle>
-                      <Database className="h-4 w-4 text-cyan-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{metrics.totalEvents}</div>
-                      <p className="text-xs text-slate-400">System interactions</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">Suggestions</CardTitle>
-                      <Lightbulb className="h-4 w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{metrics.totalSuggestions}</div>
-                      <p className="text-xs text-slate-400">Improvement ideas</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">Implemented</CardTitle>
-                      <CheckCircle className="h-4 w-4 text-green-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{metrics.implementedSuggestions}</div>
-                      <p className="text-xs text-slate-400">Applied changes</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">Weekly Growth</CardTitle>
-                      <TrendingUp className="h-4 w-4 text-purple-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{metrics.weeklyImprovement}</div>
-                      <p className="text-xs text-slate-400">This week</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Enhanced Timeline */}
-                <EnhancedTimeline className="mb-8" />
-
-                {/* Smart Table - always last element with anchor */}
-                <SmartTable className="mt-8" />
-              </TabsContent>
-
-              <TabsContent value="timeline" className="p-8">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-white mb-2">System Timeline</h2>
-                  <p className="text-slate-400">Real-time view of live events and planned actions</p>
-                </div>
-                <EnhancedTimeline />
-              </TabsContent>
-
-              <TabsContent value="suggestions" className="p-8 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white">Auto-Improvement Suggestions</h2>
-                  <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
-                    {suggestions.length} Total
-                  </Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  {suggestions.slice(0, 10).map((suggestion) => (
-                    <Card key={suggestion.id} className="bg-slate-800/50 border-slate-700/50">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <Badge className={getStatusColor(suggestion.status)}>
-                                {suggestion.status}
-                              </Badge>
-                              <Badge variant="outline" className={getImpactColor(suggestion.impact)}>
-                                {suggestion.impact} impact
-                              </Badge>
-                              <span className="text-xs text-slate-400">
-                                {suggestion.category}
-                              </span>
-                            </div>
-                            <p className="text-white text-sm mb-2">{suggestion.description}</p>
-                            <p className="text-slate-400 text-xs">{suggestion.implementation}</p>
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            {suggestion.timestamp.toLocaleTimeString()}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="agents" className="p-8">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-white mb-2">Agent Preferences Hub</h2>
-                  <p className="text-slate-400">Central navigation and management for all system agents</p>
-                </div>
-                <AgentPreferencesHub 
-                  onNavigateToFunction={handleNavigateToFunction}
-                  onNavigateToAgent={handleNavigateToAgent}
-                />
-              </TabsContent>
-
-              <TabsContent value="improvement" className="p-8 space-y-4">
-                <h2 className="text-xl font-bold text-white">Auto-Improvement Engine</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardHeader>
-                      <CardTitle className="text-white">Active Agents</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {[
-                        { name: '@optymalizator', status: 'active', role: 'Analysis & Quality' },
-                        { name: '@system-admin', status: 'active', role: 'Implementation' },
-                        { name: '@logger', status: 'active', role: 'Event Tracking' },
-                        { name: '@ceo', status: 'active', role: 'Approval Process' }
-                      ].map((agent) => (
-                        <div key={agent.name} className="flex items-center justify-between">
-                          <div>
-                            <span className="text-white text-sm font-medium">{agent.name}</span>
-                            <p className="text-xs text-slate-400">{agent.role}</p>
-                          </div>
-                          <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
-                            {agent.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-slate-800/50 border-slate-700/50">
-                    <CardHeader>
-                      <CardTitle className="text-white">Improvement Cycle</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-cyan-400 text-xs">1</span>
-                        </div>
-                        <div>
-                          <span className="text-white text-sm">Event Detection</span>
-                          <p className="text-xs text-slate-400">Continuous monitoring</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-yellow-400 text-xs">2</span>
-                        </div>
-                        <div>
-                          <span className="text-white text-sm">Analysis</span>
-                          <p className="text-xs text-slate-400">@optymalizator review</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-blue-400 text-xs">3</span>
-                        </div>
-                        <div>
-                          <span className="text-white text-sm">Approval</span>
-                          <p className="text-xs text-slate-400">@ceo decision</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-green-400 text-xs">4</span>
-                        </div>
-                        <div>
-                          <span className="text-white text-sm">Implementation</span>
-                          <p className="text-xs text-slate-400">@system-admin deploy</p>
+                        <div className="text-xs text-slate-500">
+                          {suggestion.timestamp.toLocaleTimeString()}
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
-          )}
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="agents" className="p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Agent Preferences Hub</h2>
+                <p className="text-slate-400">Central navigation and management for all system agents</p>
+              </div>
+              <AgentPreferencesHub 
+                onNavigateToFunction={handleNavigateToFunction}
+                onNavigateToAgent={handleNavigateToAgent}
+              />
+            </TabsContent>
+
+            <TabsContent value="improvement" className="p-8 space-y-4">
+              <h2 className="text-xl font-bold text-white">Auto-Improvement Engine</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Active Agents</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { name: '@optymalizator', status: 'active', role: 'Analysis & Quality' },
+                      { name: '@system-admin', status: 'active', role: 'Implementation' },
+                      { name: '@logger', status: 'active', role: 'Event Tracking' },
+                      { name: '@ceo', status: 'active', role: 'Approval Process' }
+                    ].map((agent) => (
+                      <div key={agent.name} className="flex items-center justify-between">
+                        <div>
+                          <span className="text-white text-sm font-medium">{agent.name}</span>
+                          <p className="text-xs text-slate-400">{agent.role}</p>
+                        </div>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
+                          {agent.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white">Improvement Cycle</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-cyan-400 text-xs">1</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Event Detection</span>
+                        <p className="text-xs text-slate-400">Continuous monitoring</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-yellow-400 text-xs">2</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Analysis</span>
+                        <p className="text-xs text-slate-400">@optymalizator review</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-blue-400 text-xs">3</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Approval</span>
+                        <p className="text-xs text-slate-400">@ceo decision</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-green-400 text-xs">4</span>
+                      </div>
+                      <div>
+                        <span className="text-white text-sm">Implementation</span>
+                        <p className="text-xs text-slate-400">@system-admin deploy</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-
-      {/* Element Editor */}
-      <ElementEditor
-        element={selectedElement}
-        isOpen={showElementEditor}
-        onClose={() => setShowElementEditor(false)}
-        onSave={(element) => {
-          console.log('Element saved:', element);
-          setShowElementEditor(false);
-        }}
-      />
     </div>
   );
 };
