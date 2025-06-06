@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -10,6 +11,8 @@ import FloatingActionKey from '@/components/FloatingActionKey';
 import { Brain, Bot, Globe, Link, Map, Users, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ExtractedLink {
   url: string;
@@ -17,14 +20,14 @@ interface ExtractedLink {
   domain: string;
 }
 
-const Index = () => {
+const IndexContent = () => {
+  const { t } = useTranslation();
   const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
   const [activeTab, setActiveTab] = useState('agi-core');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
     try {
-      // Skanowanie wszystkich linków na aktualnej stronie
       const allLinks = document.querySelectorAll('a[href]');
       const extractedLinks: ExtractedLink[] = [];
       const seenUrls = new Set<string>();
@@ -33,27 +36,21 @@ const Index = () => {
         const href = link.getAttribute('href');
         if (!href) return;
 
-        // Filtrowanie niepotrzebnych linków
         if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
           return;
         }
 
-        // Konwersja relative URLs na absolute URLs
         let absoluteUrl: string;
         try {
           absoluteUrl = new URL(href, window.location.origin).href;
         } catch (error) {
-          return; // Pomiń nieprawidłowe URLs
+          return;
         }
 
-        // Sprawdzenie duplikatów
         if (seenUrls.has(absoluteUrl)) return;
         seenUrls.add(absoluteUrl);
 
-        // Wyciągnięcie tytułu z tekstu linku lub href
         const title = link.textContent?.trim() || link.getAttribute('title') || new URL(absoluteUrl).pathname;
-        
-        // Określenie domeny
         const domain = new URL(absoluteUrl).hostname;
 
         extractedLinks.push({
@@ -73,29 +70,23 @@ const Index = () => {
   const handleLinksExtracted = (links: ExtractedLink[]) => {
     console.log('Links received from Browser:', links);
     setExtractedLinks(prev => [...links, ...prev]);
-    
-    // Auto-switch to Link Collector tab when links are extracted
     setActiveTab('link-collector');
     setMobileMenuOpen(false);
   };
 
   const handleExtractLinks = () => {
-    // Prawdziwa ekstrakcja linków z bieżącej strony
     console.log('Rozpoczynam ekstrakcję linków z aktualnej strony...');
     
     const currentPageLinks = extractCurrentPageLinks();
     
     if (currentPageLinks.length > 0) {
-      // Przekaż linki do handleLinksExtracted
       handleLinksExtracted(currentPageLinks);
       
-      // Pokaż powiadomienie o sukcesie
       toast.success(`Ekstrakcja zakończona!`, {
         description: `Znaleziono ${currentPageLinks.length} linków na tej stronie`,
         duration: 3000
       });
     } else {
-      // Powiadomienie gdy nie znaleziono linków
       toast.info('Brak linków', {
         description: 'Nie znaleziono żadnych linków na tej stronie',
         duration: 3000
@@ -119,12 +110,12 @@ const Index = () => {
   };
 
   const tabs = [
-    { value: 'agi-core', label: 'AGI Core', icon: Brain },
-    { value: 'commander', label: 'Commander', icon: Users },
-    { value: 'mini-ai', label: 'Mini AI', icon: Bot },
-    { value: 'browser-core', label: 'Browser', icon: Globe },
-    { value: 'link-collector', label: 'Links', icon: Link },
-    { value: 'mind-maps', label: 'Mind Maps', icon: Map },
+    { value: 'agi-core', label: t('navigation.agiCore'), icon: Brain },
+    { value: 'commander', label: t('navigation.commander'), icon: Users },
+    { value: 'mini-ai', label: t('navigation.miniAI'), icon: Bot },
+    { value: 'browser-core', label: t('navigation.browser'), icon: Globe },
+    { value: 'link-collector', label: t('navigation.links'), icon: Link },
+    { value: 'mind-maps', label: t('navigation.mindMaps'), icon: Map },
   ];
 
   return (
@@ -149,14 +140,14 @@ const Index = () => {
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="mt-4 space-y-2">
-              <TabsList className="grid w-full grid-cols-2 gap-2 bg-slate-700/50">
+              <TabsList className="grid w-full grid-cols-2 gap-2 bg-gradient-dark">
                 {tabs.slice(0, 4).map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <TabsTrigger 
                       key={tab.value} 
                       value={tab.value}
-                      className="flex items-center space-x-2 text-xs"
+                      className="flex items-center space-x-2 text-xs hover-gradient-scale"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Icon className="h-4 w-4" />
@@ -165,14 +156,14 @@ const Index = () => {
                   );
                 })}
               </TabsList>
-              <TabsList className="grid w-full grid-cols-2 bg-slate-700/50">
+              <TabsList className="grid w-full grid-cols-2 bg-gradient-dark">
                 {tabs.slice(4).map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <TabsTrigger 
                       key={tab.value} 
                       value={tab.value}
-                      className="flex items-center space-x-2 text-xs"
+                      className="flex items-center space-x-2 text-xs hover-gradient-scale"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Icon className="h-4 w-4" />
@@ -186,29 +177,29 @@ const Index = () => {
         </div>
 
         {/* Desktop Header */}
-        <div className="hidden md:block bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 p-6">
+        <div className="hidden md:block bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <Brain className="h-8 w-8 text-cyan-400" />
+              <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
               <div>
-                <h1 className="text-2xl font-bold text-white">Karol Core</h1>
+                <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
                 <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-white font-medium">Status: Active</p>
-              <p className="text-green-400 text-sm">All systems operational</p>
+              <p className="text-white font-medium">{t('status.active')}</p>
+              <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
             </div>
           </div>
           
-          <TabsList className="grid w-full grid-cols-6 bg-slate-700/50">
+          <TabsList className="grid w-full grid-cols-6 bg-gradient-dark border border-cyan-800/30">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger 
                   key={tab.value} 
                   value={tab.value}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white"
                 >
                   <Icon className="h-4 w-4" />
                   <span>{tab.label}</span>
@@ -254,6 +245,14 @@ const Index = () => {
         />
       </Tabs>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <LanguageProvider>
+      <IndexContent />
+    </LanguageProvider>
   );
 };
 

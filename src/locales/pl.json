@@ -1,0 +1,125 @@
+
+{
+  "navigation": {
+    "agiCore": "AGI Core",
+    "commander": "Komandor",
+    "miniAI": "Mini AI",
+    "browser": "Przeglądarka",
+    "links": "Linki",
+    "mindMaps": "Mapy Myśli"
+  },
+  "common": {
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "create": "Utwórz",
+    "close": "Zamknij",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "search": "Szukaj",
+    "filter": "Filtruj",
+    "export": "Eksportuj",
+    "import": "Importuj",
+    "copy": "Kopiuj",
+    "paste": "Wklej",
+    "clear": "Wyczyść"
+  },
+  "agentCommander": {
+    "title": "Generator Komend Agentów AI",
+    "description": "Centrum dowodzenia - wywoływanie agentów do konkretnych akcji jak żołnierzy w misji",
+    "businessContext": "Kontekst biznesowy",
+    "industry": "Branża/Sektor",
+    "selectIndustry": "Wybierz branżę...",
+    "botFunction": "Funkcja Bota",
+    "selectFunction": "Wybierz funkcję...",
+    "agentAndTask": "Agent i typ zadania",
+    "selectAgent": "Agent do wywołania",
+    "taskType": "Typ zadania",
+    "selectTaskType": "Wybierz typ zadania...",
+    "taskDefinition": "Definicja zadania",
+    "taskDescription": "Opis zadania",
+    "taskDescriptionPlaceholder": "W czym mogę Ci pomóc jako AI?",
+    "goal": "Cel jaki Cię interesuje",
+    "goalPlaceholder": "Jaki jest oczekiwany rezultat?",
+    "executionParameters": "Parametry wykonania",
+    "priority": "Priorytet",
+    "tone": "Ton",
+    "timeScope": "Time/Zakres akcji",
+    "format": "Format",
+    "executionMode": "Tryb wykonania",
+    "callAgent": "Wywołaj agenta do akcji",
+    "callingAgent": "Wywołuję agenta...",
+    "copyCommand": "Skopiuj komendę",
+    "generatedCommand": "Wygenerowana komenda agenta",
+    "selectedAgent": "Wybrany Agent",
+    "priorities": {
+      "critical": "Krytyczny (RED ALERT)",
+      "high": "Wysoki (HIGH)",
+      "normal": "Normalny (STANDARD)",
+      "low": "Niski (LOW)"
+    },
+    "tones": {
+      "professional": "Profesjonalny",
+      "direct": "Bezpośredni",
+      "analytical": "Analityczny",
+      "creative": "Kreatywny",
+      "technical": "Techniczny",
+      "friendly": "Przyjazny",
+      "formal": "Formalny"
+    },
+    "timeScopes": {
+      "quickAction": "Szybka akcja (5-15 min)",
+      "standardWork": "Standardowa praca (30-60 min)",
+      "deepAnalysis": "Głęboka analiza (1-3 h)",
+      "longTermProject": "Projekt długoterminowy (dni/tygodnie)"
+    },
+    "executionModes": {
+      "immediate": "Natychmiastowy (LIVE)",
+      "scheduled": "Zaplanowany (SCHEDULED)",
+      "analytical": "Analityczny (DEEP)",
+      "exploratory": "Eksploracyjny (SCOUT)"
+    },
+    "formats": {
+      "report": "Raport tekstowy",
+      "bulletList": "Lista punktowa",
+      "json": "Struktura JSON",
+      "table": "Tabela danych",
+      "schema": "Schemat/Diagram"
+    }
+  },
+  "browser": {
+    "title": "Browser Core",
+    "description": "Przeglądarka internetowa z ekstrakcją treści",
+    "ready": "Gotowy",
+    "urlPlaceholder": "Wpisz URL lub wyszukaj w Google...",
+    "history": "Historia",
+    "bookmarks": "Zakładki",
+    "extractedLinks": "Wyekstraktowane Linki",
+    "loadingContent": "Ładowanie zawartości...",
+    "openInNewTab": "Otwórz w nowej karcie",
+    "errorLoading": "Nie można załadować strony. Strona może blokować wyświetlanie w iframe.",
+    "features": [
+      "Renderowanie stron internetowych",
+      "Ekstrakcja treści dla AI",
+      "Integracja z Link Collector",
+      "Automatyczna ekstrakcja linków",
+      "Zoom i kontrola nawigacji"
+    ]
+  },
+  "miniAI": {
+    "title": "Mini AI Dashboard",
+    "myMiniAIs": "Moje Mini AI",
+    "executions": "Wykonania",
+    "memory": "Pamięć",
+    "creator": "Kreator"
+  },
+  "status": {
+    "active": "Aktywny",
+    "allSystemsOperational": "Wszystkie systemy działają",
+    "ready": "Gotowy"
+  }
+}

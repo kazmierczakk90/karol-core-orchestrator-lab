@@ -9,15 +9,15 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Users, Target, Copy, Play, Building2, Bot, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AgentCommander = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    // Nowe pola kontekstowe
     industry: '',
     botFunction: '',
     typZadania: '',
     opisZadania: '',
-    // Istniejące pola
     cel: '',
     agent: '@ceo',
     priorytet: 'normalny',
@@ -79,24 +79,24 @@ const AgentCommander = () => {
   ];
 
   const priorytety = [
-    { value: 'krytyczny', label: 'Krytyczny (RED ALERT)', color: 'bg-red-500' },
-    { value: 'wysoki', label: 'Wysoki (HIGH)', color: 'bg-orange-500' },
-    { value: 'normalny', label: 'Normalny (STANDARD)', color: 'bg-blue-500' },
-    { value: 'niski', label: 'Niski (LOW)', color: 'bg-gray-500' }
+    { value: 'krytyczny', label: t('agentCommander.priorities.critical'), color: 'bg-gradient-error' },
+    { value: 'wysoki', label: t('agentCommander.priorities.high'), color: 'bg-gradient-warning' },
+    { value: 'normalny', label: t('agentCommander.priorities.normal'), color: 'bg-gradient-info' },
+    { value: 'niski', label: t('agentCommander.priorities.low'), color: 'bg-gray-500' }
   ];
 
   const timeZakresy = [
-    { value: 'szybka-akcja', label: 'Szybka akcja (5-15 min)' },
-    { value: 'standardowa-praca', label: 'Standardowa praca (30-60 min)' },
-    { value: 'gleboka-analiza', label: 'Głęboka analiza (1-3 h)' },
-    { value: 'projekt-dlugoterminowy', label: 'Projekt długoterminowy (dni/tygodnie)' }
+    { value: 'szybka-akcja', label: t('agentCommander.timeScopes.quickAction') },
+    { value: 'standardowa-praca', label: t('agentCommander.timeScopes.standardWork') },
+    { value: 'gleboka-analiza', label: t('agentCommander.timeScopes.deepAnalysis') },
+    { value: 'projekt-dlugoterminowy', label: t('agentCommander.timeScopes.longTermProject') }
   ];
 
   const trybyWykonania = [
-    { value: 'natychmiastowy', label: 'Natychmiastowy (LIVE)' },
-    { value: 'zaplanowany', label: 'Zaplanowany (SCHEDULED)' },
-    { value: 'analityczny', label: 'Analityczny (DEEP)' },
-    { value: 'eksploracyjny', label: 'Eksploracyjny (SCOUT)' }
+    { value: 'natychmiastowy', label: t('agentCommander.executionModes.immediate') },
+    { value: 'zaplanowany', label: t('agentCommander.executionModes.scheduled') },
+    { value: 'analityczny', label: t('agentCommander.executionModes.analytical') },
+    { value: 'eksploracyjny', label: t('agentCommander.executionModes.exploratory') }
   ];
 
   const handleGenerate = async () => {
@@ -160,21 +160,21 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
 
   return (
     <div className="space-y-6">
-      <Card className="bg-slate-800/50 border-cyan-800/30">
+      <Card className="bg-gradient-dark border-cyan-800/30 hover-gradient-scale">
         <CardHeader>
-          <CardTitle className="text-cyan-400 flex items-center space-x-2">
+          <CardTitle className="text-gradient-primary flex items-center space-x-2">
             <Users className="h-6 w-6" />
-            <span>Generator Komend Agentów AI</span>
+            <span>{t('agentCommander.title')}</span>
           </CardTitle>
           <CardDescription className="text-slate-300">
-            Centrum dowodzenia - wywoływanie agentów do konkretnych akcji jak żołnierzy w misji
+            {t('agentCommander.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Status agenta */}
-          <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+          <div className="bg-gradient-secondary/20 p-4 rounded-lg border border-slate-700/50 hover-gradient-scale">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-semibold">Wybrany Agent</h3>
+              <h3 className="text-white font-semibold">{t('agentCommander.selectedAgent')}</h3>
               <Badge className={`${getSelectedPriorytet()?.color} text-white`}>
                 {getSelectedPriorytet()?.label}
               </Badge>
@@ -189,19 +189,19 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
           <div className="space-y-4">
             <h3 className="text-white font-semibold flex items-center space-x-2">
               <Building2 className="h-5 w-5 text-cyan-400" />
-              <span>Kontekst biznesowy</span>
+              <span>{t('agentCommander.businessContext')}</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Industry */}
               <div>
                 <Label htmlFor="industry" className="text-slate-300 font-semibold">
-                  Branża/Sektor
+                  {t('agentCommander.industry')}
                 </Label>
                 <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value })}>
-                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                    <SelectValue placeholder="Wybierz branżę..." />
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1 hover:border-cyan-400/50 transition-colors">
+                    <SelectValue placeholder={t('agentCommander.selectIndustry')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectContent className="bg-gradient-dark border-slate-700">
                     {industries.map((industry) => (
                       <SelectItem key={industry.value} value={industry.value}>
                         <div className="flex items-center space-x-2">
@@ -217,13 +217,13 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
               {/* Bot Function */}
               <div>
                 <Label htmlFor="botFunction" className="text-slate-300 font-semibold">
-                  Funkcja Bota
+                  {t('agentCommander.botFunction')}
                 </Label>
                 <Select value={formData.botFunction} onValueChange={(value) => setFormData({ ...formData, botFunction: value })}>
-                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                    <SelectValue placeholder="Wybierz funkcję..." />
+                  <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1 hover:border-cyan-400/50 transition-colors">
+                    <SelectValue placeholder={t('agentCommander.selectFunction')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectContent className="bg-gradient-dark border-slate-700">
                     {botFunctions.map((func) => (
                       <SelectItem key={func.value} value={func.value}>
                         <div className="flex items-center space-x-2">
@@ -445,17 +445,17 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
             <Button
               onClick={handleGenerate}
               disabled={!formData.opisZadania.trim() || isGenerating}
-              className="bg-green-600 hover:bg-green-700 flex items-center space-x-2"
+              className="bg-gradient-success hover:bg-gradient-secondary flex items-center space-x-2 hover-gradient-scale"
             >
               {isGenerating ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  <span>Wywołuję agenta...</span>
+                  <span>{t('agentCommander.callingAgent')}</span>
                 </>
               ) : (
                 <>
                   <Play className="h-4 w-4" />
-                  <span>Wywołaj agenta do akcji</span>
+                  <span>{t('agentCommander.callAgent')}</span>
                 </>
               )}
             </Button>
@@ -464,10 +464,10 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
               <Button
                 onClick={handleCopyCommand}
                 variant="outline"
-                className="border-slate-600 text-slate-300 flex items-center space-x-2"
+                className="border-slate-600 text-slate-300 flex items-center space-x-2 hover:bg-gradient-secondary/20"
               >
                 <Copy className="h-4 w-4" />
-                <span>Skopiuj komendę</span>
+                <span>{t('agentCommander.copyCommand')}</span>
               </Button>
             )}
           </div>
@@ -476,15 +476,15 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
 
       {/* Wygenerowana komenda */}
       {generatedCommand && (
-        <Card className="bg-slate-900/50 border-green-800/30">
+        <Card className="bg-gradient-success/10 border-green-800/30 hover-gradient-scale">
           <CardHeader>
             <CardTitle className="text-green-400 flex items-center space-x-2">
               <Target className="h-5 w-5" />
-              <span>Wygenerowana komenda agenta</span>
+              <span>{t('agentCommander.generatedCommand')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-slate-800/50 p-4 rounded-lg">
+            <div className="bg-slate-800/50 p-4 rounded-lg border border-green-500/20">
               <pre className="text-green-300 text-sm whitespace-pre-wrap font-mono leading-relaxed">
                 {generatedCommand}
               </pre>

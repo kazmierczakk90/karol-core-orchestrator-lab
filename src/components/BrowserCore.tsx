@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBrowser } from '@/hooks/useBrowser';
+import { useTranslation } from '@/hooks/useTranslation';
 import { 
   Search, Globe, History, Bookmark, ChevronLeft, ChevronRight, 
   RefreshCw, Plus, Star, Link, Menu, X, ZoomIn, ZoomOut, 
@@ -24,6 +25,7 @@ interface BrowserCoreProps {
 }
 
 const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
+  const { t, tArray } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,7 +57,6 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
     setMobileMenuOpen(false);
     navigate(searchQuery);
     
-    // Auto extract links after navigation
     setTimeout(() => {
       extractLinksFromCurrentPage(browserState.currentUrl);
     }, 2000);
@@ -101,7 +102,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
       onLinksExtracted(mockLinks);
       
       const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg z-50 max-w-sm';
+      notification.className = 'fixed top-4 right-4 bg-gradient-success text-white p-3 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in';
       notification.innerHTML = `
         <div class="font-bold text-sm">Linki wyekstraktowane!</div>
         <div class="text-xs">Znaleziono ${mockLinks.length} linków z bieżącej strony</div>
@@ -132,8 +133,10 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
     }
   };
 
+  const browserFeatures = tArray('browser.features');
+
   return (
-    <div className="h-full flex bg-slate-900">
+    <div className="h-full flex bg-gradient-dark">
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div 
@@ -147,7 +150,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
         sidebarCollapsed ? 'w-16' : 'w-64'
       } ${
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0 transition-all duration-300 bg-slate-800 border-r border-slate-700 flex flex-col fixed md:relative z-50 h-full`}>
+      } md:translate-x-0 transition-all duration-300 bg-gradient-dark border-r border-slate-700 flex flex-col fixed md:relative z-50 h-full`}>
         
         <div className="p-4">
           <div className="flex items-center justify-between">
@@ -155,10 +158,10 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               variant="ghost"
               size="sm"
-              className="flex items-center"
+              className="flex items-center hover:bg-gradient-secondary/20"
             >
               <Globe className="h-4 w-4" />
-              {!sidebarCollapsed && <span className="ml-2">Browser Core</span>}
+              {!sidebarCollapsed && <span className="ml-2">{t('browser.title')}</span>}
             </Button>
             <Button
               onClick={() => setMobileMenuOpen(false)}
@@ -174,13 +177,13 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
         {!sidebarCollapsed && (
           <>
             <div className="px-4 pb-4">
-              <h3 className="text-sm font-medium text-slate-300 mb-2">Historia</h3>
+              <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.history')}</h3>
               <div className="space-y-1">
                 {history.slice(-5).map((item, index) => (
                   <button
                     key={index}
                     onClick={() => handleNavigation(item.url)}
-                    className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-slate-700 rounded truncate"
+                    className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-gradient-secondary/20 rounded truncate transition-all duration-200"
                   >
                     {item.title}
                   </button>
@@ -189,13 +192,13 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
             </div>
 
             <div className="px-4 pb-4">
-              <h3 className="text-sm font-medium text-slate-300 mb-2">Zakładki</h3>
+              <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.bookmarks')}</h3>
               <div className="space-y-1">
                 {bookmarks.map((bookmark, index) => (
                   <button
                     key={index}
                     onClick={() => handleNavigation(bookmark.url)}
-                    className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-slate-700 rounded"
+                    className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-gradient-secondary/20 rounded transition-all duration-200"
                   >
                     <Star className="h-3 w-3 inline mr-1" />
                     {bookmark.title}
@@ -206,13 +209,13 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
 
             {extractedLinks.length > 0 && (
               <div className="px-4 pb-4">
-                <h3 className="text-sm font-medium text-slate-300 mb-2">Wyekstraktowane Linki</h3>
+                <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.extractedLinks')}</h3>
                 <div className="space-y-1">
                   {extractedLinks.slice(0, 5).map((link, index) => (
                     <button
                       key={index}
                       onClick={() => handleNavigation(link.url)}
-                      className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-slate-700 rounded"
+                      className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-gradient-secondary/20 rounded transition-all duration-200"
                     >
                       <Link className="h-3 w-3 inline mr-1" />
                       {link.title}
@@ -228,7 +231,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
       {/* Main Browser Area */}
       <div className="flex-1 flex flex-col">
         {/* Navigation Bar */}
-        <div className="bg-slate-800 border-b border-slate-700 p-3 md:p-4">
+        <div className="bg-gradient-dark border-b border-slate-700 p-3 md:p-4">
           <div className="flex items-center space-x-2 md:space-x-4">
             <Button
               onClick={() => setMobileMenuOpen(true)}
@@ -245,6 +248,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                 size="sm" 
                 onClick={goBack}
                 disabled={!browserState.canGoBack}
+                className="hover:bg-gradient-secondary/20"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -253,10 +257,16 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                 size="sm" 
                 onClick={goForward}
                 disabled={!browserState.canGoForward}
+                className="hover:bg-gradient-secondary/20"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={reload}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={reload}
+                className="hover:bg-gradient-secondary/20"
+              >
                 <RefreshCw className={`h-4 w-4 ${browserState.isLoading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
@@ -266,13 +276,22 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Wpisz URL lub wyszukaj w Google..."
-                className="bg-slate-900 border-slate-600 text-white text-sm"
+                placeholder={t('browser.urlPlaceholder')}
+                className="bg-slate-900 border-slate-600 text-white text-sm focus:border-cyan-400 transition-colors"
               />
-              <Button onClick={handleSearch} size="sm" className="bg-blue-600 hover:bg-blue-700 px-2 md:px-3">
+              <Button 
+                onClick={handleSearch} 
+                size="sm" 
+                className="bg-gradient-primary hover:bg-gradient-secondary px-2 md:px-3 hover-gradient-scale"
+              >
                 <Search className="h-4 w-4" />
               </Button>
-              <Button onClick={handleExtractLinks} variant="outline" size="sm" className="border-green-500/50 text-green-400 hover:bg-green-500/10 px-2 md:px-3">
+              <Button 
+                onClick={handleExtractLinks} 
+                variant="outline" 
+                size="sm" 
+                className="border-green-500/50 text-green-400 hover:bg-gradient-success/20 px-2 md:px-3 hover-gradient-scale"
+              >
                 <Link className="h-4 w-4" />
               </Button>
             </div>
@@ -285,6 +304,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                   size="sm"
                   onClick={() => setZoom(browserState.zoomLevel - 10)}
                   disabled={browserState.zoomLevel <= 50}
+                  className="hover:bg-gradient-secondary/20"
                 >
                   <ZoomOut className="h-4 w-4" />
                 </Button>
@@ -296,6 +316,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                   size="sm"
                   onClick={() => setZoom(browserState.zoomLevel + 10)}
                   disabled={browserState.zoomLevel >= 200}
+                  className="hover:bg-gradient-secondary/20"
                 >
                   <ZoomIn className="h-4 w-4" />
                 </Button>
@@ -303,7 +324,8 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                   variant="ghost"
                   size="sm"
                   onClick={openInNewTab}
-                  title="Otwórz w nowej karcie"
+                  title={t('browser.openInNewTab')}
+                  className="hover:bg-gradient-secondary/20"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
@@ -320,17 +342,17 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
         </div>
 
         {/* Content Display Area */}
-        <div className="flex-1 bg-slate-900 p-3 md:p-6">
-          <Card className="h-full bg-slate-800/50 border-slate-700">
+        <div className="flex-1 bg-gradient-dark p-3 md:p-6">
+          <Card className="h-full bg-gradient-dark border-slate-700 hover-gradient-scale">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-cyan-400 flex items-center space-x-2 text-sm md:text-base">
+                <CardTitle className="text-gradient-primary flex items-center space-x-2 text-sm md:text-base">
                   <Globe className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="truncate">{browserState.currentUrl || 'Browser Core'}</span>
+                  <span className="truncate">{browserState.currentUrl || t('browser.title')}</span>
                 </CardTitle>
                 <div className="flex items-center space-x-2">
                   <Badge variant="outline" className={`border-green-500/50 text-green-400 text-xs ${browserState.isLoading ? 'animate-pulse' : ''}`}>
-                    {browserState.isLoading ? 'Ładowanie...' : 'Gotowy'}
+                    {browserState.isLoading ? t('common.loading') : t('status.ready')}
                   </Badge>
                   {extractedLinks.length > 0 && (
                     <Badge variant="outline" className="border-blue-500/50 text-blue-400 text-xs">
@@ -342,17 +364,17 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
             </CardHeader>
             <CardContent className="h-full pb-6">
               {browserState.error && (
-                <Alert className="mb-4 border-red-500/50 bg-red-500/10">
+                <Alert className="mb-4 border-red-500/50 bg-gradient-error/10">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription className="text-red-400">
-                    {browserState.error}
+                    {t('browser.errorLoading')}
                     <Button
                       onClick={openInNewTab}
                       variant="link"
                       size="sm"
                       className="ml-2 text-red-300 hover:text-red-100"
                     >
-                      Otwórz w nowej karcie
+                      {t('browser.openInNewTab')}
                     </Button>
                     <Button
                       onClick={clearError}
@@ -360,7 +382,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                       size="sm"
                       className="ml-2 text-red-300 hover:text-red-100"
                     >
-                      Zamknij
+                      {t('common.close')}
                     </Button>
                   </AlertDescription>
                 </Alert>
@@ -370,7 +392,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <RefreshCw className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-4 text-cyan-400" />
-                    <p className="text-slate-400 text-sm">Ładowanie zawartości...</p>
+                    <p className="text-slate-400 text-sm">{t('browser.loadingContent')}</p>
                     <p className="text-slate-500 text-xs mt-2">{browserState.loadingProgress}%</p>
                   </div>
                 </div>
@@ -395,17 +417,15 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                   />
                 </div>
               ) : (
-                <div className="h-full bg-slate-900/50 rounded border border-slate-600 p-4 md:p-6">
+                <div className="h-full bg-gradient-dark rounded border border-slate-600 p-4 md:p-6">
                   <div className="text-center text-slate-400 space-y-4">
-                    <Globe className="h-12 w-12 md:h-16 md:w-16 mx-auto opacity-50" />
-                    <h3 className="text-base md:text-lg font-medium">Browser Core Ready</h3>
+                    <Globe className="h-12 w-12 md:h-16 md:w-16 mx-auto opacity-50 animate-pulse-glow" />
+                    <h3 className="text-base md:text-lg font-medium text-gradient-primary">Browser Core Ready</h3>
                     <p className="text-sm">Wpisz URL lub hasło wyszukiwania, aby rozpocząć przeglądanie</p>
                     <div className="text-xs md:text-sm text-slate-500 space-y-2">
-                      <p>• Renderowanie stron internetowych</p>
-                      <p>• Ekstrakcja treści dla AI</p>
-                      <p>• Integracja z Link Collector</p>
-                      <p>• Automatyczna ekstrakcja linków</p>
-                      <p>• Zoom i kontrola nawigacji</p>
+                      {browserFeatures.map((feature, index) => (
+                        <p key={index}>• {feature}</p>
+                      ))}
                     </div>
                   </div>
                 </div>
