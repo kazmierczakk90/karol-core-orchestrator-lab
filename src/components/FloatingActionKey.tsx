@@ -10,7 +10,8 @@ import {
   Settings, 
   X,
   ChevronUp,
-  Keyboard
+  Keyboard,
+  Phone
 } from 'lucide-react';
 
 interface FloatingActionKeyProps {
@@ -18,47 +19,26 @@ interface FloatingActionKeyProps {
   onOpenBrowser: () => void;
   onOpenMiniAI: () => void;
   onOpenCommander: () => void;
+  onOpenTrainingCall?: () => void;
 }
 
 const FloatingActionKey = ({ 
   onExtractLinks, 
   onOpenBrowser, 
-  onOpenMiniAI,
-  onOpenCommander 
+  onOpenMiniAI, 
+  onOpenCommander,
+  onOpenTrainingCall 
 }: FloatingActionKeyProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showKeyboardHints, setShowKeyboardHints] = useState(false);
 
   const quickActions = [
-    {
-      icon: Users,
-      label: 'Agent Commander',
-      shortcut: 'Alt+F1',
-      color: 'bg-cyan-600 hover:bg-cyan-700',
-      action: onOpenCommander
-    },
-    {
-      icon: Globe,
-      label: 'Open Browser',
-      shortcut: 'Alt+F2',
-      color: 'bg-blue-600 hover:bg-blue-700',
-      action: onOpenBrowser
-    },
-    {
-      icon: Bot,
-      label: 'Mini AI Hub',
-      shortcut: 'Alt+F3',
-      color: 'bg-purple-600 hover:bg-purple-700',
-      action: onOpenMiniAI
-    },
-    {
-      icon: Link,
-      label: 'Extract Links',
-      shortcut: 'Alt+F4',
-      color: 'bg-green-600 hover:bg-green-700',
-      action: onExtractLinks
-    }
-  ];
+    { key: 'E', action: onExtractLinks, label: 'Extract Links', icon: Link },
+    { key: 'B', action: onOpenBrowser, label: 'Open Browser', icon: Globe },
+    { key: 'M', action: onOpenMiniAI, label: 'Mini AI', icon: Bot },
+    { key: 'C', action: onOpenCommander, label: 'Commander', icon: Users },
+    { key: 'T', action: onOpenTrainingCall, label: 'Training Call', icon: Phone }
+  ].filter(action => action.action); // Filter out undefined actions
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
