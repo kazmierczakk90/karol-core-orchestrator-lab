@@ -17,6 +17,7 @@ import MiniAIInstancesTable from '@/components/MiniAIInstancesTable';
 import MemoryEntriesTable from '@/components/MemoryEntriesTable';
 import SystemConnectionsTable from '@/components/SystemConnectionsTable';
 import FloatingActionKey from '@/components/FloatingActionKey';
+import MenuLevelManager from '@/components/MenuLevelManager';
 import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
@@ -36,6 +37,8 @@ const IndexContent = () => {
   const [activeDataTab, setActiveDataTab] = useState('system-agents');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTrainingCallModal, setShowTrainingCallModal] = useState(false);
+  const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
+  const [collapsedMenus, setCollapsedMenus] = useState<{[key: string]: boolean}>({});
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
     try {
@@ -105,6 +108,17 @@ const IndexContent = () => {
     }
   };
 
+  const toggleCollapse = (menuKey: string) => {
+    setCollapsedMenus(prev => ({
+      ...prev,
+      [menuKey]: !prev[menuKey]
+    }));
+  };
+
+  const switchMenuLevel = () => {
+    setMenuLevel(prev => prev === 1 ? 2 : 1);
+  };
+
   const openAITabs = [
     { value: 'chat', label: 'Chat', icon: MessageSquare },
     { value: 'commander', label: 'Commander', icon: Users },
@@ -132,94 +146,35 @@ const IndexContent = () => {
               <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-white font-medium">{t('status.active')}</p>
-            <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
+          <div className="flex items-center space-x-4">
+            <Button
+              onClick={switchMenuLevel}
+              className="bg-gradient-secondary hover:bg-gradient-primary"
+            >
+              Switch to Level {menuLevel === 1 ? '2' : '1'}
+            </Button>
+            <div className="text-right">
+              <p className="text-white font-medium">{t('status.active')}</p>
+              <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Górna belka - OpenAI */}
-      <div className="bg-slate-800/90 border-b border-cyan-800/30 p-4">
-        <Tabs value={activeOpenAITab} onValueChange={setActiveOpenAITab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gradient-dark border border-cyan-800/30">
-            {openAITabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger 
-                  key={tab.value} 
-                  value={tab.value}
-                  className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white"
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{tab.label}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-
-          <div className="mt-4 h-[400px]">
-            <TabsContent value="chat" className="h-full m-0">
-              <OpenAIChat />
-            </TabsContent>
-            
-            <TabsContent value="commander" className="h-full m-0 overflow-auto">
-              <AgentCommander />
-            </TabsContent>
-            
-            <TabsContent value="workflow" className="h-full m-0">
-              <WorkflowBuilder />
-            </TabsContent>
-            
-            <TabsContent value="orchestrator" className="h-full m-0">
-              <AgentOrchestrator />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </div>
-
-      {/* Dolna belka - Data */}
-      <div className="flex-1 bg-slate-900/50 p-4">
-        <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-5 bg-gradient-dark border border-slate-700/50">
-            {dataTabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger 
-                  key={tab.value} 
-                  value={tab.value}
-                  className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-secondary data-[state=active]:text-white"
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{tab.label}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-
-          <div className="flex-1 mt-4 overflow-auto">
-            <TabsContent value="system-agents" className="h-full m-0">
-              <SystemAgentsTable />
-            </TabsContent>
-            
-            <TabsContent value="mini-ai" className="h-full m-0">
-              <MiniAIInstancesTable />
-            </TabsContent>
-            
-            <TabsContent value="memory" className="h-full m-0">
-              <MemoryEntriesTable />
-            </TabsContent>
-            
-            <TabsContent value="connections" className="h-full m-0">
-              <SystemConnectionsTable />
-            </TabsContent>
-            
-            <TabsContent value="url-scrap" className="h-full m-0">
-              <URLScrapTable extractedLinks={extractedLinks} />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </div>
+      <MenuLevelManager
+        menuLevel={menuLevel}
+        collapsedMenus={collapsedMenus}
+        toggleCollapse={toggleCollapse}
+        activeOpenAITab={activeOpenAITab}
+        setActiveOpenAITab={setActiveOpenAITab}
+        activeDataTab={activeDataTab}
+        setActiveDataTab={setActiveDataTab}
+        openAITabs={openAITabs}
+        dataTabs={dataTabs}
+        extractedLinks={extractedLinks}
+        showTrainingCallModal={showTrainingCallModal}
+        setShowTrainingCallModal={setShowTrainingCallModal}
+      />
 
       {/* Training Call Modal */}
       <TrainingCallModal 
