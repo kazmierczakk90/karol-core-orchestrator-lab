@@ -4,24 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Plus, Edit, Trash2, Star, StarOff, FolderTree } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Search, Filter, Plus, Edit, Trash2, Star, StarOff, FolderTree, Info, Play, Settings, BarChart } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 interface Agent {
   id: string;
   name: string;
   opis: string;
   tags: string[];
+  status?: string;
+  performance?: number;
 }
 
 interface AgentCatalogProps {
   agents: Agent[];
+  onUseAgent?: (agent: Agent) => void;
+  onAgentDetails?: (agent: Agent) => void;
+  onDeleteAgent?: (agent: Agent) => void;
 }
 
-const AgentCatalog = ({ agents }: AgentCatalogProps) => {
+const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onDeleteAgent }: AgentCatalogProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   const categories = [
     { id: 'all', name: 'All Agents', count: agents.length },
@@ -61,6 +69,42 @@ const AgentCatalog = ({ agents }: AgentCatalogProps) => {
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
+  };
+
+  const handleUseAgent = (agent: Agent) => {
+    if (onUseAgent) {
+      onUseAgent(agent);
+    } else {
+      toast.success(`Agent ${agent.name} selected!`, {
+        description: 'Agent configured for use in test environment',
+      });
+    }
+  };
+
+  const handleAgentDetails = (agent: Agent) => {
+    setSelectedAgent(agent);
+    if (onAgentDetails) {
+      onAgentDetails(agent);
+    }
+  };
+
+  const handleDeleteAgent = (agent: Agent) => {
+    if (onDeleteAgent) {
+      onDeleteAgent(agent);
+    } else {
+      toast.error('Delete action not available', {
+        description: 'Agent deletion is disabled in this environment',
+      });
+    }
+  };
+
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-500/20 text-green-400 border-green-500/50';
+      case 'standby': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
+      case 'offline': return 'bg-red-500/20 text-red-400 border-red-500/50';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
+    }
   };
 
   return (
@@ -153,6 +197,21 @@ const AgentCatalog = ({ agents }: AgentCatalogProps) => {
                 {agent.id}
               </div>
 
+              {/* Status and Performance */}
+              <div className="flex items-center justify-between">
+                {agent.status && (
+                  <Badge className={getStatusColor(agent.status)}>
+                    {agent.status}
+                  </Badge>
+                )}
+                {agent.performance && (
+                  <div className="flex items-center space-x-1 text-sm">
+                    <BarChart className="h-3 w-3 text-green-400" />
+                    <span className="text-green-400">{agent.performance}%</span>
+                  </div>
+                )}
+              </div>
+
               {/* Tags */}
               <div className="flex flex-wrap gap-1">
                 {agent.tags.map((tag) => (
@@ -164,14 +223,84 @@ const AgentCatalog = ({ agents }: AgentCatalogProps) => {
 
               {/* Action Buttons */}
               <div className="flex space-x-2">
-                <Button size="sm" className="bg-gradient-primary hover:bg-gradient-secondary flex-1">
-                  <Plus className="h-3 w-3 mr-2" />
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-primary hover:bg-gradient-secondary flex-1"
+                  onClick={() => handleUseAgent(agent)}
+                >
+                  <Play className="h-3 w-3 mr-2" />
                   Use Agent
                 </Button>
-                <Button size="sm" variant="outline" className="border-slate-600">
-                  <Edit className="h-3 w-3" />
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="border-slate-600"
+                      onClick={() => handleAgentDetails(agent)}
+                    >
+                      <Info className="h-3 w-3" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-slate-800 border-slate-700">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">{agent.name} - Details</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-slate-300 font-semibold">Description</h4>
+                        <p className="text-slate-400">{agent.opis}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-slate-300 font-semibold">Agent ID</h4>
+                        <code className="text-cyan-400 bg-slate-900/50 px-2 py-1 rounded">{agent.id}</code>
+                      </div>
+                      <div>
+                        <h4 className="text-slate-300 font-semibold">Tags</h4>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {agent.tags.map((tag) => (
+                            <Badge key={tag} className="bg-slate-600/50 text-slate-300">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      {agent.status && (
+                        <div>
+                          <h4 className="text-slate-300 font-semibold">Status</h4>
+                          <Badge className={getStatusColor(agent.status)}>
+                            {agent.status}
+                          </Badge>
+                        </div>
+                      )}
+                      {agent.performance && (
+                        <div>
+                          <h4 className="text-slate-300 font-semibold">Performance</h4>
+                          <div className="flex items-center space-x-2">
+                            <BarChart className="h-4 w-4 text-green-400" />
+                            <span className="text-green-400">{agent.performance}%</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-slate-600"
+                >
+                  <Settings className="h-3 w-3" />
                 </Button>
-                <Button size="sm" variant="outline" className="border-slate-600 text-red-400 hover:text-red-300">
+                
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-slate-600 text-red-400 hover:text-red-300"
+                  onClick={() => handleDeleteAgent(agent)}
+                >
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>

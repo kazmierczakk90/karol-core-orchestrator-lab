@@ -1,14 +1,12 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Zap, Users, Target, Copy, Play, Building2, Bot, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages, Save, Download, Settings, Filter, Trash2, Plus, TestTube } from 'lucide-react';
+import { Users, Target, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages, TestTube, Play, Filter, Download } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
+import { autoImprovementService } from '@/services/autoImprovementService';
 import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/components/ui/sonner';
 import AgentSimulator from './commander/AgentSimulator';
@@ -37,6 +35,7 @@ const AgentCommander = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [testMode, setTestMode] = useState(true);
   const [simulationResults, setSimulationResults] = useState<any[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
 
   const industries = [
     { value: 'healthcare', label: 'Healthcare', icon: '🏥' },
@@ -78,19 +77,12 @@ const AgentCommander = () => {
   ];
 
   const agents = [
-    { id: '@ceo', name: 'CEO Agent (Karol-Core)', opis: 'Strategiczne decyzje i planowanie', tags: ['strategy', 'leadership', 'planning'] },
-    { id: '@guardian-core', name: 'Guardian Core', opis: 'Monitoring i bezpieczeństwo', tags: ['security', 'monitoring', 'protection'] },
-    { id: '@system-admin', name: 'System Admin', opis: 'Administracja systemowa', tags: ['admin', 'system', 'maintenance'] },
-    { id: '@voice-core', name: 'Voice Core', opis: 'Przetwarzanie głosu', tags: ['voice', 'speech', 'audio'] },
-    { id: '@router', name: 'Agent Router', opis: 'Kierowanie zadań', tags: ['routing', 'task-management', 'coordination'] },
-    { id: '@strategic-driver', name: 'Strategic Driver', opis: 'Strategia i rozwój', tags: ['strategy', 'development', 'growth'] }
-  ];
-
-  const priorytety = [
-    { value: 'krytyczny', label: t('agentCommander.priorities.critical'), color: 'bg-gradient-error' },
-    { value: 'wysoki', label: t('agentCommander.priorities.high'), color: 'bg-gradient-warning' },
-    { value: 'normalny', label: t('agentCommander.priorities.normal'), color: 'bg-gradient-info' },
-    { value: 'niski', label: t('agentCommander.priorities.low'), color: 'bg-gray-500' }
+    { id: '@ceo', name: 'CEO Agent (Karol-Core)', opis: 'Strategiczne decyzje i planowanie', tags: ['strategy', 'leadership', 'planning'], status: 'active', performance: 95 },
+    { id: '@guardian-core', name: 'Guardian Core', opis: 'Monitoring i bezpieczeństwo', tags: ['security', 'monitoring', 'protection'], status: 'active', performance: 92 },
+    { id: '@system-admin', name: 'System Admin', opis: 'Administracja systemowa', tags: ['admin', 'system', 'maintenance'], status: 'active', performance: 88 },
+    { id: '@voice-core', name: 'Voice Core', opis: 'Przetwarzanie głosu', tags: ['voice', 'speech', 'audio'], status: 'standby', performance: 85 },
+    { id: '@router', name: 'Agent Router', opis: 'Kierowanie zadań', tags: ['routing', 'task-management', 'coordination'], status: 'active', performance: 90 },
+    { id: '@strategic-driver', name: 'Strategic Driver', opis: 'Strategia i rozwój', tags: ['strategy', 'development', 'growth'], status: 'active', performance: 87 }
   ];
 
   const timeZakresy = [
@@ -107,24 +99,59 @@ const AgentCommander = () => {
     { value: 'eksploracyjny', label: t('agentCommander.executionModes.exploratory') }
   ];
 
+  // Connect to auto-improvement service
+  useEffect(() => {
+    autoImprovementService.trackEvent({
+      eventType: 'action',
+      context: 'Agent Commander accessed',
+      details: {
+        success: true,
+        timestamp: new Date(),
+        component: 'AgentCommander'
+      }
+    });
+  }, []);
+
   const handleSimulate = async () => {
     setIsGenerating(true);
     
-    // Simulate agent response
+    // Track simulation start
+    autoImprovementService.trackEvent({
+      eventType: 'command',
+      context: `Agent simulation: ${formData.agent}`,
+      details: {
+        success: true,
+        agent: formData.agent,
+        task: formData.opisZadania,
+        priority: formData.priorytet
+      },
+      agentId: formData.agent
+    });
+    
+    // Enhanced simulation with realistic metrics
+    const executionTime = Math.random() * 5000 + 1000;
+    const selectedAgentData = agents.find(a => a.id === formData.agent);
+    
     const mockResponse = {
       agentId: formData.agent,
       task: formData.opisZadania,
-      response: `Symulowana odpowiedź agenta ${formData.agent}:\n\nZadanie zostało przetworzone zgodnie z parametrami:\n- Priorytet: ${formData.priorytet}\n- Ton: ${formData.ton}\n- Format: ${formData.format}\n\nWynik: Zadanie wykonane pomyślnie w trybie symulacji.`,
+      response: `Enhanced simulation response from ${formData.agent}:\n\nTask Analysis:\n- Priority: ${formData.priorytet}\n- Context: ${formData.industry || 'General'}\n- Function: ${formData.botFunction || 'Multi-purpose'}\n\nExecution Details:\n- Tone: ${formData.ton}\n- Format: ${formData.format}\n- Time Scope: ${formData.timeZakres}\n\nResult: Task completed successfully with ${selectedAgentData?.performance}% efficiency in simulation mode.\n\nRecommendations:\n- Consider scheduling follow-up review\n- Monitor performance metrics\n- Document learnings for future optimization`,
       timestamp: new Date(),
       status: 'completed',
-      executionTime: Math.random() * 5000 + 1000
+      executionTime,
+      performance: selectedAgentData?.performance || 85,
+      metrics: {
+        efficiency: selectedAgentData?.performance || 85,
+        accuracy: Math.random() * 20 + 80,
+        speed: Math.random() * 30 + 70
+      }
     };
 
     setTimeout(() => {
       setSimulationResults(prev => [mockResponse, ...prev]);
       setIsGenerating(false);
-      toast.success('Symulacja zakończona!', {
-        description: `Agent ${formData.agent} odpowiedział w trybie testowym`,
+      toast.success('Enhanced simulation completed!', {
+        description: `Agent ${formData.agent} responded with ${mockResponse.performance}% efficiency`,
       });
     }, 2000);
   };
@@ -135,76 +162,55 @@ const AgentCommander = () => {
       formData,
       simulationResults,
       exportDate: new Date(),
-      id: `cmd_${Date.now()}`
+      id: `cmd_${Date.now()}`,
+      metrics: {
+        totalSimulations: simulationResults.length,
+        averagePerformance: simulationResults.reduce((acc, r) => acc + (r.performance || 0), 0) / (simulationResults.length || 1),
+        mostUsedAgent: formData.agent
+      }
     };
     
-    // Mock export to database
-    console.log('Eksportowanie do bazy danych:', exportData);
+    // Enhanced export with metrics tracking
+    console.log('Enhanced export to database:', exportData);
     localStorage.setItem(`agent_command_${exportData.id}`, JSON.stringify(exportData));
     
-    toast.success('Wyeksportowano do bazy danych!', {
-      description: `Komenda zapisana z ID: ${exportData.id}`,
+    // Track export event
+    autoImprovementService.trackEvent({
+      eventType: 'action',
+      context: 'Command configuration exported',
+      details: {
+        success: true,
+        exportId: exportData.id,
+        simulationCount: simulationResults.length
+      }
+    });
+    
+    toast.success('Configuration exported successfully!', {
+      description: `Command saved with ID: ${exportData.id}`,
     });
   };
 
-  const handleGenerate = async () => {
-    if (!formData.opisZadania.trim()) return;
-
-    setIsGenerating(true);
+  const handleUseAgent = (agent: any) => {
+    setFormData(prev => ({ ...prev, agent: agent.id }));
+    setSelectedAgent(agent);
+    setActiveTab('test');
     
-    const selectedAgent = agents.find(a => a.id === formData.agent);
-    const selectedPriorytet = priorytety.find(p => p.value === formData.priorytet);
-    const selectedIndustry = industries.find(i => i.value === formData.industry);
-    const selectedBotFunction = botFunctions.find(b => b.value === formData.botFunction);
-    const selectedTypZadania = typyZadan.find(t => t.value === formData.typZadania);
-    const selectedTimeZakres = timeZakresy.find(t => t.value === formData.timeZakres);
-    
-    const command = `
-🎯 KOMENDA AGENTA: ${selectedAgent?.name}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 KONTEKST BIZNESOWY:
-${formData.industry ? `🏢 Branża: ${selectedIndustry?.icon} ${selectedIndustry?.label}` : ''}
-${formData.botFunction ? `🤖 Funkcja Bota: ${selectedBotFunction?.icon} ${selectedBotFunction?.label}` : ''}
-
-📋 ZADANIE: ${formData.typZadania ? `${selectedTypZadania?.label}` : 'Wykonanie zadania'}
-
-📝 OPIS: ${formData.opisZadania}
-
-🎯 CEL: ${formData.cel || 'Wykonanie zadania zgodnie z instrukcjami'}
-
-⚡ PRIORYTET: ${selectedPriorytet?.label}
-⏱️ TIME/ZAKRES: ${selectedTimeZakres?.label}
-🗣️ TON: ${formData.ton}
-🔄 TRYB WYKONANIA: ${trybyWykonania.find(t => t.value === formData.trybWykonania)?.label}
-📝 FORMAT: ${formData.format}
-
-🚀 AKTYWACJA: NATYCHMIAST
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Agent ${formData.agent} - GOTOWY DO AKCJI!
-    `.trim();
-
-    setGeneratedCommand(command);
-
-    try {
-      await openaiService.sendMessage(
-        `${formData.opisZadania}\n\nCel: ${formData.cel}\nTryb: ${formData.trybWykonania}\nPriorytet: ${formData.priorytet}`,
-        formData.agent
-      );
-    } catch (error) {
-      console.error('Error sending command to agent:', error);
-    }
-
-    setIsGenerating(false);
+    toast.success('Agent selected!', {
+      description: `${agent.name} is now configured for your task`,
+    });
   };
 
-  const handleCopyCommand = () => {
-    navigator.clipboard.writeText(generatedCommand);
+  const handleAgentDetails = (agent: any) => {
+    setSelectedAgent(agent);
+    // Could open a modal or navigate to details view
+    console.log('Agent details:', agent);
   };
 
-  const getSelectedAgent = () => agents.find(a => a.id === formData.agent);
-  const getSelectedPriorytet = () => priorytety.find(p => p.value === formData.priorytet);
+  const handleDeleteAgent = (agent: any) => {
+    // Implementation for agent deletion
+    console.log('Delete agent:', agent);
+    toast.error('Agent deletion not implemented in demo mode');
+  };
 
   return (
     <div className="space-y-6">
@@ -214,10 +220,10 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
             <div>
               <CardTitle className="text-gradient-primary flex items-center space-x-2">
                 <Users className="h-6 w-6" />
-                <span>Agent Commander - Test Environment</span>
+                <span>Agent Commander - Enhanced Control Center</span>
               </CardTitle>
               <CardDescription className="text-slate-300">
-                Środowisko testów, symulacji i zarządzania agentami
+                Advanced testing, simulation, and management environment for AI agents
               </CardDescription>
             </div>
             
@@ -263,6 +269,10 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
                 setFormData={setFormData}
                 agents={agents}
                 industries={industries}
+                botFunctions={botFunctions}
+                typyZadan={typyZadan}
+                timeZakresy={timeZakresy}
+                trybyWykonania={trybyWykonania}
                 onSimulate={handleSimulate}
                 onExport={handleExportToDatabase}
                 isGenerating={isGenerating}
@@ -271,7 +281,12 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
             </TabsContent>
 
             <TabsContent value="catalog" className="mt-6">
-              <AgentCatalog agents={agents} />
+              <AgentCatalog 
+                agents={agents}
+                onUseAgent={handleUseAgent}
+                onAgentDetails={handleAgentDetails}
+                onDeleteAgent={handleDeleteAgent}
+              />
             </TabsContent>
 
             <TabsContent value="simulator" className="mt-6">
@@ -284,7 +299,7 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
             <TabsContent value="results" className="mt-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-white">Simulation Results</h3>
+                  <h3 className="text-xl font-semibold text-white">Enhanced Simulation Results</h3>
                   <div className="flex space-x-2">
                     <Button variant="outline" className="border-slate-600">
                       <Filter className="h-4 w-4 mr-2" />
@@ -301,7 +316,7 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
                   <div className="text-center py-12 text-slate-400">
                     <TestTube className="h-16 w-16 mx-auto mb-4 opacity-50" />
                     <p>No simulation results yet</p>
-                    <p className="text-sm">Run some tests to see results here</p>
+                    <p className="text-sm">Run some tests to see enhanced results here</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -309,15 +324,38 @@ Agent ${formData.agent} - GOTOWY DO AKCJI!
                       <Card key={index} className="bg-slate-800/50 border-slate-700/50">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-2">
-                            <Badge className="bg-green-500/20 text-green-400">
-                              {result.agentId}
-                            </Badge>
+                            <div className="flex items-center space-x-2">
+                              <Badge className="bg-green-500/20 text-green-400">
+                                {result.agentId}
+                              </Badge>
+                              <Badge className="bg-blue-500/20 text-blue-400">
+                                {result.performance}% Performance
+                              </Badge>
+                            </div>
                             <span className="text-slate-400 text-sm">
                               {result.timestamp.toLocaleTimeString()}
                             </span>
                           </div>
                           <p className="text-white text-sm mb-2">{result.task}</p>
-                          <p className="text-slate-300 text-xs">{result.response}</p>
+                          <div className="bg-slate-900/50 p-3 rounded border-l-4 border-cyan-400">
+                            <p className="text-slate-300 text-xs whitespace-pre-wrap">{result.response}</p>
+                          </div>
+                          {result.metrics && (
+                            <div className="mt-3 grid grid-cols-3 gap-4 text-xs">
+                              <div className="text-center">
+                                <div className="text-cyan-400 font-semibold">{result.metrics.efficiency.toFixed(1)}%</div>
+                                <div className="text-slate-400">Efficiency</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-green-400 font-semibold">{result.metrics.accuracy.toFixed(1)}%</div>
+                                <div className="text-slate-400">Accuracy</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-yellow-400 font-semibold">{result.metrics.speed.toFixed(1)}%</div>
+                                <div className="text-slate-400">Speed</div>
+                              </div>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
