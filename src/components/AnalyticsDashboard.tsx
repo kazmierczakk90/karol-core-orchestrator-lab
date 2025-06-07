@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +27,9 @@ import NavigationTree from './NavigationTree';
 import EnhancedTimeline from './EnhancedTimeline';
 import SmartTable from './SmartTable';
 import AgentPreferencesHub from './AgentPreferencesHub';
+import ComponentLibrary from './layout/ComponentLibrary';
+import TemplateManager from './layout/TemplateManager';
+import { useLayoutStore } from '@/stores/layoutStore';
 
 interface AnalyticsDashboardProps {
   isOpen: boolean;
@@ -104,7 +106,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="flex h-full">
-        {/* Enhanced Sidebar with Navigation Tree */}
+        {/* Enhanced Sidebar with Navigation Tree ALWAYS LAST */}
         <div className="w-96 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -142,7 +144,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
             </div>
           </div>
 
-          {/* Navigation Tree */}
+          {/* Navigation Tree - ALWAYS LAST ELEMENT IN SIDEBAR */}
           <div className="flex-1 min-h-0">
             <NavigationTree 
               onNodeSelect={handleNodeSelect}
@@ -158,6 +160,7 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
               { id: 'timeline', label: 'Timeline', icon: Clock },
               { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
               { id: 'agents', label: 'Agent Hub', icon: Users },
+              { id: 'layout', label: 'Layout Editor', icon: Layout },
               { id: 'improvement', label: 'Auto-Improvement', icon: TrendingUp }
             ].map((item) => {
               const Icon = item.icon;
@@ -292,6 +295,21 @@ const AnalyticsDashboard = ({ isOpen, onClose }: AnalyticsDashboardProps) => {
                 onNavigateToFunction={handleNavigateToFunction}
                 onNavigateToAgent={handleNavigateToAgent}
               />
+            </TabsContent>
+
+            <TabsContent value="layout" className="p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Dashboard Layout Editor</h2>
+                <p className="text-slate-400">Design and customize dashboard layouts with drag & drop</p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Component Library */}
+                <ComponentLibrary />
+                
+                {/* Template Manager */}
+                <TemplateManager />
+              </div>
             </TabsContent>
 
             <TabsContent value="improvement" className="p-8 space-y-4">
