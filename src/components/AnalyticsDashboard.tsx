@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +21,8 @@ import {
   Lightbulb,
   Cpu,
   TreePine,
-  Table as TableIcon
+  Table as TableIcon,
+  Layout
 } from 'lucide-react';
 import { autoImprovementService, SystemMetrics, ImprovementSuggestion, ImprovementEvent } from '@/services/autoImprovementService';
 import NavigationTree from './NavigationTree';

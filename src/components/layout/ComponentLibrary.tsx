@@ -11,7 +11,7 @@ import {
   Grid, 
   BarChart3, 
   Table, 
-  Card as CardIcon,
+  CreditCard,
   Layout,
   Image,
   Type,
@@ -188,37 +188,15 @@ const ComponentLibrary = ({ className }: ComponentLibraryProps) => {
           <span>Component Library</span>
         </CardTitle>
         
-        {/* Search and Filter */}
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder="Search components..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-700/50 border-slate-600 text-white"
-            />
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={selectedCategory === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory('all')}
-            >
-              All
-            </Button>
-            {categories.map(category => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
+        {/* Search only */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Search components..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-slate-700/50 border-slate-600 text-white"
+          />
         </div>
       </CardHeader>
 
@@ -269,6 +247,29 @@ const ComponentLibrary = ({ className }: ComponentLibraryProps) => {
             )}
           </div>
         </ScrollArea>
+        
+        {/* Category filters moved to bottom */}
+        <div className="p-4 border-t border-slate-600/50">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('all')}
+            >
+              All
+            </Button>
+            {categories.map(category => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
