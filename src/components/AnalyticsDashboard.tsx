@@ -159,7 +159,7 @@ const AnalyticsDashboard = ({
             icon: TrendingUp
           }].map(item => {
             const Icon = item.icon;
-            return <button key={item.id} onClick={() => setActiveTab(item.id)} className="text-sm text-center font-light my-[10px]">
+            return <button key={item.id} onClick={() => setActiveTab(item.id)} className="font-light text-base my-[9px] px-[20px] text-amber-600 text-left py-0">
                   <Icon className="h-5 w-5" />
                   <span>{item.label}</span>
                 </button>;
