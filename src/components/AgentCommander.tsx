@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Target, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages, TestTube, Play, Filter, Download, Keyboard } from 'lucide-react';
+import { Users, Target, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages, TestTube, Play, Filter, Download, Keyboard, Command } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
 import { autoImprovementService } from '@/services/autoImprovementService';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -23,6 +23,7 @@ const AgentCommander = () => {
   const [detailsDialogMode, setDetailsDialogMode] = useState<'view' | 'edit'>('view');
   const [selectedAgentForDetails, setSelectedAgentForDetails] = useState<any>(null);
   const [generatedCommand, setGeneratedCommand] = useState('');
+  const [commandInput, setCommandInput] = useState('');
   
   const {
     formData,
@@ -83,7 +84,13 @@ const AgentCommander = () => {
     { id: '@system-admin', name: 'System Admin', opis: 'Administracja systemowa', tags: ['admin', 'system', 'maintenance'], status: 'active', performance: 88 },
     { id: '@voice-core', name: 'Voice Core', opis: 'Przetwarzanie głosu', tags: ['voice', 'speech', 'audio'], status: 'standby', performance: 85 },
     { id: '@router', name: 'Agent Router', opis: 'Kierowanie zadań', tags: ['routing', 'task-management', 'coordination'], status: 'active', performance: 90 },
-    { id: '@strategic-driver', name: 'Strategic Driver', opis: 'Strategia i rozwój', tags: ['strategy', 'development', 'growth'], status: 'active', performance: 87 }
+    { id: '@strategic-driver', name: 'Strategic Driver', opis: 'Strategia i rozwój', tags: ['strategy', 'development', 'growth'], status: 'active', performance: 87 },
+    // KK1.1 Specialized Agents
+    { id: '@prompt-forge', name: 'Prompt Forge', opis: 'Generowanie promptów FUKO-LANG', tags: ['prompts', 'fuko', 'optimization'], status: 'active', performance: 93 },
+    { id: '@scoring-core', name: 'Scoring Core', opis: 'Wielowymiarowe ocenianie decyzji', tags: ['scoring', 'evaluation', 'metrics'], status: 'active', performance: 91 },
+    { id: '@meta-core', name: 'Meta Core', opis: 'Samoświadomość systemu', tags: ['consciousness', 'self-awareness', 'reflection'], status: 'active', performance: 89 },
+    { id: '@future-agent', name: 'Future Agent', opis: 'Przewidywanie i planowanie', tags: ['prediction', 'planning', 'foresight'], status: 'active', performance: 88 },
+    { id: '@executor', name: 'Executor Agent', opis: 'Wykonywanie operacji', tags: ['execution', 'operations', 'tasks'], status: 'active', performance: 92 }
   ];
 
   const timeZakresy = [
@@ -112,6 +119,45 @@ const AgentCommander = () => {
       }
     });
   }, []);
+
+  const handleExecuteCommand = async () => {
+    if (!commandInput.trim()) {
+      toast.error('Wprowadź komendę do wykonania');
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      const result = await openaiService.processCommand(commandInput);
+      
+      addSimulationResult({
+        agentId: '@system',
+        task: commandInput,
+        response: result.content,
+        timestamp: new Date(),
+        status: 'completed',
+        executionTime: 1500,
+        performance: 95,
+        metrics: {
+          efficiency: 95,
+          accuracy: 98,
+          speed: 92
+        }
+      });
+
+      toast.success('Komenda wykonana pomyślnie!', {
+        description: 'Sprawdź wyniki w zakładce Results',
+      });
+      
+      setCommandInput('');
+      setActiveTab('results');
+    } catch (error) {
+      toast.error('Błąd podczas wykonywania komendy');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSimulate = async () => {
     setIsGenerating(true);
@@ -233,7 +279,7 @@ const AgentCommander = () => {
                 <span>Agent Commander - Enhanced Control Center</span>
               </CardTitle>
               <CardDescription className="text-slate-300">
-                Advanced testing, simulation, and management environment for AI agents
+                Advanced testing, simulation, and management environment for AI agents with KK1.1 command support
               </CardDescription>
             </div>
             
@@ -254,7 +300,11 @@ const AgentCommander = () => {
 
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6 bg-gradient-dark border border-cyan-800/30">
+            <TabsList className="grid w-full grid-cols-7 bg-gradient-dark border border-cyan-800/30">
+              <TabsTrigger value="commands" className="flex items-center space-x-2">
+                <Command className="h-4 w-4" />
+                <span>Commands</span>
+              </TabsTrigger>
               <TabsTrigger value="test" className="flex items-center space-x-2">
                 <TestTube className="h-4 w-4" />
                 <span>Test Environment</span>
@@ -280,6 +330,70 @@ const AgentCommander = () => {
                 <span>Visual Mapping</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="commands" className="mt-6">
+              <Card className="bg-slate-800/50 border-slate-700/50">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center space-x-2">
+                    <Command className="h-5 w-5" />
+                    <span>KK1.1 Command Processor</span>
+                  </CardTitle>
+                  <CardDescription className="text-slate-300">
+                    Execute system commands like /start KK1.1, /start LIVE, /start REACTIVE
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex space-x-3">
+                    <input
+                      type="text"
+                      value={commandInput}
+                      onChange={(e) => setCommandInput(e.target.value)}
+                      placeholder="Enter command (e.g., /start KK1.1)"
+                      className="flex-1 px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400"
+                      onKeyDown={(e) => e.key === 'Enter' && handleExecuteCommand()}
+                    />
+                    <Button
+                      onClick={handleExecuteCommand}
+                      disabled={isGenerating || !commandInput.trim()}
+                      className="bg-gradient-primary hover:bg-gradient-secondary"
+                    >
+                      {isGenerating ? 'Executing...' : 'Execute'}
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Button
+                      onClick={() => setCommandInput('/start KK1.1')}
+                      variant="outline"
+                      className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                    >
+                      /start KK1.1
+                    </Button>
+                    <Button
+                      onClick={() => setCommandInput('/start LIVE')}
+                      variant="outline"
+                      className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                    >
+                      /start LIVE
+                    </Button>
+                    <Button
+                      onClick={() => setCommandInput('/start REACTIVE')}
+                      variant="outline"
+                      className="border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
+                    >
+                      /start REACTIVE
+                    </Button>
+                    <Button
+                      onClick={() => setCommandInput('/start CHAINED')}
+                      variant="outline"
+                      className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+                    >
+                      /start CHAINED
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="test" className="mt-6">
               <CommanderTestEnvironment

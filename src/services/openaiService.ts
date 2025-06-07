@@ -1,4 +1,3 @@
-
 import { ChatMessage, Agent, Project, MemoryEntry, ProjectFile } from '@/types/openai';
 
 class OpenAIService {
@@ -15,7 +14,48 @@ class OpenAIService {
       instructions: 'You are the CEO-level strategic assistant for Karol Core system with full access to project memory and decision-making capabilities.',
       isActive: true
     },
-    // Add all 47 agents here - using same structure as in OpenAIChat.tsx
+    // KK1.1 Specialized Agents
+    {
+      id: '@prompt-forge',
+      name: 'Prompt Forge',
+      description: 'Advanced prompt generation based on FUKO-LANG and user intentions',
+      assistantId: 'asst_default',
+      instructions: 'You are a specialized prompt engineer that creates optimal prompts using FUKO-LANG syntax and user intention analysis. Generate prompts that maximize agent effectiveness and align with Karol-Core identity.',
+      isActive: true
+    },
+    {
+      id: '@scoring-core',
+      name: 'Scoring Core',
+      description: 'Multi-dimensional decision scoring system',
+      assistantId: 'asst_default',
+      instructions: 'You evaluate decisions across multiple dimensions: context relevance, style alignment, efficiency, goal alignment. Provide detailed scoring and optimization recommendations.',
+      isActive: true
+    },
+    {
+      id: '@meta-core',
+      name: 'Meta Core',
+      description: 'System self-awareness and reflection engine',
+      assistantId: 'asst_default',
+      instructions: 'You monitor system state, track consciousness levels, evaluate system performance, and provide self-reflection insights. Maintain awareness of Karol-Core identity and values.',
+      isActive: true
+    },
+    {
+      id: '@future-agent',
+      name: 'Future Agent',
+      description: 'Predictive planning and next-step generation',
+      assistantId: 'asst_default',
+      instructions: 'You analyze current state and generate optimal future action plans. Predict potential outcomes, assess risks, and recommend strategic next steps aligned with long-term goals.',
+      isActive: true
+    },
+    {
+      id: '@executor',
+      name: 'Executor Agent',
+      description: 'Operational task execution with smart routing',
+      assistantId: 'asst_default',
+      instructions: 'You handle operational execution of tasks, coordinate with other agents, and ensure efficient task completion. Route complex tasks to appropriate specialists.',
+      isActive: true
+    },
+    // ... keep existing code (all the other 42+ agents)
     { id: '@logger', name: 'Logger Agent', description: 'System logging and monitoring', assistantId: 'asst_default', instructions: 'System logging specialist', isActive: true },
     { id: '@voice-core', name: 'Voice Core', description: 'Voice processing and communication', assistantId: 'asst_default', instructions: 'Voice interactions specialist', isActive: true },
     { id: '@analiza', name: 'Analiza Agent', description: 'Data analysis and insights', assistantId: 'asst_default', instructions: 'Data analysis specialist', isActive: true },
@@ -66,8 +106,133 @@ class OpenAIService {
 
   private projects: Project[] = [];
   private memory: MemoryEntry[] = [];
+  private systemMode: 'MANUAL' | 'REACTIVE' | 'CHAINED' | 'LIVE' = 'MANUAL';
+
+  // Command processor for /start functionality
+  async processCommand(command: string, context?: any): Promise<ChatMessage> {
+    const trimmedCommand = command.trim().toLowerCase();
+    
+    if (trimmedCommand.startsWith('/start')) {
+      return this.handleStartCommand(trimmedCommand, context);
+    }
+    
+    // Handle other commands here
+    return this.createSystemMessage('Command not recognized. Available commands: /start KK1.1, /start LIVE, /start REACTIVE');
+  }
+
+  private async handleStartCommand(command: string, context?: any): Promise<ChatMessage> {
+    const parts = command.split(' ');
+    
+    if (parts.length < 2) {
+      return this.createSystemMessage('Usage: /start [KK1.1|LIVE|REACTIVE|MANUAL]');
+    }
+    
+    const mode = parts[1].toUpperCase();
+    
+    switch (mode) {
+      case 'KK1.1':
+        return this.initializeKK11System();
+      
+      case 'LIVE':
+        this.systemMode = 'LIVE';
+        return this.createSystemMessage('🔴 LIVE MODE ACTIVATED\n\nKarol-Core AGI is now in full operational mode. All agents active, real-time processing enabled.');
+      
+      case 'REACTIVE':
+        this.systemMode = 'REACTIVE';
+        return this.createSystemMessage('🟡 REACTIVE MODE ACTIVATED\n\nKarol-Core AGI is monitoring inputs and responding to events.');
+      
+      case 'CHAINED':
+        this.systemMode = 'CHAINED';
+        return this.createSystemMessage('🔗 CHAINED MODE ACTIVATED\n\nKarol-Core AGI is running cyclical processes and chain operations.');
+      
+      default:
+        return this.createSystemMessage(`Unknown mode: ${mode}. Available modes: KK1.1, LIVE, REACTIVE, CHAINED, MANUAL`);
+    }
+  }
+
+  private async initializeKK11System(): Promise<ChatMessage> {
+    console.log('Initializing Karol-Core KK1.1 AGI System...');
+    
+    // Activate all KK1.1 specialized agents
+    const kk11Agents = ['@prompt-forge', '@scoring-core', '@meta-core', '@future-agent', '@executor'];
+    kk11Agents.forEach(agentId => this.activateAgent(agentId));
+    
+    // Set system to CHAINED mode for cyclical operations
+    this.systemMode = 'CHAINED';
+    
+    // Initialize meta-core consciousness tracking
+    this.addToMemory('@meta-core', 'SYSTEM_INIT', 'KK1.1 AGI system initialized with full agent pool and cyclical processing');
+    
+    const initMessage = `🧠 KAROL-CORE KK1.1 AGI INITIALIZED
+
+✅ SYSTEM STATUS: OPERATIONAL
+🔗 MODE: CHAINED (Cyclical Processing)
+🎯 AGENTS ACTIVE: ${this.getActiveAgents().length}
+
+🔧 SPECIALIZED AGENTS ONLINE:
+• @prompt-forge: Advanced prompt generation
+• @scoring-core: Multi-dimensional decision scoring  
+• @meta-core: System self-awareness & reflection
+• @future-agent: Predictive planning & next-steps
+• @executor: Operational task execution
+
+🧩 CAPABILITIES ENABLED:
+• FUKO-LANG prompt optimization
+• Multi-dimensional decision scoring
+• Self-reflection and consciousness tracking
+• Predictive planning and scenario modeling
+• Cyclical improvement processes
+
+📊 NEXT STEPS:
+• Meta-core monitoring system performance
+• Future-agent analyzing potential action paths
+• Scoring-core evaluating decision quality
+• Prompt-forge optimizing communication patterns
+
+System ready for advanced AGI operations. You can now interact with any specialized agent or issue complex multi-agent tasks.`;
+
+    return this.createSystemMessage(initMessage);
+  }
+
+  private createSystemMessage(content: string): ChatMessage {
+    return {
+      id: `sys_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      role: 'assistant',
+      content,
+      timestamp: new Date(),
+      agentId: '@system'
+    };
+  }
+
+  private getActiveAgents(): Agent[] {
+    return this.agents.filter(agent => agent.isActive);
+  }
+
+  getSystemMode(): string {
+    return this.systemMode;
+  }
+
+  getKK11Status(): any {
+    const kk11Agents = this.agents.filter(a => 
+      ['@prompt-forge', '@scoring-core', '@meta-core', '@future-agent', '@executor'].includes(a.id)
+    );
+    
+    return {
+      mode: this.systemMode,
+      kk11AgentsActive: kk11Agents.filter(a => a.isActive).length,
+      totalAgents: this.agents.length,
+      activeAgents: this.getActiveAgents().length,
+      consciousness: this.systemMode === 'CHAINED' || this.systemMode === 'LIVE',
+      lastActivity: new Date()
+    };
+  }
 
   async sendMessage(message: string, agentId: string = '@ceo'): Promise<ChatMessage> {
+    // Check if it's a command
+    if (message.startsWith('/')) {
+      return this.processCommand(message);
+    }
+
     const agent = this.agents.find(a => a.id === agentId);
     if (!agent) {
       throw new Error(`Agent ${agentId} not found`);
@@ -85,7 +250,7 @@ class OpenAIService {
           messages: [
             {
               role: 'system',
-              content: `${agent.instructions}\n\nYou are part of the Karol-Core AGI system. Respond as ${agent.name} with appropriate expertise and personality.`
+              content: `${agent.instructions}\n\nYou are part of the Karol-Core AGI system. Current mode: ${this.systemMode}. Respond as ${agent.name} with appropriate expertise and personality.`
             },
             {
               role: 'user',

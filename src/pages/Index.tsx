@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -19,7 +18,8 @@ import SystemConnectionsTable from '@/components/SystemConnectionsTable';
 import FloatingActionKey from '@/components/FloatingActionKey';
 import MenuLevelManager from '@/components/MenuLevelManager';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
-import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap } from 'lucide-react';
+import KK11Dashboard from '@/components/KK11Dashboard';
+import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -41,6 +41,7 @@ const IndexContent = () => {
   const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
   const [collapsedMenus, setCollapsedMenus] = useState<{[key: string]: boolean}>({});
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
+  const [showKK11Dashboard, setShowKK11Dashboard] = useState(false);
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
     try {
@@ -141,16 +142,28 @@ const IndexContent = () => {
       {/* Header z logo */}
       <div className="bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-4">
         <div className="flex items-center justify-between">
-          <div 
-            className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => setShowAnalyticsDashboard(true)}
-          >
-            <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
-            <div>
-              <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
-              <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
+          <div className="flex items-center space-x-6">
+            <div 
+              className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => setShowAnalyticsDashboard(true)}
+            >
+              <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
+              <div>
+                <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
+                <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
+              </div>
             </div>
+            
+            {/* KK1.1 AGI Button */}
+            <Button
+              onClick={() => setShowKK11Dashboard(true)}
+              className="bg-gradient-accent hover:bg-gradient-primary flex items-center space-x-2"
+            >
+              <Target className="h-5 w-5" />
+              <span className="font-bold">KK1.1 AGI</span>
+            </Button>
           </div>
+          
           <div className="flex items-center space-x-4">
             <Button
               onClick={switchMenuLevel}
@@ -166,7 +179,7 @@ const IndexContent = () => {
         </div>
       </div>
 
-      {/* Analytics Dashboard */}
+      {/* Analytics Dashboard Modal */}
       {showAnalyticsDashboard && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
@@ -181,6 +194,25 @@ const IndexContent = () => {
               </Button>
             </div>
             <AnalyticsDashboard />
+          </div>
+        </div>
+      )}
+
+      {/* KK1.1 AGI Dashboard Modal */}
+      {showKK11Dashboard && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gradient-primary">KK1.1 AGI Control Center</h2>
+              <Button
+                onClick={() => setShowKK11Dashboard(false)}
+                variant="outline"
+                className="border-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <KK11Dashboard />
           </div>
         </div>
       )}
