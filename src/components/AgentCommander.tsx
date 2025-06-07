@@ -1,35 +1,41 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Target, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages, TestTube, Play, Filter, Download } from 'lucide-react';
+import { Users, Target, FileText, Search, Edit, Palette, BarChart3, FolderTree, CheckCircle, Languages, TestTube, Play, Filter, Download, Keyboard } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
 import { autoImprovementService } from '@/services/autoImprovementService';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useCommanderStore } from '@/stores/commanderStore';
 import { toast } from '@/components/ui/sonner';
 import AgentSimulator from './commander/AgentSimulator';
 import AgentCatalog from './commander/AgentCatalog';
 import CommanderTestEnvironment from './commander/CommanderTestEnvironment';
+import AgentDetailsDialog from './commander/AgentDetailsDialog';
+import VisualKeyMappingEditor from './commander/VisualKeyMappingEditor';
+import KeyMappingEditor from './KeyMappingEditor';
 
 const AgentCommander = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('test');
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [detailsDialogMode, setDetailsDialogMode] = useState<'view' | 'edit'>('view');
+  const [selectedAgentForDetails, setSelectedAgentForDetails] = useState<any>(null);
   
-  const [formData, setFormData] = useState({
-    industry: '',
-    botFunction: '',
-    typZadania: '',
-    opisZadania: '',
-    cel: '',
-    agent: '@ceo',
-    priorytet: 'normalny',
-    ton: 'profesjonalny',
-    timeZakres: 'standardowa-praca',
-    format: 'raport',
-    trybWykonania: 'natychmiastowy'
-  });
+  const {
+    formData,
+    setFormData,
+    simulationResults,
+    addSimulationResult,
+    clearSimulationResults,
+    isGenerating,
+    setIsGenerating,
+    testMode,
+    setTestMode,
+    selectedAgent,
+    setSelectedAgent
+  } = useCommanderStore();
 
   const [generatedCommand, setGeneratedCommand] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -148,7 +154,7 @@ const AgentCommander = () => {
     };
 
     setTimeout(() => {
-      setSimulationResults(prev => [mockResponse, ...prev]);
+      addSimulationResult(mockResponse);
       setIsGenerating(false);
       toast.success('Enhanced simulation completed!', {
         description: `Agent ${formData.agent} responded with ${mockResponse.performance}% efficiency`,
@@ -158,7 +164,6 @@ const AgentCommander = () => {
 
   const handleExportToDatabase = () => {
     const exportData = {
-      command: generatedCommand,
       formData,
       simulationResults,
       exportDate: new Date(),
@@ -191,8 +196,8 @@ const AgentCommander = () => {
   };
 
   const handleUseAgent = (agent: any) => {
-    setFormData(prev => ({ ...prev, agent: agent.id }));
-    setSelectedAgent(agent);
+    setFormData({ agent: agent.id });
+    setSelectedAgent(agent.id);
     setActiveTab('test');
     
     toast.success('Agent selected!', {
@@ -201,13 +206,23 @@ const AgentCommander = () => {
   };
 
   const handleAgentDetails = (agent: any) => {
-    setSelectedAgent(agent);
-    // Could open a modal or navigate to details view
-    console.log('Agent details:', agent);
+    setSelectedAgentForDetails(agent);
+    setDetailsDialogMode('view');
+    setDetailsDialogOpen(true);
+  };
+
+  const handleEditAgent = (agent: any) => {
+    setSelectedAgentForDetails(agent);
+    setDetailsDialogMode('edit');
+    setDetailsDialogOpen(true);
+  };
+
+  const handleSaveAgent = (updatedAgent: any) => {
+    console.log('Saving agent:', updatedAgent);
+    toast.success('Agent updated successfully!');
   };
 
   const handleDeleteAgent = (agent: any) => {
-    // Implementation for agent deletion
     console.log('Delete agent:', agent);
     toast.error('Agent deletion not implemented in demo mode');
   };
@@ -244,7 +259,7 @@ const AgentCommander = () => {
 
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4 bg-gradient-dark border border-cyan-800/30">
+            <TabsList className="grid w-full grid-cols-6 bg-gradient-dark border border-cyan-800/30">
               <TabsTrigger value="test" className="flex items-center space-x-2">
                 <TestTube className="h-4 w-4" />
                 <span>Test Environment</span>
@@ -260,6 +275,14 @@ const AgentCommander = () => {
               <TabsTrigger value="results" className="flex items-center space-x-2">
                 <BarChart3 className="h-4 w-4" />
                 <span>Results</span>
+              </TabsTrigger>
+              <TabsTrigger value="keymapping" className="flex items-center space-x-2">
+                <Keyboard className="h-4 w-4" />
+                <span>Key Mapping</span>
+              </TabsTrigger>
+              <TabsTrigger value="visual-mapping" className="flex items-center space-x-2">
+                <Target className="h-4 w-4" />
+                <span>Visual Mapping</span>
               </TabsTrigger>
             </TabsList>
 
@@ -285,6 +308,7 @@ const AgentCommander = () => {
                 agents={agents}
                 onUseAgent={handleUseAgent}
                 onAgentDetails={handleAgentDetails}
+                onEditAgent={handleEditAgent}
                 onDeleteAgent={handleDeleteAgent}
               />
             </TabsContent>
@@ -292,7 +316,7 @@ const AgentCommander = () => {
             <TabsContent value="simulator" className="mt-6">
               <AgentSimulator 
                 simulationResults={simulationResults}
-                onClearResults={() => setSimulationResults([])}
+                onClearResults={clearSimulationResults}
               />
             </TabsContent>
 
@@ -363,9 +387,26 @@ const AgentCommander = () => {
                 )}
               </div>
             </TabsContent>
+
+            <TabsContent value="keymapping" className="mt-6">
+              <KeyMappingEditor />
+            </TabsContent>
+
+            <TabsContent value="visual-mapping" className="mt-6">
+              <VisualKeyMappingEditor />
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Agent Details Dialog */}
+      <AgentDetailsDialog
+        agent={selectedAgentForDetails}
+        isOpen={detailsDialogOpen}
+        onClose={() => setDetailsDialogOpen(false)}
+        onSave={handleSaveAgent}
+        mode={detailsDialogMode}
+      />
     </div>
   );
 };

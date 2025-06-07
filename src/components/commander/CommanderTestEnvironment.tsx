@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { Play, Save, Download, TestTube, Settings, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Play, Save, Download, TestTube, Settings, ZoomIn, ZoomOut, RotateCcw, FileText, Search, Edit } from 'lucide-react';
 import { useState } from 'react';
 
 interface CommanderTestEnvironmentProps {
@@ -106,16 +106,16 @@ const CommanderTestEnvironment = ({
         </CardHeader>
       </Card>
 
-      {/* Context & Industry Selection */}
+      {/* Enhanced Context & Industry Selection */}
       <Card className="bg-slate-800/50 border-slate-700/50">
         <CardHeader>
-          <CardTitle className="text-cyan-400">Business Context</CardTitle>
+          <CardTitle className="text-cyan-400">Business Context & Configuration</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="industry" className="text-slate-300 font-semibold">
-                Industry
+                Industry Sector
               </Label>
               <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value })}>
                 <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
@@ -154,44 +154,73 @@ const CommanderTestEnvironment = ({
                 </SelectContent>
               </Select>
             </div>
+
+            <div>
+              <Label htmlFor="typZadania" className="text-slate-300 font-semibold">
+                Task Type
+              </Label>
+              <Select value={formData.typZadania} onValueChange={(value) => setFormData({ ...formData, typZadania: value })}>
+                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                  <SelectValue placeholder="Select task type..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {typyZadan.map((typ) => (
+                    <SelectItem key={typ.value} value={typ.value}>
+                      <div className="flex items-center space-x-2">
+                        <typ.icon className="h-4 w-4" />
+                        <span>{typ.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div>
-            <Label htmlFor="typZadania" className="text-slate-300 font-semibold">
-              Task Type
-            </Label>
-            <Select value={formData.typZadania} onValueChange={(value) => setFormData({ ...formData, typZadania: value })}>
-              <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                <SelectValue placeholder="Select task type..." />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                {typyZadan.map((typ) => (
-                  <SelectItem key={typ.value} value={typ.value}>
-                    <div className="flex items-center space-x-2">
-                      <typ.icon className="h-4 w-4" />
-                      <span>{typ.label}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Target Audience & Use Case */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="targetAudience" className="text-slate-300 font-semibold">
+                Target Audience
+              </Label>
+              <Input
+                id="targetAudience"
+                value={formData.targetAudience || ''}
+                onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
+                placeholder="e.g., B2B customers, end users, internal team..."
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="useCase" className="text-slate-300 font-semibold">
+                Primary Use Case
+              </Label>
+              <Input
+                id="useCase"
+                value={formData.useCase || ''}
+                onChange={(e) => setFormData({ ...formData, useCase: e.target.value })}
+                placeholder="e.g., customer support, lead qualification..."
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Agent Configuration */}
+      {/* Enhanced Agent Configuration */}
       <Card className="bg-slate-800/50 border-slate-700/50">
         <CardHeader>
           <CardTitle className="text-cyan-400 flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Configuration</span>
+            <span>Agent Configuration & Selection</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="agent" className="text-slate-300 font-semibold">
-                Select Agent
+                Primary Agent
               </Label>
               <Select value={formData.agent} onValueChange={(value) => setFormData({ ...formData, agent: value })}>
                 <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
@@ -238,43 +267,94 @@ const CommanderTestEnvironment = ({
               </Select>
             </div>
           </div>
+
+          {/* Fallback Agent & Escalation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="fallbackAgent" className="text-slate-300 font-semibold">
+                Fallback Agent
+              </Label>
+              <Select value={formData.fallbackAgent || ''} onValueChange={(value) => setFormData({ ...formData, fallbackAgent: value })}>
+                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                  <SelectValue placeholder="Optional fallback..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {agents.map((agent) => (
+                    <SelectItem key={agent.id} value={agent.id}>
+                      {agent.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="escalationThreshold" className="text-slate-300 font-semibold">
+                Escalation Threshold (%)
+              </Label>
+              <Input
+                id="escalationThreshold"
+                type="number"
+                min="0"
+                max="100"
+                value={formData.escalationThreshold || 75}
+                onChange={(e) => setFormData({ ...formData, escalationThreshold: parseInt(e.target.value) })}
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Task Definition */}
+      {/* Enhanced Task Definition */}
       <Card className="bg-slate-800/50 border-slate-700/50">
         <CardHeader>
-          <CardTitle className="text-cyan-400">Task Definition</CardTitle>
+          <CardTitle className="text-cyan-400">Enhanced Task Definition</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="opisZadania" className="text-slate-300 font-semibold">
-              Task Description
+              Detailed Task Description
             </Label>
             <Textarea
               id="opisZadania"
               value={formData.opisZadania}
               onChange={(e) => setFormData({ ...formData, opisZadania: e.target.value })}
-              placeholder="Describe the task for the AI agent..."
+              placeholder="Provide comprehensive task description including context, requirements, and expected deliverables..."
               className="bg-slate-900/50 border-slate-700/50 text-white mt-1 min-h-[120px]"
               rows={5}
             />
           </div>
 
-          <div>
-            <Label htmlFor="cel" className="text-slate-300 font-semibold">
-              Expected Goal
-            </Label>
-            <Input
-              id="cel"
-              value={formData.cel}
-              onChange={(e) => setFormData({ ...formData, cel: e.target.value })}
-              placeholder="What is the expected result?"
-              className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="cel" className="text-slate-300 font-semibold">
+                Primary Goal
+              </Label>
+              <Input
+                id="cel"
+                value={formData.cel}
+                onChange={(e) => setFormData({ ...formData, cel: e.target.value })}
+                placeholder="What is the main objective?"
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="successMetrics" className="text-slate-300 font-semibold">
+                Success Metrics
+              </Label>
+              <Input
+                id="successMetrics"
+                value={formData.successMetrics || ''}
+                onChange={(e) => setFormData({ ...formData, successMetrics: e.target.value })}
+                placeholder="How will success be measured?"
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="ton" className="text-slate-300 font-semibold">
                 Response Tone
@@ -328,29 +408,81 @@ const CommanderTestEnvironment = ({
                 </SelectContent>
               </Select>
             </div>
+
+            <div>
+              <Label htmlFor="trybWykonania" className="text-slate-300 font-semibold">
+                Execution Mode
+              </Label>
+              <Select value={formData.trybWykonania} onValueChange={(value) => setFormData({ ...formData, trybWykonania: value })}>
+                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {trybyWykonania.map((tryb) => (
+                    <SelectItem key={tryb.value} value={tryb.value}>
+                      {tryb.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div>
-            <Label htmlFor="trybWykonania" className="text-slate-300 font-semibold">
-              Execution Mode
-            </Label>
-            <Select value={formData.trybWykonania} onValueChange={(value) => setFormData({ ...formData, trybWykonania: value })}>
-              <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                {trybyWykonania.map((tryb) => (
-                  <SelectItem key={tryb.value} value={tryb.value}>
-                    {tryb.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Additional Parameters */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="maxTokens" className="text-slate-300 font-semibold">
+                Max Response Length
+              </Label>
+              <Input
+                id="maxTokens"
+                type="number"
+                min="100"
+                max="4000"
+                value={formData.maxTokens || 1000}
+                onChange={(e) => setFormData({ ...formData, maxTokens: parseInt(e.target.value) })}
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="temperature" className="text-slate-300 font-semibold">
+                Creativity Level (0-1)
+              </Label>
+              <Input
+                id="temperature"
+                type="number"
+                min="0"
+                max="1"
+                step="0.1"
+                value={formData.temperature || 0.7}
+                onChange={(e) => setFormData({ ...formData, temperature: parseFloat(e.target.value) })}
+                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="language" className="text-slate-300 font-semibold">
+                Response Language
+              </Label>
+              <Select value={formData.language || 'pl'} onValueChange={(value) => setFormData({ ...formData, language: value })}>
+                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="pl">Polish</SelectItem>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="de">German</SelectItem>
+                  <SelectItem value="fr">French</SelectItem>
+                  <SelectItem value="es">Spanish</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
+      {/* Enhanced Action Buttons */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-3">
           <Button
@@ -366,7 +498,7 @@ const CommanderTestEnvironment = ({
             ) : (
               <>
                 <Play className="h-4 w-4" />
-                <span>{testMode ? 'Run Simulation' : 'Execute Live'}</span>
+                <span>{testMode ? 'Run Enhanced Simulation' : 'Execute Live'}</span>
               </>
             )}
           </Button>
@@ -377,7 +509,7 @@ const CommanderTestEnvironment = ({
             className="border-slate-600 text-slate-300 flex items-center space-x-2"
           >
             <Save className="h-4 w-4" />
-            <span>Save to Database</span>
+            <span>Save Configuration</span>
           </Button>
         </div>
 

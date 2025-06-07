@@ -21,15 +21,15 @@ interface AgentCatalogProps {
   agents: Agent[];
   onUseAgent?: (agent: Agent) => void;
   onAgentDetails?: (agent: Agent) => void;
+  onEditAgent?: (agent: Agent) => void;
   onDeleteAgent?: (agent: Agent) => void;
 }
 
-const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onDeleteAgent }: AgentCatalogProps) => {
+const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onEditAgent, onDeleteAgent }: AgentCatalogProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   const categories = [
     { id: 'all', name: 'All Agents', count: agents.length },
@@ -82,9 +82,18 @@ const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onDeleteAgent }: Age
   };
 
   const handleAgentDetails = (agent: Agent) => {
-    setSelectedAgent(agent);
     if (onAgentDetails) {
       onAgentDetails(agent);
+    } else {
+      toast.info(`Viewing details for ${agent.name}`);
+    }
+  };
+
+  const handleEditAgent = (agent: Agent) => {
+    if (onEditAgent) {
+      onEditAgent(agent);
+    } else {
+      toast.info(`Editing ${agent.name}`);
     }
   };
 
@@ -222,77 +231,34 @@ const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onDeleteAgent }: Age
               </div>
 
               {/* Action Buttons */}
-              <div className="flex space-x-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Button 
                   size="sm" 
-                  className="bg-gradient-primary hover:bg-gradient-secondary flex-1"
+                  className="bg-gradient-primary hover:bg-gradient-secondary"
                   onClick={() => handleUseAgent(agent)}
                 >
                   <Play className="h-3 w-3 mr-2" />
                   Use Agent
                 </Button>
                 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="border-slate-600"
-                      onClick={() => handleAgentDetails(agent)}
-                    >
-                      <Info className="h-3 w-3" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-slate-800 border-slate-700">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">{agent.name} - Details</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-slate-300 font-semibold">Description</h4>
-                        <p className="text-slate-400">{agent.opis}</p>
-                      </div>
-                      <div>
-                        <h4 className="text-slate-300 font-semibold">Agent ID</h4>
-                        <code className="text-cyan-400 bg-slate-900/50 px-2 py-1 rounded">{agent.id}</code>
-                      </div>
-                      <div>
-                        <h4 className="text-slate-300 font-semibold">Tags</h4>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {agent.tags.map((tag) => (
-                            <Badge key={tag} className="bg-slate-600/50 text-slate-300">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      {agent.status && (
-                        <div>
-                          <h4 className="text-slate-300 font-semibold">Status</h4>
-                          <Badge className={getStatusColor(agent.status)}>
-                            {agent.status}
-                          </Badge>
-                        </div>
-                      )}
-                      {agent.performance && (
-                        <div>
-                          <h4 className="text-slate-300 font-semibold">Performance</h4>
-                          <div className="flex items-center space-x-2">
-                            <BarChart className="h-4 w-4 text-green-400" />
-                            <span className="text-green-400">{agent.performance}%</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
                 <Button 
                   size="sm" 
                   variant="outline" 
                   className="border-slate-600"
+                  onClick={() => handleAgentDetails(agent)}
                 >
-                  <Settings className="h-3 w-3" />
+                  <Info className="h-3 w-3 mr-2" />
+                  Details
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-slate-600"
+                  onClick={() => handleEditAgent(agent)}
+                >
+                  <Edit className="h-3 w-3 mr-2" />
+                  Edit
                 </Button>
                 
                 <Button 
@@ -301,7 +267,8 @@ const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onDeleteAgent }: Age
                   className="border-slate-600 text-red-400 hover:text-red-300"
                   onClick={() => handleDeleteAgent(agent)}
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3 mr-2" />
+                  Delete
                 </Button>
               </div>
             </CardContent>
