@@ -89,7 +89,7 @@ const AnalyticsDashboard = ({
   return <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm">
       <div className="flex h-full">
         {/* Enhanced Sidebar with Navigation Tree ALWAYS LAST */}
-        <div className="w-96 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6 overflow-hidden flex flex-col">
+        <div className="w-96 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-cyan-800/30 p-6 overflow-hidden flex flex-col py-[34px]">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-cyan-400 animate-pulse" />
@@ -127,7 +127,7 @@ const AnalyticsDashboard = ({
           </div>
 
           {/* Navigation Tree - ALWAYS LAST ELEMENT IN SIDEBAR */}
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 py-0 px-0">
             <NavigationTree onNodeSelect={handleNodeSelect} onGroupOperation={handleGroupOperation} className="h-full" />
           </div>
 
@@ -159,9 +159,9 @@ const AnalyticsDashboard = ({
             icon: TrendingUp
           }].map(item => {
             const Icon = item.icon;
-            return <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}>
+            return <button key={item.id} onClick={() => setActiveTab(item.id)} className="text-sm text-center font-light my-[10px]">
                   <Icon className="h-5 w-5" />
-                  <span className="mx-[4px] my-0">{item.label}</span>
+                  <span>{item.label}</span>
                 </button>;
           })}
           </nav>
