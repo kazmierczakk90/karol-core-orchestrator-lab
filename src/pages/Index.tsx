@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -166,10 +167,23 @@ const IndexContent = () => {
       </div>
 
       {/* Analytics Dashboard */}
-      <AnalyticsDashboard 
-        isOpen={showAnalyticsDashboard} 
-        onClose={() => setShowAnalyticsDashboard(false)} 
-      />
+      {showAnalyticsDashboard && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Analytics Dashboard</h2>
+              <Button
+                onClick={() => setShowAnalyticsDashboard(false)}
+                variant="outline"
+                className="border-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <AnalyticsDashboard />
+          </div>
+        </div>
+      )}
 
       <MenuLevelManager
         menuLevel={menuLevel}

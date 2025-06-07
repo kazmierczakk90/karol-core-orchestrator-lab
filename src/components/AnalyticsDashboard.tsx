@@ -84,15 +84,21 @@ const AnalyticsDashboard = () => {
     toast.info(`Viewing details for ${agent?.name || agentId}`);
   };
 
-  // Convert KPI data to metrics format
-  const metrics = Object.keys(kpiData).map(key => ({
-    name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    value: kpiData[key].value || 0,
-    threshold: kpiData[key].threshold || 100,
-    unit: key.includes('percentage') ? '%' : '',
-    trend: Math.random() > 0.5 ? 'up' : 'down',
-    change: (Math.random() - 0.5) * 10
-  }));
+  // Convert KPI data to metrics format with proper typing
+  const metrics = Object.keys(kpiData).map(key => {
+    const randomValue = Math.random();
+    const trends: Array<'up' | 'down' | 'stable'> = ['up', 'down', 'stable'];
+    const randomTrend = trends[Math.floor(Math.random() * trends.length)];
+    
+    return {
+      name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      value: kpiData[key].value || 0,
+      threshold: kpiData[key].threshold || 100,
+      unit: key.includes('percentage') ? '%' : '',
+      trend: randomTrend,
+      change: (Math.random() - 0.5) * 10
+    };
+  });
 
   return (
     <div className="space-y-6">

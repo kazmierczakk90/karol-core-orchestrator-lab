@@ -22,6 +22,7 @@ const AgentCommander = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [detailsDialogMode, setDetailsDialogMode] = useState<'view' | 'edit'>('view');
   const [selectedAgentForDetails, setSelectedAgentForDetails] = useState<any>(null);
+  const [generatedCommand, setGeneratedCommand] = useState('');
   
   const {
     formData,
@@ -36,12 +37,6 @@ const AgentCommander = () => {
     selectedAgent,
     setSelectedAgent
   } = useCommanderStore();
-
-  const [generatedCommand, setGeneratedCommand] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [testMode, setTestMode] = useState(true);
-  const [simulationResults, setSimulationResults] = useState<any[]>([]);
-  const [selectedAgent, setSelectedAgent] = useState<any>(null);
 
   const industries = [
     { value: 'healthcare', label: 'Healthcare', icon: '🏥' },
@@ -399,7 +394,6 @@ const AgentCommander = () => {
         </CardContent>
       </Card>
 
-      {/* Agent Details Dialog */}
       <AgentDetailsDialog
         agent={selectedAgentForDetails}
         isOpen={detailsDialogOpen}
