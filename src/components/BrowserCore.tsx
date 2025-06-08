@@ -1,79 +1,72 @@
+
 import { useState } from 'react';
 import { useBrowser } from '@/hooks/useBrowser';
 import BrowserNavigation from './browser/BrowserNavigation';
-import BrowserSidebar from './browser/BrowserSidebar';
+import EnhancedBrowserSidebar from './browser/EnhancedBrowserSidebar';
 import BrowserContent from './browser/BrowserContent';
 import VisualScraperPopup from './scraper/VisualScraperPopup';
+import EnhancedVisualElementInspector from './browser/EnhancedVisualElementInspector';
+import { useGlobalStore } from '@/stores/globalStore';
 import { ExtractionTemplate } from '@/types/smartExtractor';
 
-interface ExtractedLink {
-  url: string;
-  title: string;
-  domain: string;
-}
-
-interface SelectedElement {
-  selector: string;
-  tag: string;
-  text: string;
-  attributes: Record<string, string>;
-}
-
 interface BrowserCoreProps {
-  onLinksExtracted?: (links: ExtractedLink[]) => void;
-  visualInspectMode?: boolean;
+  onLinksExtracted?: (links: any[]) => void;
   onTemplateCreated?: (template: ExtractionTemplate) => void;
   onTemplateExecuted?: (template: ExtractionTemplate) => void;
 }
 
 const BrowserCore = ({
   onLinksExtracted,
-  visualInspectMode = false,
   onTemplateCreated,
   onTemplateExecuted
 }: BrowserCoreProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
-  const [isVisualInspectActive, setIsVisualInspectActive] = useState(visualInspectMode);
-  const [selectedElements, setSelectedElements] = useState<SelectedElement[]>([]);
   const [showVisualScraperPopup, setShowVisualScraperPopup] = useState(false);
 
   const {
+    visualInspectMode,
+    selectedElements,
+    mobileMenuOpen,
+    extractedLinks,
+    setVisualInspectMode,
+    clearSelectedElements,
+    setMobileMenuOpen,
+    addToHistory,
+    addExtractedLinks,
+    addTemplate
+  } = useGlobalStore();
+
+  const {
     browserState,
-    history,
     navigate,
     goBack,
     goForward,
     reload,
     setZoom,
     handleIframeError,
-    clearError
+    clearError,
+    iframeRef
   } = useBrowser();
-
-  const [bookmarks] = useState([{
-    title: 'Karol Core Docs',
-    url: 'https://karol-core.docs'
-  }, {
-    title: 'AGI Research',
-    url: 'https://agi-research.com'
-  }, {
-    title: 'FUKO System',
-    url: 'https://fuko.system'
-  }]);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
     setMobileMenuOpen(false);
     navigate(searchQuery);
+    
+    // Add to history
+    addToHistory({
+      url: searchQuery,
+      title: `Loading: ${searchQuery}`,
+    });
+    
     setTimeout(() => {
-      extractLinksFromCurrentPage(browserState.currentUrl);
+      extractLinksFromCurrentPage(searchQuery);
     }, 2000);
   };
 
   const extractLinksFromCurrentPage = async (url: string) => {
-    const mockLinks: ExtractedLink[] = [];
+    const mockLinks = [];
     if (url.includes('google.com/search')) {
       mockLinks.push({
         url: 'https://github.com/karol-core/project',
@@ -100,28 +93,24 @@ const BrowserCore = ({
         console.error('Invalid URL for link extraction:', url);
       }
     }
-    setExtractedLinks(mockLinks);
-    if (onLinksExtracted && mockLinks.length > 0) {
-      onLinksExtracted(mockLinks);
-      
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-gradient-success text-white p-3 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in';
-      notification.innerHTML = `
-        <div class="font-bold text-sm">Linki wyekstraktowane!</div>
-        <div class="text-xs">Znaleziono ${mockLinks.length} linków z bieżącej strony</div>
-      `;
-      document.body.appendChild(notification);
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 3000);
+    
+    if (mockLinks.length > 0) {
+      addExtractedLinks(mockLinks);
+      if (onLinksExtracted) {
+        onLinksExtracted(mockLinks);
+      }
     }
   };
 
   const handleNavigation = (url: string) => {
     setSearchQuery(url);
     navigate(url);
+    
+    // Add to history
+    addToHistory({
+      url: url,
+      title: `Loading: ${url}`,
+    });
   };
 
   const handleExtractLinks = () => {
@@ -131,31 +120,23 @@ const BrowserCore = ({
   };
 
   const handleToggleVisualInspect = () => {
-    const newState = !isVisualInspectActive;
-    setIsVisualInspectActive(newState);
+    const newState = !visualInspectMode;
+    setVisualInspectMode(newState);
     
     if (newState && browserState.currentUrl) {
       setShowVisualScraperPopup(true);
     } else {
       setShowVisualScraperPopup(false);
-      setSelectedElements([]);
-    }
-  };
-
-  const handleElementSelected = (element: SelectedElement) => {
-    setSelectedElements(prev => [...prev, element]);
-    
-    // Auto-open scraper popup if not already open
-    if (!showVisualScraperPopup) {
-      setShowVisualScraperPopup(true);
+      clearSelectedElements();
     }
   };
 
   const handleVisualScraperSave = (template: ExtractionTemplate) => {
+    addTemplate(template);
     onTemplateCreated?.(template);
     setShowVisualScraperPopup(false);
-    setSelectedElements([]);
-    setIsVisualInspectActive(false);
+    clearSelectedElements();
+    setVisualInspectMode(false);
   };
 
   const handleVisualScraperExecute = (template: ExtractionTemplate) => {
@@ -174,22 +155,12 @@ const BrowserCore = ({
 
   return (
     <div className="h-full flex bg-gradient-dark">
-      {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
-          onClick={() => setMobileMenuOpen(false)} 
-        />
-      )}
-
-      <BrowserSidebar 
+      <EnhancedBrowserSidebar 
         collapsed={sidebarCollapsed} 
         mobileMenuOpen={mobileMenuOpen} 
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)} 
         onCloseMobile={() => setMobileMenuOpen(false)} 
-        onNavigate={handleNavigation} 
-        history={history} 
-        bookmarks={bookmarks} 
-        extractedLinks={extractedLinks} 
+        onNavigate={handleNavigation}
       />
 
       <div className="flex-1 flex flex-col">
@@ -205,7 +176,7 @@ const BrowserCore = ({
           onZoomChange={handleZoomChange} 
           onOpenInNewTab={openInNewTab} 
           browserState={browserState}
-          visualInspectMode={isVisualInspectActive}
+          visualInspectMode={visualInspectMode}
           onToggleVisualInspect={handleToggleVisualInspect}
         />
 
@@ -215,10 +186,15 @@ const BrowserCore = ({
           onIframeError={handleIframeError} 
           onClearError={clearError} 
           onOpenInNewTab={openInNewTab}
-          visualInspectMode={isVisualInspectActive}
+          visualInspectMode={visualInspectMode}
           onToggleVisualInspect={handleToggleVisualInspect}
-          onElementSelected={handleElementSelected}
+          iframeRef={iframeRef}
         />
+
+        {/* Enhanced Visual Element Inspector */}
+        {visualInspectMode && (
+          <EnhancedVisualElementInspector iframeRef={iframeRef} />
+        )}
       </div>
 
       {/* Visual Scraper Popup */}
@@ -226,15 +202,15 @@ const BrowserCore = ({
         isOpen={showVisualScraperPopup}
         onClose={() => {
           setShowVisualScraperPopup(false);
-          setIsVisualInspectActive(false);
-          setSelectedElements([]);
+          setVisualInspectMode(false);
+          clearSelectedElements();
         }}
         onSave={handleVisualScraperSave}
         onExecute={handleVisualScraperExecute}
         currentUrl={browserState.currentUrl}
         selectedElements={selectedElements}
         onRequestVisualSelect={() => {
-          setIsVisualInspectActive(true);
+          setVisualInspectMode(true);
         }}
       />
     </div>

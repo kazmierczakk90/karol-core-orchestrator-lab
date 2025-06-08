@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -15,121 +16,57 @@ import URLScrapTable from '@/components/URLScrapTable';
 import MiniAIInstancesTable from '@/components/MiniAIInstancesTable';
 import MemoryEntriesTable from '@/components/MemoryEntriesTable';
 import SystemConnectionsTable from '@/components/SystemConnectionsTable';
+import EnhancedURLTable from '@/components/EnhancedURLTable';
 import FloatingActionKey from '@/components/FloatingActionKey';
 import MenuLevelManager from '@/components/MenuLevelManager';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import KK11Dashboard from '@/components/KK11Dashboard';
 import GlobalErrorBoundary from '@/components/enhanced/GlobalErrorBoundary';
+import { useGlobalStore } from '@/stores/globalStore';
+import { useGlobalKeyboardShortcuts } from '@/hooks/useGlobalKeyboardShortcuts';
 import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap, Target, Wrench, BookOpen, TrendingUp, Calendar, Store, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 import { Badge } from '@/components/ui/badge';
-import { useEffect } from 'react';
-
-interface ExtractedLink {
-  url: string;
-  title: string;
-  domain: string;
-}
+import { ExtractionTemplate } from '@/types/smartExtractor';
 
 const IndexContent = () => {
   const { t } = useTranslation();
-  const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
-  const [activeOpenAITab, setActiveOpenAITab] = useState('browser');
-  const [activeDataTab, setActiveDataTab] = useState('url-scrap');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTrainingCallModal, setShowTrainingCallModal] = useState(false);
-  const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
   const [collapsedMenus, setCollapsedMenus] = useState<{[key: string]: boolean}>({});
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
   const [showKK11Dashboard, setShowKK11Dashboard] = useState(false);
 
+  const {
+    menuLevel,
+    activeOpenAITab,
+    activeDataTab,
+    mobileMenuOpen,
+    extractedLinks,
+    setActiveOpenAITab,
+    setActiveDataTab,
+    setMenuLevel,
+    setMobileMenuOpen,
+    addExtractedLinks
+  } = useGlobalStore();
+
   // Real-time updates
   const { updates, isConnected } = useRealTimeUpdates();
 
-  // Enhanced keyboard shortcuts with new functions
-  useKeyboardShortcuts({
-    onMenuSwitch: (level) => setMenuLevel(level),
-    onSearch: () => {
-      const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
-      searchInput?.focus();
-    },
-    onEscape: () => {
-      setShowAnalyticsDashboard(false);
-      setShowKK11Dashboard(false);
-      setShowTrainingCallModal(false);
-    },
-    onQuickAction: (action) => {
-      switch (action) {
-        case 'scraper':
-          setActiveDataTab('smart-scraper');
-          setMenuLevel(2);
-          break;
-        case 'templates':
-          setActiveDataTab('template-gallery');
-          setMenuLevel(2);
-          break;
-        case 'analytics':
-          setActiveDataTab('analytics');
-          setMenuLevel(2);
-          break;
-        case 'visual-template':
-          setActiveOpenAITab('browser');
-          setMenuLevel(1);
-          break;
-      }
-    }
+  // Enhanced keyboard shortcuts
+  useGlobalKeyboardShortcuts({
+    onExtractLinks: handleExtractLinks,
+    onOpenTrainingCall: () => setShowTrainingCallModal(true)
   });
 
-  // Handle keyboard shortcuts for new functionality
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey) {
-        if (event.key === 'v' || event.key === 'V') {
-          event.preventDefault();
-          // Toggle visual inspector in browser
-          setActiveOpenAITab('browser');
-          setMenuLevel(1);
-        } else if (event.key === 't' || event.key === 'T') {
-          event.preventDefault();
-          // Create new template
-          setActiveDataTab('template-gallery');
-          setMenuLevel(2);
-        }
-      }
-      
-      if (event.ctrlKey) {
-        if (event.key === 's' || event.key === 'S') {
-          event.preventDefault();
-          // Save current template (context-dependent)
-          console.log('Save shortcut triggered');
-        } else if (event.key === 'e' || event.key === 'E') {
-          event.preventDefault();
-          // Export current data
-          setActiveDataTab('export');
-          setMenuLevel(2);
-        }
-      }
-      
-      if (event.key === 'Delete') {
-        // Delete selected items (context-dependent)
-        console.log('Delete shortcut triggered');
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const extractCurrentPageLinks = (): ExtractedLink[] => {
+  function extractCurrentPageLinks() {
     try {
       const allLinks = document.querySelectorAll('a[href]');
-      const extractedLinks: ExtractedLink[] = [];
-      const seenUrls = new Set<string>();
+      const extractedLinks = [];
+      const seenUrls = new Set();
 
       allLinks.forEach((link) => {
         const href = link.getAttribute('href');
@@ -139,7 +76,7 @@ const IndexContent = () => {
           return;
         }
 
-        let absoluteUrl: string;
+        let absoluteUrl;
         try {
           absoluteUrl = new URL(href, window.location.origin).href;
         } catch (error) {
@@ -164,17 +101,17 @@ const IndexContent = () => {
       console.error('Błąd podczas ekstrakcji linków:', error);
       return [];
     }
-  };
+  }
 
-  const handleLinksExtracted = (links: ExtractedLink[]) => {
+  function handleLinksExtracted(links) {
     console.log('Links received from Browser:', links);
-    setExtractedLinks(prev => [...links, ...prev]);
+    addExtractedLinks(links);
     setActiveDataTab('url-scrap');
     setMobileMenuOpen(false);
-    setMenuLevel(2); // Switch to data level when links are extracted
-  };
+    setMenuLevel(2); // Auto-switch to data level
+  }
 
-  const handleExtractLinks = () => {
+  function handleExtractLinks() {
     console.log('Rozpoczynam ekstrakcję linków z aktualnej strony...');
     
     const currentPageLinks = extractCurrentPageLinks();
@@ -192,7 +129,7 @@ const IndexContent = () => {
         duration: 3000
       });
     }
-  };
+  }
 
   const handleMenuLevelChange = (level: 1 | 2) => {
     setMenuLevel(level);
@@ -205,8 +142,16 @@ const IndexContent = () => {
     }));
   };
 
-  const switchMenuLevel = () => {
-    setMenuLevel(prev => prev === 1 ? 2 : 1);
+  const handleTemplateCreated = (template: ExtractionTemplate) => {
+    toast.success('Template created successfully', {
+      description: `Template "${template.name}" has been saved`
+    });
+  };
+
+  const handleTemplateExecuted = (template: ExtractionTemplate) => {
+    toast.info('Template executed', {
+      description: `Executing template "${template.name}"`
+    });
   };
 
   const openAITabs = [
@@ -234,7 +179,7 @@ const IndexContent = () => {
   return (
     <GlobalErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-        {/* Header without Switch Level button */}
+        {/* Enhanced Header */}
         <div className="bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
@@ -249,7 +194,6 @@ const IndexContent = () => {
                 </div>
               </div>
               
-              {/* KK1.1 AGI Button */}
               <Button
                 onClick={() => setShowKK11Dashboard(true)}
                 className="bg-gradient-accent hover:bg-gradient-primary flex items-center space-x-2"
@@ -258,12 +202,10 @@ const IndexContent = () => {
                 <span className="font-bold">KK1.1 AGI</span>
               </Button>
 
-              {/* Menu Level Indicator */}
               <Badge className={`${menuLevel === 1 ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'} border-slate-600`}>
                 Level {menuLevel} {menuLevel === 1 ? '(OpenAI/Browser)' : '(Data/Tables)'}
               </Badge>
 
-              {/* Real-time status indicator */}
               <div className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
                 <span className="text-xs text-slate-400">
@@ -337,15 +279,15 @@ const IndexContent = () => {
           setShowTrainingCallModal={setShowTrainingCallModal}
           onLinksExtracted={handleLinksExtracted}
           onMenuLevelChange={handleMenuLevelChange}
+          onTemplateCreated={handleTemplateCreated}
+          onTemplateExecuted={handleTemplateExecuted}
         />
 
-        {/* Training Call Modal */}
         <TrainingCallModal 
           isOpen={showTrainingCallModal} 
           onClose={() => setShowTrainingCallModal(false)} 
         />
 
-        {/* Enhanced Floating Action Key with context awareness */}
         <FloatingActionKey
           onExtractLinks={handleExtractLinks}
           onOpenBrowser={() => {

@@ -8,30 +8,17 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Globe, RefreshCw, AlertTriangle } from 'lucide-react';
 import { BrowserState } from '@/types/browser';
-import VisualElementInspector from './VisualElementInspector';
-
-interface ExtractedLink {
-  url: string;
-  title: string;
-  domain: string;
-}
-
-interface SelectedElement {
-  selector: string;
-  tag: string;
-  text: string;
-  attributes: Record<string, string>;
-}
+import { useGlobalStore } from '@/stores/globalStore';
 
 interface BrowserContentProps {
   browserState: BrowserState;
-  extractedLinks: ExtractedLink[];
+  extractedLinks: any[];
   onIframeError: () => void;
   onClearError: () => void;
   onOpenInNewTab: () => void;
   visualInspectMode?: boolean;
   onToggleVisualInspect?: () => void;
-  onElementSelected?: (element: SelectedElement) => void;
+  iframeRef?: React.RefObject<HTMLIFrameElement>;
 }
 
 const BrowserContent = ({
@@ -42,10 +29,10 @@ const BrowserContent = ({
   onOpenInNewTab,
   visualInspectMode = false,
   onToggleVisualInspect,
-  onElementSelected
+  iframeRef
 }: BrowserContentProps) => {
   const { t, tArray } = useTranslation();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { selectedElements } = useGlobalStore();
   const browserFeatures = tArray('browser.features');
 
   return (
@@ -69,6 +56,11 @@ const BrowserContent = ({
               {visualInspectMode && (
                 <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs animate-pulse">
                   Visual Inspector Active
+                </Badge>
+              )}
+              {selectedElements.length > 0 && (
+                <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
+                  {selectedElements.length} selected
                 </Badge>
               )}
             </div>
@@ -132,24 +124,19 @@ const BrowserContent = ({
                   console.log('Iframe loaded successfully');
                 }}
               />
-              
-              {/* Visual Element Inspector */}
-              {visualInspectMode && onToggleVisualInspect && onElementSelected && (
-                <VisualElementInspector
-                  isActive={visualInspectMode}
-                  onToggle={onToggleVisualInspect}
-                  onElementSelected={onElementSelected}
-                  iframeRef={iframeRef}
-                />
-              )}
             </div>
           ) : (
             <div className="h-full bg-gradient-dark rounded border border-slate-600 p-4 md:p-6">
               <div className="text-center text-slate-400 space-y-4">
                 <Globe className="h-12 w-12 md:h-16 md:w-16 mx-auto opacity-50 animate-pulse-glow" />
-                <h3 className="text-base md:text-lg font-medium text-gradient-primary">Browser Core Ready</h3>
+                <h3 className="text-base md:text-lg font-medium text-gradient-primary">Enhanced Browser Core Ready</h3>
                 <p className="text-sm">Wpisz URL lub hasło wyszukiwania, aby rozpocząć przeglądanie</p>
                 <div className="text-xs md:text-sm text-slate-500 space-y-2">
+                  <p>• Visual Element Inspector with CSS generation</p>
+                  <p>• Smart template creation workflow</p>
+                  <p>• Persistent browsing history</p>
+                  <p>• Context-aware keyboard shortcuts</p>
+                  <p>• Real-time data extraction</p>
                   {browserFeatures.map((feature, index) => (
                     <p key={index}>• {feature}</p>
                   ))}

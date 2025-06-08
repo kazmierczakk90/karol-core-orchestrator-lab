@@ -1,145 +1,136 @@
 
-import { useState, useCallback } from 'react';
-import { BrowserState, NavigationHistory } from '@/types/browser';
+import { useState, useRef } from 'react';
+import { useGlobalStore } from '@/stores/globalStore';
+
+interface BrowserState {
+  currentUrl: string;
+  isLoading: boolean;
+  loadingProgress: number;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  zoomLevel: number;
+  error: boolean;
+}
 
 export const useBrowser = () => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { addToHistory } = useGlobalStore();
+  
   const [browserState, setBrowserState] = useState<BrowserState>({
     currentUrl: '',
     isLoading: false,
     loadingProgress: 0,
-    error: null,
-    zoomLevel: 100,
     canGoBack: false,
-    canGoForward: false
+    canGoForward: false,
+    zoomLevel: 100,
+    error: false
   });
 
-  const [history, setHistory] = useState<NavigationHistory[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [history, setHistory] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
-  const validateAndFormatUrl = useCallback((input: string): string => {
-    if (!input.trim()) return '';
+  const navigate = (url: string) => {
+    let formattedUrl = url;
     
-    // Jeśli to jest search query (nie URL), zwróć query
-    if (!input.includes('.') && !input.startsWith('http')) {
-      return input;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      if (url.includes('.') && !url.includes(' ')) {
+        formattedUrl = `https://${url}`;
+      } else {
+        formattedUrl = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+      }
     }
 
-    // Dodaj protokół jeśli brakuje
-    if (!input.startsWith('http://') && !input.startsWith('https://')) {
-      return `https://${input}`;
-    }
-
-    return input;
-  }, []);
-
-  const isValidUrl = useCallback((url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
-
-  const navigate = useCallback((input: string) => {
-    const formattedInput = validateAndFormatUrl(input);
-    
     setBrowserState(prev => ({
       ...prev,
+      currentUrl: formattedUrl,
       isLoading: true,
       loadingProgress: 0,
-      error: null
+      error: false
     }));
 
-    // Jeśli to nie jest valid URL, traktuj jako search query
-    if (!isValidUrl(formattedInput)) {
-      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(formattedInput)}&igu=1`;
-      setBrowserState(prev => ({ ...prev, currentUrl: searchUrl }));
-      addToHistory(searchUrl, `Search: ${formattedInput}`);
-    } else {
-      setBrowserState(prev => ({ ...prev, currentUrl: formattedInput }));
-      addToHistory(formattedInput, formattedInput);
-    }
-
-    // Symulacja progress loading
-    const progressInterval = setInterval(() => {
-      setBrowserState(prev => {
-        const newProgress = prev.loadingProgress + 10;
-        if (newProgress >= 100) {
-          clearInterval(progressInterval);
-          return {
-            ...prev,
-            loadingProgress: 100,
-            isLoading: false
-          };
+    // Simulate loading
+    let progress = 0;
+    const loadingInterval = setInterval(() => {
+      progress += 10;
+      setBrowserState(prev => ({
+        ...prev,
+        loadingProgress: progress
+      }));
+      
+      if (progress >= 100) {
+        clearInterval(loadingInterval);
+        setBrowserState(prev => ({
+          ...prev,
+          isLoading: false,
+          loadingProgress: 100
+        }));
+        
+        // Add to history
+        setHistory(prev => {
+          const newHistory = [...prev.slice(0, currentIndex + 1), formattedUrl];
+          setCurrentIndex(newHistory.length - 1);
+          return newHistory;
+        });
+        
+        // Add to global store history
+        try {
+          const urlObj = new URL(formattedUrl);
+          addToHistory({
+            url: formattedUrl,
+            title: urlObj.hostname,
+          });
+        } catch (error) {
+          console.error('Invalid URL for history:', formattedUrl);
         }
-        return { ...prev, loadingProgress: newProgress };
-      });
-    }, 150);
+        
+        // Update navigation state
+        setBrowserState(prev => ({
+          ...prev,
+          canGoBack: currentIndex >= 0,
+          canGoForward: currentIndex < history.length - 1
+        }));
+      }
+    }, 100);
+  };
 
-  }, [validateAndFormatUrl, isValidUrl]);
-
-  const addToHistory = useCallback((url: string, title: string) => {
-    const newEntry: NavigationHistory = {
-      url,
-      title,
-      timestamp: Date.now()
-    };
-
-    setHistory(prev => {
-      // Usuń wszystkie wpisy po current index (dla nowego branching)
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(newEntry);
-      return newHistory.slice(-20); // Keep only last 20 entries
-    });
-
-    setHistoryIndex(prev => prev + 1);
-    updateNavigationState();
-  }, [historyIndex]);
-
-  const updateNavigationState = useCallback(() => {
-    setBrowserState(prev => ({
-      ...prev,
-      canGoBack: historyIndex > 0,
-      canGoForward: historyIndex < history.length - 1
-    }));
-  }, [historyIndex, history.length]);
-
-  const goBack = useCallback(() => {
-    if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
-      setBrowserState(prev => ({ 
-        ...prev, 
-        currentUrl: history[newIndex].url,
+  const goBack = () => {
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      const url = history[newIndex];
+      setBrowserState(prev => ({
+        ...prev,
+        currentUrl: url,
         canGoBack: newIndex > 0,
         canGoForward: true
       }));
     }
-  }, [historyIndex, history]);
+  };
 
-  const goForward = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
-      setBrowserState(prev => ({ 
-        ...prev, 
-        currentUrl: history[newIndex].url,
+  const goForward = () => {
+    if (currentIndex < history.length - 1) {
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      const url = history[newIndex];
+      setBrowserState(prev => ({
+        ...prev,
+        currentUrl: url,
         canGoBack: true,
         canGoForward: newIndex < history.length - 1
       }));
     }
-  }, [historyIndex, history]);
+  };
 
-  const reload = useCallback(() => {
+  const reload = () => {
     if (browserState.currentUrl) {
       setBrowserState(prev => ({
         ...prev,
         isLoading: true,
         loadingProgress: 0,
-        error: null
+        error: false
       }));
       
+      // Simulate reload
       setTimeout(() => {
         setBrowserState(prev => ({
           ...prev,
@@ -148,30 +139,34 @@ export const useBrowser = () => {
         }));
       }, 1000);
     }
-  }, [browserState.currentUrl]);
+  };
 
-  const setZoom = useCallback((level: number) => {
+  const setZoom = (level: number) => {
+    const clampedLevel = Math.max(50, Math.min(200, level));
     setBrowserState(prev => ({
       ...prev,
-      zoomLevel: Math.max(50, Math.min(200, level))
+      zoomLevel: clampedLevel
     }));
-  }, []);
+  };
 
-  const handleIframeError = useCallback(() => {
+  const handleIframeError = () => {
     setBrowserState(prev => ({
       ...prev,
-      isLoading: false,
-      error: 'Nie można załadować strony. Strona może blokować wyświetlanie w iframe.'
+      error: true,
+      isLoading: false
     }));
-  }, []);
+  };
 
-  const clearError = useCallback(() => {
-    setBrowserState(prev => ({ ...prev, error: null }));
-  }, []);
+  const clearError = () => {
+    setBrowserState(prev => ({
+      ...prev,
+      error: false
+    }));
+  };
 
   return {
     browserState,
-    history: history.slice(0, historyIndex + 1),
+    history,
     navigate,
     goBack,
     goForward,
@@ -179,7 +174,6 @@ export const useBrowser = () => {
     setZoom,
     handleIframeError,
     clearError,
-    validateAndFormatUrl,
-    isValidUrl
+    iframeRef
   };
 };
