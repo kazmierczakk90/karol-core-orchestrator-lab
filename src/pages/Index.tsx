@@ -19,11 +19,14 @@ import FloatingActionKey from '@/components/FloatingActionKey';
 import MenuLevelManager from '@/components/MenuLevelManager';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import KK11Dashboard from '@/components/KK11Dashboard';
-import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap, Target } from 'lucide-react';
+import GlobalErrorBoundary from '@/components/enhanced/GlobalErrorBoundary';
+import { Brain, Bot, Globe, Link, Map, Users, Menu, X, MessageSquare, Workflow, Phone, Network, Database, Search, Zap, Target, Wrench, BookOpen, TrendingUp, Calendar, Store, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 
 interface ExtractedLink {
   url: string;
@@ -42,6 +45,39 @@ const IndexContent = () => {
   const [collapsedMenus, setCollapsedMenus] = useState<{[key: string]: boolean}>({});
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
   const [showKK11Dashboard, setShowKK11Dashboard] = useState(false);
+
+  // Real-time updates
+  const { updates, isConnected } = useRealTimeUpdates();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onMenuSwitch: (level) => setMenuLevel(level),
+    onSearch: () => {
+      const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+      searchInput?.focus();
+    },
+    onEscape: () => {
+      setShowAnalyticsDashboard(false);
+      setShowKK11Dashboard(false);
+      setShowTrainingCallModal(false);
+    },
+    onQuickAction: (action) => {
+      switch (action) {
+        case 'scraper':
+          setActiveDataTab('smart-scraper');
+          setMenuLevel(2);
+          break;
+        case 'templates':
+          setActiveDataTab('template-gallery');
+          setMenuLevel(2);
+          break;
+        case 'analytics':
+          setActiveDataTab('analytics');
+          setMenuLevel(2);
+          break;
+      }
+    }
+  });
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
     try {
@@ -130,123 +166,142 @@ const IndexContent = () => {
   ];
 
   const dataTabs = [
-    { value: 'system-agents', label: 'System Agents', icon: Bot },
-    { value: 'mini-ai', label: 'Mini AI Instances', icon: Brain },
-    { value: 'memory', label: 'Memory Entries', icon: Database },
-    { value: 'connections', label: 'System Connections', icon: Zap },
+    { value: 'system-agents', label: 'Agents', icon: Bot },
+    { value: 'mini-ai', label: 'Mini AI', icon: Brain },
+    { value: 'memory', label: 'Memory', icon: Database },
+    { value: 'connections', label: 'Connections', icon: Zap },
     { value: 'url-scrap', label: 'URL Scrap', icon: Search },
+    { value: 'smart-scraper', label: 'Scraper', icon: Wrench },
+    { value: 'template-gallery', label: 'Templates', icon: BookOpen },
+    { value: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { value: 'scheduler', label: 'Scheduler', icon: Calendar },
+    { value: 'marketplace', label: 'Market', icon: Store },
+    { value: 'export', label: 'Export', icon: Download }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      {/* Header z logo */}
-      <div className="bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div 
-              className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform"
-              onClick={() => setShowAnalyticsDashboard(true)}
-            >
-              <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
-              <div>
-                <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
-                <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
+    <GlobalErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
+        {/* Header z logo */}
+        <div className="bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <div 
+                className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => setShowAnalyticsDashboard(true)}
+              >
+                <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
+                <div>
+                  <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
+                  <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
+                </div>
+              </div>
+              
+              {/* KK1.1 AGI Button */}
+              <Button
+                onClick={() => setShowKK11Dashboard(true)}
+                className="bg-gradient-accent hover:bg-gradient-primary flex items-center space-x-2"
+              >
+                <Target className="h-5 w-5" />
+                <span className="font-bold">KK1.1 AGI</span>
+              </Button>
+
+              {/* Real-time status indicator */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+                <span className="text-xs text-slate-400">
+                  {isConnected ? 'Live' : 'Offline'}
+                </span>
               </div>
             </div>
             
-            {/* KK1.1 AGI Button */}
-            <Button
-              onClick={() => setShowKK11Dashboard(true)}
-              className="bg-gradient-accent hover:bg-gradient-primary flex items-center space-x-2"
-            >
-              <Target className="h-5 w-5" />
-              <span className="font-bold">KK1.1 AGI</span>
-            </Button>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <Button
-              onClick={switchMenuLevel}
-              className="bg-gradient-secondary hover:bg-gradient-primary"
-            >
-              Switch to Level {menuLevel === 1 ? '2' : '1'}
-            </Button>
-            <div className="text-right">
-              <p className="text-white font-medium">{t('status.active')}</p>
-              <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
+            <div className="flex items-center space-x-4">
+              <div className="text-xs text-slate-400">
+                Shortcuts: Ctrl+1/2 (Menu) • / (Search) • Alt+S (Scraper)
+              </div>
+              <Button
+                onClick={switchMenuLevel}
+                className="bg-gradient-secondary hover:bg-gradient-primary"
+              >
+                Switch to Level {menuLevel === 1 ? '2' : '1'}
+              </Button>
+              <div className="text-right">
+                <p className="text-white font-medium">{t('status.active')}</p>
+                <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Analytics Dashboard Modal */}
+        {showAnalyticsDashboard && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Analytics Dashboard</h2>
+                <Button
+                  onClick={() => setShowAnalyticsDashboard(false)}
+                  variant="outline"
+                  className="border-slate-600"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <AnalyticsDashboard />
+            </div>
+          </div>
+        )}
+
+        {/* KK1.1 AGI Dashboard Modal */}
+        {showKK11Dashboard && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gradient-primary">KK1.1 AGI Control Center</h2>
+                <Button
+                  onClick={() => setShowKK11Dashboard(false)}
+                  variant="outline"
+                  className="border-slate-600"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <KK11Dashboard />
+            </div>
+          </div>
+        )}
+
+        <MenuLevelManager
+          menuLevel={menuLevel}
+          collapsedMenus={collapsedMenus}
+          toggleCollapse={toggleCollapse}
+          activeOpenAITab={activeOpenAITab}
+          setActiveOpenAITab={setActiveOpenAITab}
+          activeDataTab={activeDataTab}
+          setActiveDataTab={setActiveDataTab}
+          openAITabs={openAITabs}
+          dataTabs={dataTabs}
+          extractedLinks={extractedLinks}
+          showTrainingCallModal={showTrainingCallModal}
+          setShowTrainingCallModal={setShowTrainingCallModal}
+        />
+
+        {/* Training Call Modal */}
+        <TrainingCallModal 
+          isOpen={showTrainingCallModal} 
+          onClose={() => setShowTrainingCallModal(false)} 
+        />
+
+        {/* Floating Action Key */}
+        <FloatingActionKey
+          onExtractLinks={handleExtractLinks}
+          onOpenBrowser={() => setActiveDataTab('url-scrap')}
+          onOpenMiniAI={() => setActiveDataTab('mini-ai')}
+          onOpenCommander={() => setActiveOpenAITab('commander')}
+          onOpenTrainingCall={() => setShowTrainingCallModal(true)}
+        />
       </div>
-
-      {/* Analytics Dashboard Modal */}
-      {showAnalyticsDashboard && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Analytics Dashboard</h2>
-              <Button
-                onClick={() => setShowAnalyticsDashboard(false)}
-                variant="outline"
-                className="border-slate-600"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <AnalyticsDashboard />
-          </div>
-        </div>
-      )}
-
-      {/* KK1.1 AGI Dashboard Modal */}
-      {showKK11Dashboard && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gradient-primary">KK1.1 AGI Control Center</h2>
-              <Button
-                onClick={() => setShowKK11Dashboard(false)}
-                variant="outline"
-                className="border-slate-600"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <KK11Dashboard />
-          </div>
-        </div>
-      )}
-
-      <MenuLevelManager
-        menuLevel={menuLevel}
-        collapsedMenus={collapsedMenus}
-        toggleCollapse={toggleCollapse}
-        activeOpenAITab={activeOpenAITab}
-        setActiveOpenAITab={setActiveOpenAITab}
-        activeDataTab={activeDataTab}
-        setActiveDataTab={setActiveDataTab}
-        openAITabs={openAITabs}
-        dataTabs={dataTabs}
-        extractedLinks={extractedLinks}
-        showTrainingCallModal={showTrainingCallModal}
-        setShowTrainingCallModal={setShowTrainingCallModal}
-      />
-
-      {/* Training Call Modal */}
-      <TrainingCallModal 
-        isOpen={showTrainingCallModal} 
-        onClose={() => setShowTrainingCallModal(false)} 
-      />
-
-      {/* Floating Action Key */}
-      <FloatingActionKey
-        onExtractLinks={handleExtractLinks}
-        onOpenBrowser={() => setActiveDataTab('url-scrap')}
-        onOpenMiniAI={() => setActiveDataTab('mini-ai')}
-        onOpenCommander={() => setActiveOpenAITab('commander')}
-        onOpenTrainingCall={() => setShowTrainingCallModal(true)}
-      />
-    </div>
+    </GlobalErrorBoundary>
   );
 };
 

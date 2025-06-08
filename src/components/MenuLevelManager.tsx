@@ -10,6 +10,12 @@ import MiniAIInstancesTable from './MiniAIInstancesTable';
 import MemoryEntriesTable from './MemoryEntriesTable';
 import SystemConnectionsTable from './SystemConnectionsTable';
 import URLScrapTable from './URLScrapTable';
+import SmartScraperBuilder from './scraper/SmartScraperBuilder';
+import TemplateGallery from './gallery/TemplateGallery';
+import AdvancedAnalytics from './analytics/AdvancedAnalytics';
+import BulkScheduler from './scheduler/BulkScheduler';
+import TemplateMarketplace from './marketplace/TemplateMarketplace';
+import AdvancedExporter from './export/AdvancedExporter';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface MenuLevelManagerProps {
@@ -99,7 +105,7 @@ const MenuLevelManager = ({
     <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-900/50 p-4 transition-all duration-500`}>
       <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="h-full flex flex-col">
         <div className="flex items-center justify-between mb-2">
-          <TabsList className="grid grid-cols-5 bg-gradient-dark border border-slate-700/50 flex-1 mr-4">
+          <TabsList className="grid grid-cols-8 bg-gradient-dark border border-slate-700/50 flex-1 mr-4">
             {dataTabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -110,7 +116,7 @@ const MenuLevelManager = ({
                   className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-secondary data-[state=active]:text-white"
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{tab.label}</span>
+                  <span className="hidden lg:inline text-xs">{tab.label}</span>
                 </TabsTrigger>
               );
             })}
@@ -145,6 +151,30 @@ const MenuLevelManager = ({
             
             <TabsContent value="url-scrap" className="h-full m-0">
               <URLScrapTable extractedLinks={extractedLinks} />
+            </TabsContent>
+
+            <TabsContent value="smart-scraper" className="h-full m-0">
+              <SmartScraperBuilder />
+            </TabsContent>
+
+            <TabsContent value="template-gallery" className="h-full m-0">
+              <TemplateGallery />
+            </TabsContent>
+
+            <TabsContent value="analytics" className="h-full m-0">
+              <AdvancedAnalytics />
+            </TabsContent>
+
+            <TabsContent value="scheduler" className="h-full m-0">
+              <BulkScheduler />
+            </TabsContent>
+
+            <TabsContent value="marketplace" className="h-full m-0">
+              <TemplateMarketplace />
+            </TabsContent>
+
+            <TabsContent value="export" className="h-full m-0">
+              <AdvancedExporter data={extractedLinks} />
             </TabsContent>
           </div>
         )}
