@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { BrowserState, NavigationHistory } from '@/types/browser';
 
 export const useBrowser = () => {
@@ -87,17 +87,16 @@ export const useBrowser = () => {
     };
 
     setHistory(prev => {
-      // Usuń wszystkie wpisy po current index (dla nowego branching)
       const newHistory = prev.slice(0, historyIndex + 1);
       newHistory.push(newEntry);
-      return newHistory.slice(-20); // Keep only last 20 entries
+      return newHistory.slice(-20);
     });
 
     setHistoryIndex(prev => prev + 1);
-    updateNavigationState();
   }, [historyIndex]);
 
-  const updateNavigationState = useCallback(() => {
+  // Update navigation state whenever history or index changes
+  useEffect(() => {
     setBrowserState(prev => ({
       ...prev,
       canGoBack: historyIndex > 0,
