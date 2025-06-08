@@ -1,5 +1,5 @@
 import { MiniAI, MiniAIConfig, MiniAIExecution, MemoryEntry, LinkExtraction } from '@/types/miniAI';
-import { SmartExtractionResult, PowerUPTemplate } from '@/types/smartExtractor';
+import { SmartExtractionResult, PowerUPTemplate, OutputFormat } from '@/types/smartExtractor';
 import { smartExtractorService } from './smartExtractorService';
 
 class MiniAIService {
@@ -370,6 +370,73 @@ class MiniAIService {
     }
     
     return examples;
+  }
+
+  // Export functionality with corrected type
+  async exportData(results: SmartExtractionResult[], format: OutputFormat): Promise<Blob> {
+    const allData = results.flatMap(r => r.data.map(item => ({
+      source_url: r.url,
+      extraction_id: r.id,
+      confidence: r.confidence,
+      template: r.template,
+      extracted_at: r.metadata.extractedAt,
+      ...item
+    })));
+
+    switch (format) {
+      case 'json':
+        return new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+      
+      case 'csv':
+        if (allData.length === 0) return new Blob([''], { type: 'text/csv' });
+        
+        const headers = Object.keys(allData[0]);
+        const csvContent = [
+          headers.join(','),
+          ...allData.map(row => headers.map(header => 
+            JSON.stringify(row[header] || '')
+          ).join(','))
+        ].join('\n');
+        
+        return new Blob([csvContent], { type: 'text/csv' });
+      
+      case 'xml':
+        const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<extractions>
+${allData.map(item => `  <item>
+${Object.entries(item).map(([key, value]) => `    <${key}>${value}</${key}>`).join('\n')}
+  </item>`).join('\n')}
+</extractions>`;
+        return new Blob([xmlContent], { type: 'application/xml' });
+      
+      case 'excel':
+        // For now, return CSV format for Excel compatibility
+        const excelHeaders = Object.keys(allData[0] || {});
+        const excelContent = [
+          excelHeaders.join(','),
+          ...allData.map(row => excelHeaders.map(header => 
+            JSON.stringify(row[header] || '')
+          ).join(','))
+        ].join('\n');
+        return new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+      
+      case 'markdown':
+        if (allData.length === 0) return new Blob(['# No Data'], { type: 'text/markdown' });
+        
+        const mdHeaders = Object.keys(allData[0]);
+        const mdContent = [
+          `# Extraction Results`,
+          ``,
+          `| ${mdHeaders.join(' | ')} |`,
+          `| ${mdHeaders.map(() => '---').join(' | ')} |`,
+          ...allData.map(row => `| ${mdHeaders.map(header => String(row[header] || '')).join(' | ')} |`)
+        ].join('\n');
+        
+        return new Blob([mdContent], { type: 'text/markdown' });
+      
+      default:
+        return new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+    }
   }
 
   // Getters

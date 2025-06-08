@@ -31,6 +31,9 @@ export interface ExtractionTemplate {
   isActive: boolean;
 }
 
+// Unified output format type
+export type OutputFormat = 'text' | 'json' | 'html' | 'markdown' | 'csv' | 'excel' | 'xml';
+
 export interface PowerUPTemplate {
   id: string;
   name: string;
@@ -43,7 +46,7 @@ export interface PowerUPTemplate {
   tags: string[];
   configuration: {
     inputType: 'url' | 'text' | 'file' | 'mixed';
-    outputFormat: 'json' | 'csv' | 'text' | 'html';
+    outputFormat: OutputFormat;
     parameters: Record<string, any>;
     selectors?: ExtractionTemplate['selectors'];
   };
@@ -76,7 +79,7 @@ export interface ScraperSchedule {
     maxConcurrent: number;
     retryOnError: boolean;
     maxRetries: number;
-    exportFormat: 'json' | 'csv' | 'excel' | 'xml';
+    exportFormat: OutputFormat;
     notificationEmail?: string;
   };
   isActive: boolean;
