@@ -1,4 +1,7 @@
 
+// Re-export from common types for backward compatibility
+export { ExtractionTemplate } from './common';
+
 export interface SmartExtractionResult {
   id: string;
   url: string;
@@ -13,22 +16,6 @@ export interface SmartExtractionResult {
     processingTime: number;
   };
   template?: string;
-}
-
-export interface ExtractionTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  domains: string[];
-  selectors: {
-    container: string;
-    item: string;
-    fields: Record<string, string>;
-  };
-  preprocessing?: string[];
-  postprocessing?: string[];
-  isActive: boolean;
 }
 
 // Unified output format type
@@ -48,7 +35,11 @@ export interface PowerUPTemplate {
     inputType: 'url' | 'text' | 'file' | 'mixed';
     outputFormat: OutputFormat;
     parameters: Record<string, any>;
-    selectors?: ExtractionTemplate['selectors'];
+    selectors?: {
+      container: string;
+      item: string;
+      fields: Record<string, string>;
+    };
   };
   usage: {
     instructions: string;

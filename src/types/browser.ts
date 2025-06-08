@@ -1,4 +1,7 @@
 
+// Re-export from common types for backward compatibility
+export { BrowserState, SearchEngine } from './common';
+
 export interface SearchEngine {
   id: string;
   name: string;
@@ -6,16 +9,6 @@ export interface SearchEngine {
   icon?: string;
   isDefault?: boolean;
   category?: 'web' | 'academic' | 'shopping' | 'images' | 'video' | 'code';
-}
-
-export interface BrowserState {
-  currentUrl: string;
-  isLoading: boolean;
-  loadingProgress: number;
-  error: string | null;
-  zoomLevel: number;
-  canGoBack: boolean;
-  canGoForward: boolean;
 }
 
 export interface NavigationHistory {

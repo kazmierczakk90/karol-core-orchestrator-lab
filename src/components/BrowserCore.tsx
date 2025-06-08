@@ -7,7 +7,8 @@ import BrowserContent from './browser/BrowserContent';
 import VisualScraperPopup from './scraper/VisualScraperPopup';
 import EnhancedVisualElementInspector from './browser/EnhancedVisualElementInspector';
 import { useGlobalStore } from '@/stores/globalStore';
-import { ExtractionTemplate } from '@/types/smartExtractor';
+import { useProcessStore } from '@/stores/processStore';
+import { ExtractionTemplate } from '@/types/common';
 
 interface BrowserCoreProps {
   onLinksExtracted?: (links: any[]) => void;
@@ -37,6 +38,8 @@ const BrowserCore = ({
     addTemplate
   } = useGlobalStore();
 
+  const { addProcess, updateProcess, completeProcess } = useProcessStore();
+
   const {
     browserState,
     navigate,
@@ -51,21 +54,39 @@ const BrowserCore = ({
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
+    
+    const processId = addProcess({
+      type: 'navigation',
+      status: 'running',
+      title: 'Nawigacja do strony',
+      description: `Ładowanie: ${searchQuery}`,
+      progress: 0
+    });
+
     setMobileMenuOpen(false);
     navigate(searchQuery);
     
-    // Add to history
     addToHistory({
       url: searchQuery,
       title: `Loading: ${searchQuery}`,
     });
     
     setTimeout(() => {
+      updateProcess(processId, { progress: 50 });
       extractLinksFromCurrentPage(searchQuery);
+      completeProcess(processId, true);
     }, 2000);
   };
 
   const extractLinksFromCurrentPage = async (url: string) => {
+    const processId = addProcess({
+      type: 'extraction',
+      status: 'running',
+      title: 'Ekstrakcja linków',
+      description: `Wydobywanie linków z: ${url}`,
+      progress: 0
+    });
+
     const mockLinks = [];
     if (url.includes('google.com/search')) {
       mockLinks.push({
@@ -91,14 +112,25 @@ const BrowserCore = ({
         });
       } catch (error) {
         console.error('Invalid URL for link extraction:', url);
+        completeProcess(processId, false, 'Invalid URL format');
+        return;
       }
     }
+    
+    updateProcess(processId, { progress: 80 });
     
     if (mockLinks.length > 0) {
       addExtractedLinks(mockLinks);
       if (onLinksExtracted) {
         onLinksExtracted(mockLinks);
       }
+      updateProcess(processId, { 
+        progress: 100,
+        metadata: { linksCount: mockLinks.length }
+      });
+      completeProcess(processId, true);
+    } else {
+      completeProcess(processId, false, 'No links found');
     }
   };
 
@@ -106,7 +138,6 @@ const BrowserCore = ({
     setSearchQuery(url);
     navigate(url);
     
-    // Add to history
     addToHistory({
       url: url,
       title: `Loading: ${url}`,
@@ -132,15 +163,46 @@ const BrowserCore = ({
   };
 
   const handleVisualScraperSave = (template: ExtractionTemplate) => {
-    addTemplate(template);
-    onTemplateCreated?.(template);
+    const processId = addProcess({
+      type: 'template',
+      status: 'running',
+      title: 'Tworzenie szablonu',
+      description: `Zapisywanie szablonu: ${template.name}`,
+      progress: 0
+    });
+
+    // Ensure required fields are present
+    const completeTemplate: ExtractionTemplate = {
+      ...template,
+      preprocessing: template.preprocessing || [],
+      postprocessing: template.postprocessing || []
+    };
+
+    addTemplate(completeTemplate);
+    onTemplateCreated?.(completeTemplate);
     setShowVisualScraperPopup(false);
     clearSelectedElements();
     setVisualInspectMode(false);
+
+    updateProcess(processId, { progress: 100 });
+    completeProcess(processId, true);
   };
 
   const handleVisualScraperExecute = (template: ExtractionTemplate) => {
+    const processId = addProcess({
+      type: 'template',
+      status: 'running',
+      title: 'Wykonywanie szablonu',
+      description: `Uruchamianie: ${template.name}`,
+      progress: 0
+    });
+
     onTemplateExecuted?.(template);
+    
+    setTimeout(() => {
+      updateProcess(processId, { progress: 100 });
+      completeProcess(processId, true);
+    }, 1000);
   };
 
   const openInNewTab = () => {
@@ -191,13 +253,11 @@ const BrowserCore = ({
           iframeRef={iframeRef}
         />
 
-        {/* Enhanced Visual Element Inspector */}
         {visualInspectMode && (
           <EnhancedVisualElementInspector iframeRef={iframeRef} />
         )}
       </div>
 
-      {/* Visual Scraper Popup */}
       <VisualScraperPopup
         isOpen={showVisualScraperPopup}
         onClose={() => {

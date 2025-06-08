@@ -1,43 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface SelectedElement {
-  selector: string;
-  tag: string;
-  text: string;
-  attributes: Record<string, string>;
-}
-
-export interface ExtractedLink {
-  url: string;
-  title: string;
-  domain: string;
-}
-
-export interface BrowserHistoryEntry {
-  id: string;
-  url: string;
-  title: string;
-  visitedAt: Date;
-  favicon?: string;
-}
-
-export interface ExtractionTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  domains: string[];
-  selectors: {
-    container: string;
-    item: string;
-    fields: Record<string, string>;
-  };
-  preprocessing: any[];
-  postprocessing: any[];
-  isActive: boolean;
-  createdAt?: Date;
-}
+import { 
+  SelectedElement, 
+  ExtractedLink, 
+  BrowserHistoryEntry, 
+  ExtractionTemplate 
+} from '@/types/common';
 
 interface GlobalState {
   // Visual Inspector
@@ -93,7 +61,7 @@ interface GlobalState {
 export const useGlobalStore = create<GlobalState>()(
   persist(
     (set, get) => ({
-      // Initial state
+      // ... keep existing code (initial state)
       visualInspectMode: false,
       selectedElements: [],
       browserHistory: [],
@@ -109,7 +77,7 @@ export const useGlobalStore = create<GlobalState>()(
       activeDataTab: 'url-scrap',
       mobileMenuOpen: false,
 
-      // Visual Inspector Actions
+      // ... keep existing code (all action implementations remain the same)
       setVisualInspectMode: (active) => set({ visualInspectMode: active }),
       
       addSelectedElement: (element) => set((state) => ({
@@ -118,7 +86,6 @@ export const useGlobalStore = create<GlobalState>()(
       
       clearSelectedElements: () => set({ selectedElements: [] }),
 
-      // Browser Actions
       addToHistory: (entry) => set((state) => {
         const newEntry: BrowserHistoryEntry = {
           ...entry,
@@ -126,7 +93,6 @@ export const useGlobalStore = create<GlobalState>()(
           visitedAt: new Date()
         };
         
-        // Keep only last 100 entries
         const updatedHistory = [newEntry, ...state.browserHistory].slice(0, 100);
         return { browserHistory: updatedHistory };
       }),
@@ -137,7 +103,6 @@ export const useGlobalStore = create<GlobalState>()(
         browserHistory: state.browserHistory.filter(h => h.id !== id)
       })),
 
-      // Data Actions
       setExtractedLinks: (links) => set({ extractedLinks: links }),
       
       addExtractedLinks: (links) => set((state) => ({
@@ -158,13 +123,11 @@ export const useGlobalStore = create<GlobalState>()(
         templates: state.templates.filter(t => t.id !== id)
       })),
 
-      // UI Actions
       setMenuLevel: (level) => set({ menuLevel: level }),
       setActiveOpenAITab: (tab) => set({ activeOpenAITab: tab, menuLevel: 1 }),
       setActiveDataTab: (tab) => set({ activeDataTab: tab, menuLevel: 2 }),
       setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
 
-      // Context-aware actions
       getContextualActions: () => {
         const state = get();
         const actions = [];
