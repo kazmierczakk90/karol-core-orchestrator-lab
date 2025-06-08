@@ -19,7 +19,12 @@ import BulkScheduler from './scheduler/BulkScheduler';
 import TemplateMarketplace from './marketplace/TemplateMarketplace';
 import AdvancedExporter from './export/AdvancedExporter';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { ExtractionTemplate } from '@/types/common';
+import { 
+  ExtractionTemplate, 
+  PowerUPTemplate, 
+  templateConverter, 
+  isExtractionTemplate 
+} from '@/types/common';
 
 interface MenuLevelManagerProps {
   menuLevel: 1 | 2;
@@ -98,10 +103,17 @@ const MenuLevelManager = ({
     onMenuLevelChange?.(2);
   };
 
-  const handleTemplateExecuted = (template: ExtractionTemplate) => {
+  // Universal template handler that works with both template types
+  const handleTemplateExecuted = (template: ExtractionTemplate | PowerUPTemplate) => {
     console.log('Template executed:', template);
     setActiveDataTab('url-scrap');
     onMenuLevelChange?.(2);
+  };
+
+  // Template converter for PowerUP compatibility
+  const handlePowerUPTemplateExecute = (template: PowerUPTemplate) => {
+    const extractionTemplate = templateConverter.powerUPToExtraction(template);
+    handleTemplateExecuted(extractionTemplate);
   };
 
   const renderOpenAISection = (isMain: boolean) => (

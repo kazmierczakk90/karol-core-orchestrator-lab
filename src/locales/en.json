@@ -6,7 +6,12 @@
     "miniAI": "Mini AI",
     "browser": "Browser",
     "links": "Links",
-    "mindMaps": "Mind Maps"
+    "mindMaps": "Mind Maps",
+    "analytics": "Analytics",
+    "processes": "Processes",
+    "templates": "Templates",
+    "marketplace": "Marketplace",
+    "export": "Export"
   },
   "common": {
     "loading": "Loading...",
@@ -116,6 +121,89 @@
     "executions": "Executions",
     "memory": "Memory",
     "creator": "Creator"
+  },
+  "flashMemory": {
+    "title": "Flash Memory System",
+    "autoSave": "Auto-save",
+    "lastSaved": "Last saved",
+    "recovery": "Recovery available",
+    "clearDraft": "Clear draft",
+    "saveChanges": "Save changes",
+    "unsavedChanges": "Unsaved changes",
+    "restoreDraft": "Restore draft",
+    "discardChanges": "Discard changes"
+  },
+  "processJournal": {
+    "title": "Process Journal",
+    "activeProcesses": "Active processes",
+    "completedProcesses": "Completed processes",
+    "failedProcesses": "Failed processes",
+    "totalTime": "Total time",
+    "averageTime": "Average time",
+    "processDetails": "Process details",
+    "retryProcess": "Retry process",
+    "cancelProcess": "Cancel process",
+    "viewLogs": "View logs"
+  },
+  "errorManagement": {
+    "title": "Error Management",
+    "criticalErrors": "Critical errors",
+    "resolvedErrors": "Resolved errors",
+    "errorDetails": "Error details",
+    "stackTrace": "Stack trace",
+    "errorContext": "Error context",
+    "markResolved": "Mark as resolved",
+    "reportError": "Report error",
+    "errorStatistics": "Error statistics"
+  },
+  "saveSystem": {
+    "title": "Save System",
+    "quickSave": "Quick save",
+    "saveAs": "Save as",
+    "autoSave": "Auto-save",
+    "saveTemplate": "Save template",
+    "saveProject": "Save project",
+    "exportData": "Export data",
+    "saveConfiguration": "Save configuration",
+    "saveProgress": "Save progress"
+  },
+  "analytics": {
+    "title": "Analytics Dashboard",
+    "performance": "Performance",
+    "usage": "Usage",
+    "trends": "Trends",
+    "reports": "Reports",
+    "metrics": "Metrics",
+    "insights": "Insights",
+    "realTime": "Real-time",
+    "historical": "Historical",
+    "exportReport": "Export report"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "save": "Save",
+    "export": "Export",
+    "search": "Search",
+    "navigate": "Navigate",
+    "toggle": "Toggle",
+    "copy": "Copy",
+    "paste": "Paste",
+    "undo": "Undo",
+    "redo": "Redo",
+    "help": "Help"
+  },
+  "templates": {
+    "title": "Template Management",
+    "create": "Create template",
+    "edit": "Edit template",
+    "delete": "Delete template",
+    "duplicate": "Duplicate template",
+    "share": "Share template",
+    "import": "Import template",
+    "export": "Export template",
+    "category": "Category",
+    "tags": "Tags",
+    "description": "Description"
   },
   "status": {
     "active": "Active",

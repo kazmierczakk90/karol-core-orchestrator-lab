@@ -1,6 +1,6 @@
 
 // Re-export from common types for backward compatibility
-export { ExtractionTemplate } from './common';
+export type { ExtractionTemplate, PowerUPTemplate } from './common';
 
 export interface SmartExtractionResult {
   id: string;
@@ -20,38 +20,6 @@ export interface SmartExtractionResult {
 
 // Unified output format type
 export type OutputFormat = 'text' | 'json' | 'html' | 'markdown' | 'csv' | 'excel' | 'xml';
-
-export interface PowerUPTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: 'data-extraction' | 'content-analysis' | 'automation' | 'utility';
-  icon: string;
-  version: string;
-  author: string;
-  isPublic: boolean;
-  tags: string[];
-  configuration: {
-    inputType: 'url' | 'text' | 'file' | 'mixed';
-    outputFormat: OutputFormat;
-    parameters: Record<string, any>;
-    selectors?: {
-      container: string;
-      item: string;
-      fields: Record<string, string>;
-    };
-  };
-  usage: {
-    instructions: string;
-    examples: Array<{
-      input: string;
-      output: string;
-      description: string;
-    }>;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export interface ScraperSchedule {
   id: string;
