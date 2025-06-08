@@ -1,136 +1,145 @@
 
-import { useState, useRef } from 'react';
-import { useGlobalStore } from '@/stores/globalStore';
-
-interface BrowserState {
-  currentUrl: string;
-  isLoading: boolean;
-  loadingProgress: number;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  zoomLevel: number;
-  error: boolean;
-}
+import { useState, useCallback } from 'react';
+import { BrowserState, NavigationHistory } from '@/types/browser';
 
 export const useBrowser = () => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const { addToHistory } = useGlobalStore();
-  
   const [browserState, setBrowserState] = useState<BrowserState>({
     currentUrl: '',
     isLoading: false,
     loadingProgress: 0,
-    canGoBack: false,
-    canGoForward: false,
+    error: null,
     zoomLevel: 100,
-    error: false
+    canGoBack: false,
+    canGoForward: false
   });
 
-  const [history, setHistory] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [history, setHistory] = useState<NavigationHistory[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
 
-  const navigate = (url: string) => {
-    let formattedUrl = url;
+  const validateAndFormatUrl = useCallback((input: string): string => {
+    if (!input.trim()) return '';
     
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      if (url.includes('.') && !url.includes(' ')) {
-        formattedUrl = `https://${url}`;
-      } else {
-        formattedUrl = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
-      }
+    // Jeśli to jest search query (nie URL), zwróć query
+    if (!input.includes('.') && !input.startsWith('http')) {
+      return input;
     }
 
+    // Dodaj protokół jeśli brakuje
+    if (!input.startsWith('http://') && !input.startsWith('https://')) {
+      return `https://${input}`;
+    }
+
+    return input;
+  }, []);
+
+  const isValidUrl = useCallback((url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const navigate = useCallback((input: string) => {
+    const formattedInput = validateAndFormatUrl(input);
+    
     setBrowserState(prev => ({
       ...prev,
-      currentUrl: formattedUrl,
       isLoading: true,
       loadingProgress: 0,
-      error: false
+      error: null
     }));
 
-    // Simulate loading
-    let progress = 0;
-    const loadingInterval = setInterval(() => {
-      progress += 10;
-      setBrowserState(prev => ({
-        ...prev,
-        loadingProgress: progress
-      }));
-      
-      if (progress >= 100) {
-        clearInterval(loadingInterval);
-        setBrowserState(prev => ({
-          ...prev,
-          isLoading: false,
-          loadingProgress: 100
-        }));
-        
-        // Add to history
-        setHistory(prev => {
-          const newHistory = [...prev.slice(0, currentIndex + 1), formattedUrl];
-          setCurrentIndex(newHistory.length - 1);
-          return newHistory;
-        });
-        
-        // Add to global store history
-        try {
-          const urlObj = new URL(formattedUrl);
-          addToHistory({
-            url: formattedUrl,
-            title: urlObj.hostname,
-          });
-        } catch (error) {
-          console.error('Invalid URL for history:', formattedUrl);
-        }
-        
-        // Update navigation state
-        setBrowserState(prev => ({
-          ...prev,
-          canGoBack: currentIndex >= 0,
-          canGoForward: currentIndex < history.length - 1
-        }));
-      }
-    }, 100);
-  };
+    // Jeśli to nie jest valid URL, traktuj jako search query
+    if (!isValidUrl(formattedInput)) {
+      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(formattedInput)}&igu=1`;
+      setBrowserState(prev => ({ ...prev, currentUrl: searchUrl }));
+      addToHistory(searchUrl, `Search: ${formattedInput}`);
+    } else {
+      setBrowserState(prev => ({ ...prev, currentUrl: formattedInput }));
+      addToHistory(formattedInput, formattedInput);
+    }
 
-  const goBack = () => {
-    if (currentIndex > 0) {
-      const newIndex = currentIndex - 1;
-      setCurrentIndex(newIndex);
-      const url = history[newIndex];
-      setBrowserState(prev => ({
-        ...prev,
-        currentUrl: url,
+    // Symulacja progress loading
+    const progressInterval = setInterval(() => {
+      setBrowserState(prev => {
+        const newProgress = prev.loadingProgress + 10;
+        if (newProgress >= 100) {
+          clearInterval(progressInterval);
+          return {
+            ...prev,
+            loadingProgress: 100,
+            isLoading: false
+          };
+        }
+        return { ...prev, loadingProgress: newProgress };
+      });
+    }, 150);
+
+  }, [validateAndFormatUrl, isValidUrl]);
+
+  const addToHistory = useCallback((url: string, title: string) => {
+    const newEntry: NavigationHistory = {
+      url,
+      title,
+      timestamp: Date.now()
+    };
+
+    setHistory(prev => {
+      // Usuń wszystkie wpisy po current index (dla nowego branching)
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(newEntry);
+      return newHistory.slice(-20); // Keep only last 20 entries
+    });
+
+    setHistoryIndex(prev => prev + 1);
+    updateNavigationState();
+  }, [historyIndex]);
+
+  const updateNavigationState = useCallback(() => {
+    setBrowserState(prev => ({
+      ...prev,
+      canGoBack: historyIndex > 0,
+      canGoForward: historyIndex < history.length - 1
+    }));
+  }, [historyIndex, history.length]);
+
+  const goBack = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setBrowserState(prev => ({ 
+        ...prev, 
+        currentUrl: history[newIndex].url,
         canGoBack: newIndex > 0,
         canGoForward: true
       }));
     }
-  };
+  }, [historyIndex, history]);
 
-  const goForward = () => {
-    if (currentIndex < history.length - 1) {
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      const url = history[newIndex];
-      setBrowserState(prev => ({
-        ...prev,
-        currentUrl: url,
+  const goForward = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setBrowserState(prev => ({ 
+        ...prev, 
+        currentUrl: history[newIndex].url,
         canGoBack: true,
         canGoForward: newIndex < history.length - 1
       }));
     }
-  };
+  }, [historyIndex, history]);
 
-  const reload = () => {
+  const reload = useCallback(() => {
     if (browserState.currentUrl) {
       setBrowserState(prev => ({
         ...prev,
         isLoading: true,
         loadingProgress: 0,
-        error: false
+        error: null
       }));
       
-      // Simulate reload
       setTimeout(() => {
         setBrowserState(prev => ({
           ...prev,
@@ -139,34 +148,30 @@ export const useBrowser = () => {
         }));
       }, 1000);
     }
-  };
+  }, [browserState.currentUrl]);
 
-  const setZoom = (level: number) => {
-    const clampedLevel = Math.max(50, Math.min(200, level));
+  const setZoom = useCallback((level: number) => {
     setBrowserState(prev => ({
       ...prev,
-      zoomLevel: clampedLevel
+      zoomLevel: Math.max(50, Math.min(200, level))
     }));
-  };
+  }, []);
 
-  const handleIframeError = () => {
+  const handleIframeError = useCallback(() => {
     setBrowserState(prev => ({
       ...prev,
-      error: true,
-      isLoading: false
+      isLoading: false,
+      error: 'Nie można załadować strony. Strona może blokować wyświetlanie w iframe.'
     }));
-  };
+  }, []);
 
-  const clearError = () => {
-    setBrowserState(prev => ({
-      ...prev,
-      error: false
-    }));
-  };
+  const clearError = useCallback(() => {
+    setBrowserState(prev => ({ ...prev, error: null }));
+  }, []);
 
   return {
     browserState,
-    history,
+    history: history.slice(0, historyIndex + 1),
     navigate,
     goBack,
     goForward,
@@ -174,6 +179,7 @@ export const useBrowser = () => {
     setZoom,
     handleIframeError,
     clearError,
-    iframeRef
+    validateAndFormatUrl,
+    isValidUrl
   };
 };

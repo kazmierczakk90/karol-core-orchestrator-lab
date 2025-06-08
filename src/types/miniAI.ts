@@ -1,6 +1,4 @@
 
-import { OutputFormat } from './smartExtractor';
-
 export interface MiniAI {
   id: string;
   name: string;
@@ -19,7 +17,7 @@ export interface MiniAI {
 export interface MiniAIConfig {
   contentType?: 'text' | 'html' | 'json' | 'mixed';
   actionType?: 'summarize' | 'translate' | 'extract' | 'analyze' | 'custom';
-  outputFormat: OutputFormat;
+  outputFormat: 'text' | 'markdown' | 'json' | 'html';
   prompt?: string;
   model?: 'gpt-4' | 'gpt-3.5-turbo';
   maxTokens?: number;

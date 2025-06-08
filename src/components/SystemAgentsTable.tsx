@@ -1,10 +1,11 @@
+
 import { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Bot } from 'lucide-react';
-import AgentStatsHeader from './agents/AgentStatsHeader';
-import AgentFilters from './agents/AgentFilters';
-import AgentTableRow from './agents/AgentTableRow';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Bot, Search, Play, Pause, Settings, Trash2, Plus, Activity } from 'lucide-react';
 
 interface SystemAgent {
   id: string;
@@ -40,6 +41,20 @@ const SystemAgentsTable = () => {
     { id: '@skyai.ai', name: 'SkyAI', type: 'integration', status: 'active', description: 'Advanced AI solutions', tasksCompleted: 76, lastUsed: new Date(), capabilities: ['ai', 'automation', 'solutions'], version: '1.7.4' }
   ]);
 
+  const typeColors = {
+    core: 'bg-blue-500/20 text-blue-400',
+    karol: 'bg-purple-500/20 text-purple-400',
+    integration: 'bg-green-500/20 text-green-400',
+    utility: 'bg-orange-500/20 text-orange-400'
+  };
+
+  const statusColors = {
+    active: 'bg-green-500/20 text-green-400',
+    inactive: 'bg-gray-500/20 text-gray-400',
+    maintenance: 'bg-yellow-500/20 text-yellow-400',
+    error: 'bg-red-500/20 text-red-400'
+  };
+
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          agent.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,13 +86,68 @@ const SystemAgentsTable = () => {
   return (
     <Card className="bg-slate-800/50 border-cyan-800/30 h-full">
       <CardHeader>
-        <AgentStatsHeader stats={stats} />
-        <AgentFilters 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedType={selectedType}
-          onTypeChange={setSelectedType}
-        />
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-cyan-400 flex items-center space-x-2">
+              <Bot className="h-6 w-6" />
+              <span>System Agents</span>
+            </CardTitle>
+            <CardDescription className="text-slate-300">
+              Zarządzanie wszystkimi agentami w systemie Karol Core
+            </CardDescription>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="flex space-x-2 text-sm">
+              <Badge className="bg-green-500/20 text-green-400">
+                Active: {stats.active}
+              </Badge>
+              <Badge className="bg-gray-500/20 text-gray-400">
+                Inactive: {stats.inactive}
+              </Badge>
+              <Badge className="bg-yellow-500/20 text-yellow-400">
+                Maintenance: {stats.maintenance}
+              </Badge>
+              {stats.error > 0 && (
+                <Badge className="bg-red-500/20 text-red-400">
+                  Error: {stats.error}
+                </Badge>
+              )}
+            </div>
+            
+            <Button className="bg-gradient-primary hover:bg-gradient-secondary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Agent
+            </Button>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="flex space-x-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search agents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-slate-900/50 border-slate-700/50 text-white pl-10"
+            />
+          </div>
+          
+          <div className="flex space-x-2">
+            {['all', 'core', 'karol', 'integration', 'utility'].map((type) => (
+              <Button
+                key={type}
+                size="sm"
+                variant={selectedType === type ? "default" : "outline"}
+                className={selectedType === type ? "bg-gradient-primary" : "border-slate-600"}
+                onClick={() => setSelectedType(type)}
+              >
+                {type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)}
+              </Button>
+            ))}
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent>
@@ -97,11 +167,92 @@ const SystemAgentsTable = () => {
             </TableHeader>
             <TableBody>
               {filteredAgents.map((agent) => (
-                <AgentTableRow 
-                  key={agent.id} 
-                  agent={agent} 
-                  onToggleStatus={toggleAgentStatus}
-                />
+                <TableRow key={agent.id} className="border-slate-700/50 hover:bg-slate-700/30">
+                  <TableCell>
+                    <div>
+                      <div className="font-mono text-cyan-400 font-semibold">{agent.id}</div>
+                      <div className="text-slate-300 font-medium">{agent.name}</div>
+                      <div className="text-slate-400 text-sm">{agent.description}</div>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <Badge className={`${typeColors[agent.type]}`}>
+                      {agent.type}
+                    </Badge>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <Badge className={`${statusColors[agent.status]}`}>
+                      {agent.status}
+                    </Badge>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Activity className="h-4 w-4 text-slate-400" />
+                      <span className="text-white font-semibold">{agent.tasksCompleted}</span>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {agent.capabilities.slice(0, 3).map((capability) => (
+                        <Badge key={capability} className="bg-slate-600/50 text-slate-300 text-xs">
+                          {capability}
+                        </Badge>
+                      ))}
+                      {agent.capabilities.length > 3 && (
+                        <Badge className="bg-slate-600/50 text-slate-300 text-xs">
+                          +{agent.capabilities.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <span className="text-slate-300 font-mono text-sm">{agent.version}</span>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <span className="text-slate-400 text-sm">
+                      {agent.lastUsed.toLocaleDateString()}
+                    </span>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-slate-600 hover:border-cyan-400"
+                        onClick={() => toggleAgentStatus(agent.id)}
+                      >
+                        {agent.status === 'active' ? (
+                          <Pause className="h-3 w-3" />
+                        ) : (
+                          <Play className="h-3 w-3" />
+                        )}
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-slate-600 hover:border-blue-400"
+                      >
+                        <Settings className="h-3 w-3" />
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-slate-600 hover:border-red-400 text-red-400"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))}
             </TableBody>
           </Table>

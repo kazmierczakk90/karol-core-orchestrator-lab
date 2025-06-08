@@ -6,9 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Play, Save, Download, TestTube, Settings, ZoomIn, ZoomOut, RotateCcw, FileText, Search, Edit } from 'lucide-react';
-import { useState } from 'react';
+import { Play, Save, Download, TestTube, Settings } from 'lucide-react';
 
 interface CommanderTestEnvironmentProps {
   formData: any;
@@ -19,10 +17,6 @@ interface CommanderTestEnvironmentProps {
   onExport: () => void;
   isGenerating: boolean;
   testMode: boolean;
-  botFunctions?: Array<{value: string, label: string, icon: string}>;
-  typyZadan?: Array<{value: string, label: string, icon: any}>;
-  timeZakresy?: Array<{value: string, label: string}>;
-  trybyWykonania?: Array<{value: string, label: string}>;
 }
 
 const CommanderTestEnvironment = ({
@@ -33,13 +27,8 @@ const CommanderTestEnvironment = ({
   onSimulate,
   onExport,
   isGenerating,
-  testMode,
-  botFunctions = [],
-  typyZadan = [],
-  timeZakresy = [],
-  trybyWykonania = []
+  testMode
 }: CommanderTestEnvironmentProps) => {
-  const [zoomLevel, setZoomLevel] = useState(100);
 
   const priorytety = [
     { value: 'krytyczny', label: 'Critical', color: 'bg-red-500' },
@@ -48,179 +37,21 @@ const CommanderTestEnvironment = ({
     { value: 'niski', label: 'Low', color: 'bg-gray-500' }
   ];
 
-  const tonyOdpowiedzi = [
-    { value: 'profesjonalny', label: 'Professional' },
-    { value: 'bezposredni', label: 'Direct' },
-    { value: 'analityczny', label: 'Analytical' },
-    { value: 'kreatywny', label: 'Creative' },
-    { value: 'techniczny', label: 'Technical' },
-    { value: 'przyjazny', label: 'Friendly' }
-  ];
-
-  const formatyWyjscia = [
-    { value: 'raport', label: 'Text Report' },
-    { value: 'lista-punktowa', label: 'Bullet Points' },
-    { value: 'json', label: 'JSON Structure' },
-    { value: 'tabela', label: 'Data Table' },
-    { value: 'schemat', label: 'Diagram/Schema' }
-  ];
-
-  const handleZoomChange = (value: number[]) => {
-    setZoomLevel(value[0]);
-  };
-
-  const resetZoom = () => setZoomLevel(100);
-
   return (
-    <div 
-      className="space-y-6 transition-all duration-300"
-      style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top left' }}
-    >
-      {/* Zoom Controls */}
-      <Card className="bg-slate-800/50 border-slate-700/50">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-cyan-400 flex items-center space-x-2">
-              <Settings className="h-5 w-5" />
-              <span>View Controls</span>
-            </CardTitle>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <ZoomOut className="h-4 w-4 text-slate-400" />
-                <Slider
-                  value={[zoomLevel]}
-                  onValueChange={handleZoomChange}
-                  min={50}
-                  max={150}
-                  step={10}
-                  className="w-32"
-                />
-                <ZoomIn className="h-4 w-4 text-slate-400" />
-                <span className="text-slate-300 text-sm w-12">{zoomLevel}%</span>
-              </div>
-              <Button onClick={resetZoom} size="sm" variant="outline" className="border-slate-600">
-                <RotateCcw className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Enhanced Context & Industry Selection */}
-      <Card className="bg-slate-800/50 border-slate-700/50">
-        <CardHeader>
-          <CardTitle className="text-cyan-400">Business Context & Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="industry" className="text-slate-300 font-semibold">
-                Industry Sector
-              </Label>
-              <Select value={formData.industry} onValueChange={(value) => setFormData({ ...formData, industry: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue placeholder="Select industry..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {industries.map((industry) => (
-                    <SelectItem key={industry.value} value={industry.value}>
-                      <div className="flex items-center space-x-2">
-                        <span>{industry.icon}</span>
-                        <span>{industry.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="botFunction" className="text-slate-300 font-semibold">
-                Bot Function
-              </Label>
-              <Select value={formData.botFunction} onValueChange={(value) => setFormData({ ...formData, botFunction: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue placeholder="Select function..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {botFunctions.map((func) => (
-                    <SelectItem key={func.value} value={func.value}>
-                      <div className="flex items-center space-x-2">
-                        <span>{func.icon}</span>
-                        <span>{func.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="typZadania" className="text-slate-300 font-semibold">
-                Task Type
-              </Label>
-              <Select value={formData.typZadania} onValueChange={(value) => setFormData({ ...formData, typZadania: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue placeholder="Select task type..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {typyZadan.map((typ) => (
-                    <SelectItem key={typ.value} value={typ.value}>
-                      <div className="flex items-center space-x-2">
-                        <typ.icon className="h-4 w-4" />
-                        <span>{typ.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Target Audience & Use Case */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="targetAudience" className="text-slate-300 font-semibold">
-                Target Audience
-              </Label>
-              <Input
-                id="targetAudience"
-                value={formData.targetAudience || ''}
-                onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
-                placeholder="e.g., B2B customers, end users, internal team..."
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="useCase" className="text-slate-300 font-semibold">
-                Primary Use Case
-              </Label>
-              <Input
-                id="useCase"
-                value={formData.useCase || ''}
-                onChange={(e) => setFormData({ ...formData, useCase: e.target.value })}
-                placeholder="e.g., customer support, lead qualification..."
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Enhanced Agent Configuration */}
+    <div className="space-y-6">
+      {/* Agent Selection */}
       <Card className="bg-slate-800/50 border-slate-700/50">
         <CardHeader>
           <CardTitle className="text-cyan-400 flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Configuration & Selection</span>
+            <span>Agent Configuration</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="agent" className="text-slate-300 font-semibold">
-                Primary Agent
+                Select Agent
               </Label>
               <Select value={formData.agent} onValueChange={(value) => setFormData({ ...formData, agent: value })}>
                 <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
@@ -267,94 +98,43 @@ const CommanderTestEnvironment = ({
               </Select>
             </div>
           </div>
-
-          {/* Fallback Agent & Escalation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="fallbackAgent" className="text-slate-300 font-semibold">
-                Fallback Agent
-              </Label>
-              <Select value={formData.fallbackAgent || ''} onValueChange={(value) => setFormData({ ...formData, fallbackAgent: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue placeholder="Optional fallback..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {agents.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id}>
-                      {agent.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="escalationThreshold" className="text-slate-300 font-semibold">
-                Escalation Threshold (%)
-              </Label>
-              <Input
-                id="escalationThreshold"
-                type="number"
-                min="0"
-                max="100"
-                value={formData.escalationThreshold || 75}
-                onChange={(e) => setFormData({ ...formData, escalationThreshold: parseInt(e.target.value) })}
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
-          </div>
         </CardContent>
       </Card>
 
-      {/* Enhanced Task Definition */}
+      {/* Task Definition */}
       <Card className="bg-slate-800/50 border-slate-700/50">
         <CardHeader>
-          <CardTitle className="text-cyan-400">Enhanced Task Definition</CardTitle>
+          <CardTitle className="text-cyan-400">Task Definition</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="opisZadania" className="text-slate-300 font-semibold">
-              Detailed Task Description
+              Task Description
             </Label>
             <Textarea
               id="opisZadania"
               value={formData.opisZadania}
               onChange={(e) => setFormData({ ...formData, opisZadania: e.target.value })}
-              placeholder="Provide comprehensive task description including context, requirements, and expected deliverables..."
+              placeholder="Describe the task for the AI agent..."
               className="bg-slate-900/50 border-slate-700/50 text-white mt-1 min-h-[120px]"
               rows={5}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="cel" className="text-slate-300 font-semibold">
-                Primary Goal
-              </Label>
-              <Input
-                id="cel"
-                value={formData.cel}
-                onChange={(e) => setFormData({ ...formData, cel: e.target.value })}
-                placeholder="What is the main objective?"
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="successMetrics" className="text-slate-300 font-semibold">
-                Success Metrics
-              </Label>
-              <Input
-                id="successMetrics"
-                value={formData.successMetrics || ''}
-                onChange={(e) => setFormData({ ...formData, successMetrics: e.target.value })}
-                placeholder="How will success be measured?"
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
+          <div>
+            <Label htmlFor="cel" className="text-slate-300 font-semibold">
+              Expected Goal
+            </Label>
+            <Input
+              id="cel"
+              value={formData.cel}
+              onChange={(e) => setFormData({ ...formData, cel: e.target.value })}
+              placeholder="What is the expected result?"
+              className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="ton" className="text-slate-300 font-semibold">
                 Response Tone
@@ -364,11 +144,12 @@ const CommanderTestEnvironment = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  {tonyOdpowiedzi.map((ton) => (
-                    <SelectItem key={ton.value} value={ton.value}>
-                      {ton.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="profesjonalny">Professional</SelectItem>
+                  <SelectItem value="bezposredni">Direct</SelectItem>
+                  <SelectItem value="analityczny">Analytical</SelectItem>
+                  <SelectItem value="kreatywny">Creative</SelectItem>
+                  <SelectItem value="techniczny">Technical</SelectItem>
+                  <SelectItem value="przyjazny">Friendly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -382,99 +163,11 @@ const CommanderTestEnvironment = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  {formatyWyjscia.map((format) => (
-                    <SelectItem key={format.value} value={format.value}>
-                      {format.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="timeZakres" className="text-slate-300 font-semibold">
-                Time Scope
-              </Label>
-              <Select value={formData.timeZakres} onValueChange={(value) => setFormData({ ...formData, timeZakres: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {timeZakresy.map((zakres) => (
-                    <SelectItem key={zakres.value} value={zakres.value}>
-                      {zakres.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="trybWykonania" className="text-slate-300 font-semibold">
-                Execution Mode
-              </Label>
-              <Select value={formData.trybWykonania} onValueChange={(value) => setFormData({ ...formData, trybWykonania: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {trybyWykonania.map((tryb) => (
-                    <SelectItem key={tryb.value} value={tryb.value}>
-                      {tryb.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Additional Parameters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="maxTokens" className="text-slate-300 font-semibold">
-                Max Response Length
-              </Label>
-              <Input
-                id="maxTokens"
-                type="number"
-                min="100"
-                max="4000"
-                value={formData.maxTokens || 1000}
-                onChange={(e) => setFormData({ ...formData, maxTokens: parseInt(e.target.value) })}
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="temperature" className="text-slate-300 font-semibold">
-                Creativity Level (0-1)
-              </Label>
-              <Input
-                id="temperature"
-                type="number"
-                min="0"
-                max="1"
-                step="0.1"
-                value={formData.temperature || 0.7}
-                onChange={(e) => setFormData({ ...formData, temperature: parseFloat(e.target.value) })}
-                className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="language" className="text-slate-300 font-semibold">
-                Response Language
-              </Label>
-              <Select value={formData.language || 'pl'} onValueChange={(value) => setFormData({ ...formData, language: value })}>
-                <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="pl">Polish</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="de">German</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
+                  <SelectItem value="raport">Text Report</SelectItem>
+                  <SelectItem value="lista-punktowa">Bullet Points</SelectItem>
+                  <SelectItem value="json">JSON Structure</SelectItem>
+                  <SelectItem value="tabela">Data Table</SelectItem>
+                  <SelectItem value="schemat">Diagram/Schema</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -482,7 +175,7 @@ const CommanderTestEnvironment = ({
         </CardContent>
       </Card>
 
-      {/* Enhanced Action Buttons */}
+      {/* Action Buttons */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-3">
           <Button
@@ -498,7 +191,7 @@ const CommanderTestEnvironment = ({
             ) : (
               <>
                 <Play className="h-4 w-4" />
-                <span>{testMode ? 'Run Enhanced Simulation' : 'Execute Live'}</span>
+                <span>{testMode ? 'Run Simulation' : 'Execute Live'}</span>
               </>
             )}
           </Button>
@@ -509,7 +202,7 @@ const CommanderTestEnvironment = ({
             className="border-slate-600 text-slate-300 flex items-center space-x-2"
           >
             <Save className="h-4 w-4" />
-            <span>Save Configuration</span>
+            <span>Save to Database</span>
           </Button>
         </div>
 

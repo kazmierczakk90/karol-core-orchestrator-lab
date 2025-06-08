@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useAutoImprovement } from "@/hooks/useAutoImprovement";
-import GlobalErrorBoundary from "@/components/enhanced/GlobalErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -30,11 +29,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <TooltipProvider>
-        <GlobalErrorBoundary>
-          <Toaster />
-          <Sonner />
-          <AppContent />
-        </GlobalErrorBoundary>
+        <Toaster />
+        <Sonner />
+        <AppContent />
       </TooltipProvider>
     </LanguageProvider>
   </QueryClientProvider>

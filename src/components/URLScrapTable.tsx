@@ -6,9 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { smartExtractorService } from '@/services/smartExtractorService';
-import { miniAIService } from '@/services/miniAIService';
-import { toast } from '@/components/ui/sonner';
 import { Search, Plus, Trash2, ExternalLink, RefreshCw, Edit, Save, X } from 'lucide-react';
 
 interface ScrapVariable {

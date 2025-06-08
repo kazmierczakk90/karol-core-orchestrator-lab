@@ -2,20 +2,17 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useGlobalStore } from '@/stores/globalStore';
 import { 
   Zap, 
   Globe, 
   Bot, 
   Users,
   Link, 
+  Settings, 
   X,
   ChevronUp,
   Keyboard,
-  Phone,
-  Eye,
-  FileText,
-  Download
+  Phone
 } from 'lucide-react';
 
 interface FloatingActionKeyProps {
@@ -36,59 +33,38 @@ const FloatingActionKey = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showKeyboardHints, setShowKeyboardHints] = useState(false);
 
-  const {
-    menuLevel,
-    activeOpenAITab,
-    activeDataTab,
-    visualInspectMode,
-    selectedElements,
-    extractedLinks,
-    setVisualInspectMode,
-    setActiveDataTab,
-    setMenuLevel,
-    getContextualActions
-  } = useGlobalStore();
-
-  // Get context-aware actions
-  const contextualActions = getContextualActions();
-
-  // Base actions that are always available
-  const baseActions = [
+  const quickActions = [
     { 
       key: 'E', 
       action: onExtractLinks, 
       label: 'Extract Links', 
       icon: Link,
       shortcut: 'Alt+F4',
-      color: 'bg-blue-500 hover:bg-blue-600',
-      condition: true
+      color: 'bg-blue-500 hover:bg-blue-600'
     },
     { 
       key: 'B', 
       action: onOpenBrowser, 
       label: 'Open Browser', 
       icon: Globe,
-      shortcut: 'F2',
-      color: 'bg-green-500 hover:bg-green-600',
-      condition: true
+      shortcut: 'Alt+F2',
+      color: 'bg-green-500 hover:bg-green-600'
     },
     { 
       key: 'M', 
       action: onOpenMiniAI, 
       label: 'Mini AI', 
       icon: Bot,
-      shortcut: 'F3',
-      color: 'bg-purple-500 hover:bg-purple-600',
-      condition: true
+      shortcut: 'Alt+F3',
+      color: 'bg-purple-500 hover:bg-purple-600'
     },
     { 
       key: 'C', 
       action: onOpenCommander, 
       label: 'Commander', 
       icon: Users,
-      shortcut: 'F1',
-      color: 'bg-cyan-500 hover:bg-cyan-600',
-      condition: true
+      shortcut: 'Alt+F1',
+      color: 'bg-cyan-500 hover:bg-cyan-600'
     },
     { 
       key: 'T', 
@@ -96,127 +72,42 @@ const FloatingActionKey = ({
       label: 'Training Call', 
       icon: Phone,
       shortcut: 'Alt+F5',
-      color: 'bg-orange-500 hover:bg-orange-600',
-      condition: !!onOpenTrainingCall
+      color: 'bg-orange-500 hover:bg-orange-600'
     }
-  ];
-
-  // Context-aware actions based on current state
-  const dynamicActions = [
-    {
-      key: 'V',
-      action: () => setVisualInspectMode(!visualInspectMode),
-      label: visualInspectMode ? 'Exit Visual Inspector' : 'Visual Inspector',
-      icon: Eye,
-      shortcut: 'Alt+V',
-      color: visualInspectMode ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-500 hover:bg-indigo-600',
-      condition: menuLevel === 1 && activeOpenAITab === 'browser'
-    },
-    {
-      key: 'S',
-      action: () => {
-        if (selectedElements.length > 0) {
-          // Create quick template
-          const template = {
-            id: `template_${Date.now()}`,
-            name: `Quick Template ${new Date().toLocaleTimeString()}`,
-            description: 'Created from visual selection',
-            category: 'data-extraction',
-            domains: [],
-            selectors: {
-              container: selectedElements[0]?.selector || '',
-              item: selectedElements[0]?.selector || '',
-              fields: selectedElements.reduce((acc, el, idx) => {
-                acc[`field_${idx}`] = el.selector;
-                return acc;
-              }, {} as Record<string, string>)
-            },
-            preprocessing: [],
-            postprocessing: [],
-            isActive: true
-          };
-          
-          useGlobalStore.getState().addTemplate(template);
-          useGlobalStore.getState().clearSelectedElements();
-          setActiveDataTab('template-gallery');
-          setMenuLevel(2);
-        }
-      },
-      label: 'Save Template',
-      icon: FileText,
-      shortcut: 'Ctrl+S',
-      color: 'bg-green-500 hover:bg-green-600',
-      condition: selectedElements.length > 0
-    },
-    {
-      key: 'D',
-      action: () => {
-        if (extractedLinks.length > 0) {
-          const csvContent = [
-            'URL,Title,Domain',
-            ...extractedLinks.map(link => 
-              `"${link.url}","${link.title}","${link.domain}"`
-            )
-          ].join('\n');
-          
-          const blob = new Blob([csvContent], { type: 'text/csv' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `extracted_links_${Date.now()}.csv`;
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-      },
-      label: 'Export Data',
-      icon: Download,
-      shortcut: 'Ctrl+E',
-      color: 'bg-yellow-500 hover:bg-yellow-600',
-      condition: extractedLinks.length > 0
-    }
-  ];
-
-  // Combine and filter actions
-  const availableActions = [...baseActions, ...dynamicActions].filter(action => action.condition);
+  ].filter(action => action.action); // Filter out undefined actions
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey && event.code === 'Space') {
-        event.preventDefault();
-        setIsExpanded(!isExpanded);
+      if (event.altKey) {
+        if (event.code === 'Space') {
+          setIsExpanded(!isExpanded);
+        } else if (event.code === 'F1') {
+          onOpenCommander();
+        } else if (event.code === 'F2') {
+          onOpenBrowser();
+        } else if (event.code === 'F3') {
+          onOpenMiniAI();
+        } else if (event.code === 'F4') {
+          onExtractLinks();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isExpanded]);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isExpanded, onOpenCommander, onOpenBrowser, onOpenMiniAI, onExtractLinks]);
 
   return (
     <TooltipProvider>
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-3">
-        {/* Context Status */}
-        {isExpanded && (
-          <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg p-3 text-xs text-slate-300 max-w-xs">
-            <div className="font-semibold text-cyan-400 mb-2">Current Context:</div>
-            <div className="space-y-1">
-              <div>Level: {menuLevel === 1 ? 'OpenAI/Browser' : 'Data/Tables'}</div>
-              <div>Tab: {menuLevel === 1 ? activeOpenAITab : activeDataTab}</div>
-              {visualInspectMode && <div className="text-cyan-400">Visual Inspector: Active</div>}
-              {selectedElements.length > 0 && (
-                <div className="text-green-400">{selectedElements.length} elements selected</div>
-              )}
-              {extractedLinks.length > 0 && (
-                <div className="text-blue-400">{extractedLinks.length} links available</div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Keyboard Shortcuts Hint */}
         {showKeyboardHints && (
           <div className="bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg p-3 text-xs text-slate-300 max-w-xs">
-            <div className="font-semibold text-cyan-400 mb-2">Available Shortcuts:</div>
-            {availableActions.slice(0, 6).map((action, index) => (
+            <div className="font-semibold text-cyan-400 mb-2">Quick Actions:</div>
+            {quickActions.map((action, index) => (
               <div key={index} className="flex justify-between items-center mb-1">
                 <span>{action.label}</span>
                 <code className="bg-slate-700 px-1 rounded text-cyan-400">{action.shortcut}</code>
@@ -234,7 +125,7 @@ const FloatingActionKey = ({
         {/* Expanded Action Buttons */}
         {isExpanded && (
           <div className="flex flex-col space-y-2">
-            {availableActions.map((action, index) => {
+            {quickActions.map((action, index) => {
               const IconComponent = action.icon;
               return (
                 <Tooltip key={index}>
@@ -288,10 +179,6 @@ const FloatingActionKey = ({
                 <div className="relative">
                   <Zap className="h-6 w-6" />
                   <ChevronUp className="h-3 w-3 absolute -top-1 -right-1 opacity-70" />
-                  {/* Context indicator */}
-                  {(selectedElements.length > 0 || visualInspectMode) && (
-                    <div className="absolute -top-1 -left-1 h-3 w-3 bg-cyan-400 rounded-full animate-pulse" />
-                  )}
                 </div>
               )}
             </Button>

@@ -4,28 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Filter, Plus, Edit, Trash2, Star, StarOff, FolderTree, Info, Play, Settings, BarChart } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { Search, Filter, Plus, Edit, Trash2, Star, StarOff, FolderTree } from 'lucide-react';
 
 interface Agent {
   id: string;
   name: string;
   opis: string;
   tags: string[];
-  status?: string;
-  performance?: number;
 }
 
 interface AgentCatalogProps {
   agents: Agent[];
-  onUseAgent?: (agent: Agent) => void;
-  onAgentDetails?: (agent: Agent) => void;
-  onEditAgent?: (agent: Agent) => void;
-  onDeleteAgent?: (agent: Agent) => void;
 }
 
-const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onEditAgent, onDeleteAgent }: AgentCatalogProps) => {
+const AgentCatalog = ({ agents }: AgentCatalogProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -69,51 +61,6 @@ const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onEditAgent, onDelet
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
-  };
-
-  const handleUseAgent = (agent: Agent) => {
-    if (onUseAgent) {
-      onUseAgent(agent);
-    } else {
-      toast.success(`Agent ${agent.name} selected!`, {
-        description: 'Agent configured for use in test environment',
-      });
-    }
-  };
-
-  const handleAgentDetails = (agent: Agent) => {
-    if (onAgentDetails) {
-      onAgentDetails(agent);
-    } else {
-      toast.info(`Viewing details for ${agent.name}`);
-    }
-  };
-
-  const handleEditAgent = (agent: Agent) => {
-    if (onEditAgent) {
-      onEditAgent(agent);
-    } else {
-      toast.info(`Editing ${agent.name}`);
-    }
-  };
-
-  const handleDeleteAgent = (agent: Agent) => {
-    if (onDeleteAgent) {
-      onDeleteAgent(agent);
-    } else {
-      toast.error('Delete action not available', {
-        description: 'Agent deletion is disabled in this environment',
-      });
-    }
-  };
-
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-500/20 text-green-400 border-green-500/50';
-      case 'standby': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
-      case 'offline': return 'bg-red-500/20 text-red-400 border-red-500/50';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
-    }
   };
 
   return (
@@ -206,21 +153,6 @@ const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onEditAgent, onDelet
                 {agent.id}
               </div>
 
-              {/* Status and Performance */}
-              <div className="flex items-center justify-between">
-                {agent.status && (
-                  <Badge className={getStatusColor(agent.status)}>
-                    {agent.status}
-                  </Badge>
-                )}
-                {agent.performance && (
-                  <div className="flex items-center space-x-1 text-sm">
-                    <BarChart className="h-3 w-3 text-green-400" />
-                    <span className="text-green-400">{agent.performance}%</span>
-                  </div>
-                )}
-              </div>
-
               {/* Tags */}
               <div className="flex flex-wrap gap-1">
                 {agent.tags.map((tag) => (
@@ -231,44 +163,16 @@ const AgentCatalog = ({ agents, onUseAgent, onAgentDetails, onEditAgent, onDelet
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  size="sm" 
-                  className="bg-gradient-primary hover:bg-gradient-secondary"
-                  onClick={() => handleUseAgent(agent)}
-                >
-                  <Play className="h-3 w-3 mr-2" />
+              <div className="flex space-x-2">
+                <Button size="sm" className="bg-gradient-primary hover:bg-gradient-secondary flex-1">
+                  <Plus className="h-3 w-3 mr-2" />
                   Use Agent
                 </Button>
-                
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="border-slate-600"
-                  onClick={() => handleAgentDetails(agent)}
-                >
-                  <Info className="h-3 w-3 mr-2" />
-                  Details
+                <Button size="sm" variant="outline" className="border-slate-600">
+                  <Edit className="h-3 w-3" />
                 </Button>
-                
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="border-slate-600"
-                  onClick={() => handleEditAgent(agent)}
-                >
-                  <Edit className="h-3 w-3 mr-2" />
-                  Edit
-                </Button>
-                
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="border-slate-600 text-red-400 hover:text-red-300"
-                  onClick={() => handleDeleteAgent(agent)}
-                >
-                  <Trash2 className="h-3 w-3 mr-2" />
-                  Delete
+                <Button size="sm" variant="outline" className="border-slate-600 text-red-400 hover:text-red-300">
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
             </CardContent>

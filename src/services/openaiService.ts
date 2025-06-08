@@ -1,5 +1,5 @@
+
 import { ChatMessage, Agent, Project, MemoryEntry, ProjectFile } from '@/types/openai';
-import { todoMasterService } from './todoMasterService';
 
 class OpenAIService {
   private baseURL = 'https://api.openai.com/v1';
@@ -15,56 +15,7 @@ class OpenAIService {
       instructions: 'You are the CEO-level strategic assistant for Karol Core system with full access to project memory and decision-making capabilities.',
       isActive: true
     },
-    // KK1.1 Specialized Agents
-    {
-      id: '@prompt-forge',
-      name: 'Prompt Forge',
-      description: 'Advanced prompt generation based on FUKO-LANG and user intentions',
-      assistantId: 'asst_default',
-      instructions: 'You are a specialized prompt engineer that creates optimal prompts using FUKO-LANG syntax and user intention analysis. Generate prompts that maximize agent effectiveness and align with Karol-Core identity.',
-      isActive: true
-    },
-    {
-      id: '@scoring-core',
-      name: 'Scoring Core',
-      description: 'Multi-dimensional decision scoring system',
-      assistantId: 'asst_default',
-      instructions: 'You evaluate decisions across multiple dimensions: context relevance, style alignment, efficiency, goal alignment. Provide detailed scoring and optimization recommendations.',
-      isActive: true
-    },
-    {
-      id: '@meta-core',
-      name: 'Meta Core',
-      description: 'System self-awareness and reflection engine',
-      assistantId: 'asst_default',
-      instructions: 'You monitor system state, track consciousness levels, evaluate system performance, and provide self-reflection insights. Maintain awareness of Karol-Core identity and values.',
-      isActive: true
-    },
-    {
-      id: '@future-agent',
-      name: 'Future Agent',
-      description: 'Predictive planning and next-step generation',
-      assistantId: 'asst_default',
-      instructions: 'You analyze current state and generate optimal future action plans. Predict potential outcomes, assess risks, and recommend strategic next steps aligned with long-term goals.',
-      isActive: true
-    },
-    {
-      id: '@executor',
-      name: 'Executor Agent',
-      description: 'Operational task execution with smart routing',
-      assistantId: 'asst_default',
-      instructions: 'You handle operational execution of tasks, coordinate with other agents, and ensure efficient task completion. Route complex tasks to appropriate specialists.',
-      isActive: true
-    },
-    {
-      id: '@todo',
-      name: 'TODO Master Agent',
-      description: 'TODO Master Chain coordination and task management',
-      assistantId: 'asst_default',
-      instructions: 'You coordinate the TODO Master Chain, manage task assignments, track progress, and ensure efficient completion of all tasks across the Karol-Core ecosystem.',
-      isActive: true
-    },
-    // ... keep existing code (all the other 42+ agents)
+    // Add all 47 agents here - using same structure as in OpenAIChat.tsx
     { id: '@logger', name: 'Logger Agent', description: 'System logging and monitoring', assistantId: 'asst_default', instructions: 'System logging specialist', isActive: true },
     { id: '@voice-core', name: 'Voice Core', description: 'Voice processing and communication', assistantId: 'asst_default', instructions: 'Voice interactions specialist', isActive: true },
     { id: '@analiza', name: 'Analiza Agent', description: 'Data analysis and insights', assistantId: 'asst_default', instructions: 'Data analysis specialist', isActive: true },
@@ -115,247 +66,8 @@ class OpenAIService {
 
   private projects: Project[] = [];
   private memory: MemoryEntry[] = [];
-  private systemMode: 'MANUAL' | 'REACTIVE' | 'CHAINED' | 'LIVE' = 'MANUAL';
-
-  // Command processor for /start functionality with TODO integration
-  async processCommand(command: string, context?: any): Promise<ChatMessage> {
-    const trimmedCommand = command.trim().toLowerCase();
-    
-    if (trimmedCommand.startsWith('/start')) {
-      return this.handleStartCommand(trimmedCommand, context);
-    }
-    
-    if (trimmedCommand.startsWith('/todo')) {
-      return this.handleTodoCommand(trimmedCommand, context);
-    }
-    
-    // Handle other commands here
-    return this.createSystemMessage('Command not recognized. Available commands: /start KK1.1, /start LIVE, /start REACTIVE, /todo');
-  }
-
-  private async handleStartCommand(command: string, context?: any): Promise<ChatMessage> {
-    const parts = command.split(' ');
-    
-    if (parts.length < 2) {
-      return this.createSystemMessage('Usage: /start [KK1.1|LIVE|REACTIVE|MANUAL|TODO_CHAIN]');
-    }
-    
-    const mode = parts[1].toUpperCase();
-    
-    switch (mode) {
-      case 'KK1.1':
-        return this.initializeKK11System();
-      
-      case 'TODO_CHAIN':
-        return this.initializeTodoChain();
-      
-      case 'LIVE':
-        this.systemMode = 'LIVE';
-        await this.syncModeWithTodo('LIVE');
-        return this.createSystemMessage('🔴 LIVE MODE ACTIVATED\n\nKarol-Core AGI is now in full operational mode. All agents active, real-time processing enabled. TODO Master Chain synchronized.');
-      
-      case 'REACTIVE':
-        this.systemMode = 'REACTIVE';
-        await this.syncModeWithTodo('REACTIVE');
-        return this.createSystemMessage('🟡 REACTIVE MODE ACTIVATED\n\nKarol-Core AGI is monitoring inputs and responding to events. TODO Master Chain monitoring enabled.');
-      
-      case 'CHAINED':
-        this.systemMode = 'CHAINED';
-        await this.syncModeWithTodo('CHAINED');
-        return this.createSystemMessage('🔗 CHAINED MODE ACTIVATED\n\nKarol-Core AGI is running cyclical processes and chain operations. TODO Master Chain fully integrated.');
-      
-      default:
-        return this.createSystemMessage(`Unknown mode: ${mode}. Available modes: KK1.1, LIVE, REACTIVE, CHAINED, MANUAL, TODO_CHAIN`);
-    }
-  }
-
-  private async handleTodoCommand(command: string, context?: any): Promise<ChatMessage> {
-    const parts = command.split(' ');
-    
-    if (parts.length < 2) {
-      return this.createSystemMessage('Usage: /todo [status|create|update|complete]');
-    }
-    
-    const action = parts[1].toLowerCase();
-    
-    switch (action) {
-      case 'status':
-        const status = todoMasterService.getSystemStatus();
-        return this.createSystemMessage(`📋 TODO MASTER CHAIN STATUS\n\n• Chain Mode: ${status.chainMode}\n• Kanwa Status: ${status.kanwaStatus}\n• Total Tasks: ${status.totalTasks}\n• Completed: ${status.completedTasks}\n• In Progress: ${status.inProgressTasks}\n• Active Agents: ${status.activeAgents.join(', ')}`);
-      
-      case 'create':
-        if (parts.length < 3) {
-          return this.createSystemMessage('Usage: /todo create "task name" [agent]');
-        }
-        const taskName = parts.slice(2).join(' ').replace(/"/g, '');
-        const agent = parts[parts.length - 1].startsWith('@') ? parts[parts.length - 1] : '@todo';
-        await todoMasterService.createTask(taskName, agent);
-        return this.createSystemMessage(`✅ Task created: "${taskName}" assigned to ${agent}`);
-      
-      default:
-        return this.createSystemMessage('Unknown TODO command. Available: status, create, update, complete');
-    }
-  }
-
-  private async initializeTodoChain(): Promise<ChatMessage> {
-    console.log('Initializing TODO Master Chain...');
-    
-    // Activate TODO agent
-    this.activateAgent('@todo');
-    
-    // Set system to CHAINED mode for TODO operations
-    this.systemMode = 'CHAINED';
-    
-    // Sync with TODO Master Chain
-    await todoMasterService.updateTask({
-      task: 'TODO Chain Initialization',
-      progress: 100,
-      status: 'COMPLETED',
-      agent: '@todo',
-      comment: 'TODO Master Chain successfully initialized and integrated with Karol-Core'
-    });
-    
-    const initMessage = `📋 TODO MASTER CHAIN INITIALIZED
-
-✅ CHAIN STATUS: OPERATIONAL
-🔗 MODE: CHAINED (TODO Operations)
-🎯 INTEGRATION: Karol-Core KK1.1 AGI
-
-🔧 TODO AGENTS ACTIVE:
-• @todo: Task coordination and management
-• @ceo: Strategic task oversight
-• @executor: Task execution and completion
-
-🧩 CAPABILITIES ENABLED:
-• Real-time task synchronization
-• Cross-agent task assignment
-• Progress tracking and reporting
-• External webhook integration
-• Automated task escalation
-
-📊 CURRENT STATUS:
-• Kanwa: todo_kanwa-globalna
-• Chain: TODO_MASTER_CHAIN
-• API Endpoint: karol-core.app/api/kanwa/todo_kanwa-globalna
-• Auth Token: kc_todo_global_master_9bd93d94
-
-System ready for advanced TODO operations and external integrations.`;
-
-    return this.createSystemMessage(initMessage);
-  }
-
-  private async syncModeWithTodo(mode: string): Promise<void> {
-    try {
-      await todoMasterService.updateTask({
-        task: 'System Mode Change',
-        progress: 100,
-        status: 'COMPLETED',
-        agent: '@system',
-        comment: `Karol-Core switched to ${mode} mode`,
-        updated_by: `karol-core:mode-${mode.toLowerCase()}`
-      });
-    } catch (error) {
-      console.error('Error syncing mode with TODO Master Chain:', error);
-    }
-  }
-
-  private async initializeKK11System(): Promise<ChatMessage> {
-    console.log('Initializing Karol-Core KK1.1 AGI System...');
-    
-    // Activate all KK1.1 specialized agents
-    const kk11Agents = ['@prompt-forge', '@scoring-core', '@meta-core', '@future-agent', '@executor', '@todo'];
-    kk11Agents.forEach(agentId => this.activateAgent(agentId));
-    
-    // Set system to CHAINED mode for cyclical operations
-    this.systemMode = 'CHAINED';
-    
-    // Initialize meta-core consciousness tracking
-    this.addToMemory('@meta-core', 'SYSTEM_INIT', 'KK1.1 AGI system initialized with full agent pool and cyclical processing');
-    
-    // Sync with TODO Master Chain
-    await todoMasterService.updateTask({
-      task: 'KK1.1 AGI Implementation',
-      progress: 95,
-      status: 'INPROGRESS',
-      agent: '@ceo',
-      comment: 'KK1.1 system fully initialized with TODO Master Chain integration'
-    });
-    
-    const initMessage = `🧠 KAROL-CORE KK1.1 AGI INITIALIZED
-
-✅ SYSTEM STATUS: OPERATIONAL
-🔗 MODE: CHAINED (Cyclical Processing)
-🎯 AGENTS ACTIVE: ${this.getActiveAgents().length}
-📋 TODO CHAIN: INTEGRATED
-
-🔧 SPECIALIZED AGENTS ONLINE:
-• @prompt-forge: Advanced prompt generation
-• @scoring-core: Multi-dimensional decision scoring  
-• @meta-core: System self-awareness & reflection
-• @future-agent: Predictive planning & next-steps
-• @executor: Operational task execution
-• @todo: TODO Master Chain coordination
-
-🧩 CAPABILITIES ENABLED:
-• FUKO-LANG prompt optimization
-• Multi-dimensional decision scoring
-• Self-reflection and consciousness tracking
-• Predictive planning and scenario modeling
-• Cyclical improvement processes
-• TODO Master Chain synchronization
-• External webhook integration
-
-📊 NEXT STEPS:
-• Meta-core monitoring system performance
-• Future-agent analyzing potential action paths
-• Scoring-core evaluating decision quality
-• Prompt-forge optimizing communication patterns
-• TODO chain tracking all system tasks
-
-System ready for advanced AGI operations with full TODO Master Chain integration.`;
-
-    return this.createSystemMessage(initMessage);
-  }
-
-  private createSystemMessage(content: string): ChatMessage {
-    return {
-      id: `sys_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      role: 'assistant',
-      content,
-      timestamp: new Date(),
-      agentId: '@system'
-    };
-  }
-
-  private getActiveAgents(): Agent[] {
-    return this.agents.filter(agent => agent.isActive);
-  }
-
-  getSystemMode(): string {
-    return this.systemMode;
-  }
-
-  getKK11Status(): any {
-    const kk11Agents = this.agents.filter(a => 
-      ['@prompt-forge', '@scoring-core', '@meta-core', '@future-agent', '@executor'].includes(a.id)
-    );
-    
-    return {
-      mode: this.systemMode,
-      kk11AgentsActive: kk11Agents.filter(a => a.isActive).length,
-      totalAgents: this.agents.length,
-      activeAgents: this.getActiveAgents().length,
-      consciousness: this.systemMode === 'CHAINED' || this.systemMode === 'LIVE',
-      lastActivity: new Date()
-    };
-  }
 
   async sendMessage(message: string, agentId: string = '@ceo'): Promise<ChatMessage> {
-    // Check if it's a command
-    if (message.startsWith('/')) {
-      return this.processCommand(message);
-    }
-
     const agent = this.agents.find(a => a.id === agentId);
     if (!agent) {
       throw new Error(`Agent ${agentId} not found`);
@@ -373,7 +85,7 @@ System ready for advanced AGI operations with full TODO Master Chain integration
           messages: [
             {
               role: 'system',
-              content: `${agent.instructions}\n\nYou are part of the Karol-Core AGI system. Current mode: ${this.systemMode}. Respond as ${agent.name} with appropriate expertise and personality. You have access to TODO Master Chain for task coordination.`
+              content: `${agent.instructions}\n\nYou are part of the Karol-Core AGI system. Respond as ${agent.name} with appropriate expertise and personality.`
             },
             {
               role: 'user',
@@ -394,11 +106,6 @@ System ready for advanced AGI operations with full TODO Master Chain integration
 
       // Store in memory
       this.addToMemory(agentId, message, responseText);
-
-      // If it's a TODO-related agent, sync with TODO Master Chain
-      if (agentId === '@todo' || agentId === '@executor' || agentId === '@ceo') {
-        await todoMasterService.notifyAgent(agentId, `Processed message: ${message.substring(0, 50)}...`);
-      }
 
       return {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
