@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import OpenAIChat from './OpenAIChat';
@@ -9,14 +10,15 @@ import SystemAgentsTable from './SystemAgentsTable';
 import MiniAIInstancesTable from './MiniAIInstancesTable';
 import MemoryEntriesTable from './MemoryEntriesTable';
 import SystemConnectionsTable from './SystemConnectionsTable';
-import URLScrapTable from './URLScrapTable';
+import EnhancedURLTable from './EnhancedURLTable';
 import SmartScraperBuilder from './scraper/SmartScraperBuilder';
 import TemplateGallery from './gallery/TemplateGallery';
 import AdvancedAnalytics from './analytics/AdvancedAnalytics';
 import BulkScheduler from './scheduler/BulkScheduler';
 import TemplateMarketplace from './marketplace/TemplateMarketplace';
 import AdvancedExporter from './export/AdvancedExporter';
-import { ChevronDown, ChevronUp, Globe } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+
 interface MenuLevelManagerProps {
   menuLevel: 1 | 2;
   collapsedMenus: {
@@ -49,7 +51,9 @@ interface MenuLevelManagerProps {
     title: string;
     domain: string;
   }>) => void;
+  onMenuLevelChange?: (level: 1 | 2) => void;
 }
+
 const MenuLevelManager = ({
   menuLevel,
   collapsedMenus,
@@ -63,27 +67,58 @@ const MenuLevelManager = ({
   extractedLinks,
   showTrainingCallModal,
   setShowTrainingCallModal,
-  onLinksExtracted
+  onLinksExtracted,
+  onMenuLevelChange
 }: MenuLevelManagerProps) => {
-  const renderOpenAISection = (isMain: boolean) => <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-800/90 border-b border-cyan-800/30 p-4 transition-all duration-500`}>
-      <Tabs value={activeOpenAITab} onValueChange={setActiveOpenAITab} className="w-full h-full">
+
+  // Auto-switch menu level based on tab selection
+  const handleOpenAITabChange = (tab: string) => {
+    setActiveOpenAITab(tab);
+    if (menuLevel !== 1) {
+      onMenuLevelChange?.(1);
+    }
+  };
+
+  const handleDataTabChange = (tab: string) => {
+    setActiveDataTab(tab);
+    if (menuLevel !== 2) {
+      onMenuLevelChange?.(2);
+    }
+  };
+
+  const handleCreateVisualTemplate = () => {
+    setActiveOpenAITab('browser');
+    onMenuLevelChange?.(1);
+    // The browser will open with visual inspect mode
+  };
+
+  const renderOpenAISection = (isMain: boolean) => (
+    <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-800/90 border-b border-cyan-800/30 p-4 transition-all duration-500`}>
+      <Tabs value={activeOpenAITab} onValueChange={handleOpenAITabChange} className="w-full h-full">
         <div className="flex items-center justify-between mb-2">
           <TabsList className="grid grid-cols-5 bg-gradient-dark border border-cyan-800/30 flex-1 mr-4">
             {openAITabs.map(tab => {
-            const Icon = tab.icon;
-            return <TabsTrigger key={tab.value} value={tab.value} onDoubleClick={() => toggleCollapse('openai')} className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white">
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger 
+                  key={tab.value} 
+                  value={tab.value} 
+                  onDoubleClick={() => toggleCollapse('openai')} 
+                  className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white"
+                >
                   <Icon className="h-4 w-4" />
                   <span className="hidden md:inline">{tab.label}</span>
-                </TabsTrigger>;
-          })}
-            
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
           <Button onClick={() => toggleCollapse('openai')} variant="outline" size="sm" className="border-cyan-800/30">
             {collapsedMenus.openai ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
           </Button>
         </div>
 
-        {!collapsedMenus.openai && isMain && <div className="flex-1 overflow-auto">
+        {!collapsedMenus.openai && isMain && (
+          <div className="flex-1 overflow-auto">
             <TabsContent value="chat" className="h-full m-0">
               <OpenAIChat />
             </TabsContent>
@@ -101,29 +136,56 @@ const MenuLevelManager = ({
             </TabsContent>
 
             <TabsContent value="browser" className="h-full m-0">
-              <BrowserCore onLinksExtracted={onLinksExtracted} />
+              <BrowserCore 
+                onLinksExtracted={onLinksExtracted}
+                visualInspectMode={false}
+                onTemplateCreated={(template) => {
+                  console.log('Template created:', template);
+                  // Switch to template gallery to show the new template
+                  setActiveDataTab('template-gallery');
+                  onMenuLevelChange?.(2);
+                }}
+                onTemplateExecuted={(template) => {
+                  console.log('Template executed:', template);
+                  // Switch to URL scrap table to show results
+                  setActiveDataTab('url-scrap');
+                  onMenuLevelChange?.(2);
+                }}
+              />
             </TabsContent>
-          </div>}
+          </div>
+        )}
       </Tabs>
-    </div>;
-  const renderDataSection = (isMain: boolean) => <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-900/50 p-4 transition-all duration-500`}>
-      <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="h-full flex flex-col">
+    </div>
+  );
+
+  const renderDataSection = (isMain: boolean) => (
+    <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-900/50 p-4 transition-all duration-500`}>
+      <Tabs value={activeDataTab} onValueChange={handleDataTabChange} className="h-full flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <TabsList className="grid grid-cols-8 bg-gradient-dark border border-slate-700/50 flex-1 mr-4">
             {dataTabs.map(tab => {
-            const Icon = tab.icon;
-            return <TabsTrigger key={tab.value} value={tab.value} onDoubleClick={() => toggleCollapse('data')} className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-secondary data-[state=active]:text-white">
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger 
+                  key={tab.value} 
+                  value={tab.value} 
+                  onDoubleClick={() => toggleCollapse('data')} 
+                  className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-secondary data-[state=active]:text-white"
+                >
                   <Icon className="h-4 w-4" />
                   <span className="hidden lg:inline text-xs">{tab.label}</span>
-                </TabsTrigger>;
-          })}
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
           <Button onClick={() => toggleCollapse('data')} variant="outline" size="sm" className="border-slate-700/50">
             {collapsedMenus.data ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
           </Button>
         </div>
 
-        {!collapsedMenus.data && isMain && <div className="flex-1 overflow-auto">
+        {!collapsedMenus.data && isMain && (
+          <div className="flex-1 overflow-auto">
             <TabsContent value="system-agents" className="h-full m-0">
               <SystemAgentsTable />
             </TabsContent>
@@ -141,7 +203,7 @@ const MenuLevelManager = ({
             </TabsContent>
             
             <TabsContent value="url-scrap" className="h-full m-0">
-              <URLScrapTable extractedLinks={extractedLinks} />
+              <EnhancedURLTable extractedLinks={extractedLinks} />
             </TabsContent>
 
             <TabsContent value="smart-scraper" className="h-full m-0">
@@ -149,7 +211,17 @@ const MenuLevelManager = ({
             </TabsContent>
 
             <TabsContent value="template-gallery" className="h-full m-0">
-              <TemplateGallery />
+              <TemplateGallery 
+                onCreateVisualTemplate={handleCreateVisualTemplate}
+                onTemplateSelect={(template) => {
+                  console.log('Template selected:', template);
+                }}
+                onTemplateExecute={(template) => {
+                  console.log('Template executed:', template);
+                  // Switch to URL scrap table to show results
+                  setActiveDataTab('url-scrap');
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="analytics" className="h-full m-0">
@@ -167,19 +239,27 @@ const MenuLevelManager = ({
             <TabsContent value="export" className="h-full m-0">
               <AdvancedExporter data={extractedLinks} />
             </TabsContent>
-          </div>}
+          </div>
+        )}
       </Tabs>
-    </div>;
+    </div>
+  );
+
   if (menuLevel === 1) {
-    return <div className="flex-1 flex flex-col">
+    return (
+      <div className="flex-1 flex flex-col">
         {renderOpenAISection(true)}
         {renderDataSection(false)}
-      </div>;
+      </div>
+    );
   } else {
-    return <div className="flex-1 flex flex-col">
+    return (
+      <div className="flex-1 flex flex-col">
         {renderDataSection(true)}
         {renderOpenAISection(false)}
-      </div>;
+      </div>
+    );
   }
 };
+
 export default MenuLevelManager;

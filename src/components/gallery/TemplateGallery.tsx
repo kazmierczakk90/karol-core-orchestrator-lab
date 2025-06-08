@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,22 +16,28 @@ import {
   Grid,
   List,
   Play,
-  BookOpen
+  BookOpen,
+  Plus,
+  Target,
+  Trash2
 } from 'lucide-react';
 import { PowerUPTemplate } from '@/types/smartExtractor';
 
 interface TemplateGalleryProps {
   onTemplateSelect?: (template: PowerUPTemplate) => void;
   onTemplateExecute?: (template: PowerUPTemplate) => void;
+  onCreateVisualTemplate?: () => void;
 }
 
-const TemplateGallery = ({ onTemplateSelect, onTemplateExecute }: TemplateGalleryProps) => {
+const TemplateGallery = ({ 
+  onTemplateSelect, 
+  onTemplateExecute,
+  onCreateVisualTemplate 
+}: TemplateGalleryProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
-  // Mock templates data
-  const templates: PowerUPTemplate[] = [
+  const [templates, setTemplates] = useState<PowerUPTemplate[]>([
     {
       id: 'template_1',
       name: 'E-commerce Product Scraper',
@@ -106,72 +111,8 @@ const TemplateGallery = ({ onTemplateSelect, onTemplateExecute }: TemplateGaller
       },
       createdAt: new Date(),
       updatedAt: new Date()
-    },
-    {
-      id: 'template_3',
-      name: 'Social Media Monitor',
-      description: 'Monitor social media platforms for mentions and trends',
-      category: 'automation',
-      icon: 'MessageCircle',
-      version: '3.0.1',
-      author: 'KarolCore Team',
-      isPublic: true,
-      tags: ['social', 'monitoring', 'trends'],
-      configuration: {
-        inputType: 'text',
-        outputFormat: 'json',
-        parameters: {
-          platforms: ['twitter', 'facebook', 'instagram'],
-          sentiment: true,
-          realtime: false
-        }
-      },
-      usage: {
-        instructions: 'Enter keywords or hashtags to monitor',
-        examples: [
-          {
-            input: '#AI #MachineLearning',
-            output: 'Real-time mentions and sentiment analysis',
-            description: 'Monitors social platforms for keyword mentions'
-          }
-        ]
-      },
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: 'template_4',
-      name: 'PDF Document Processor',
-      description: 'Extract and process text from PDF documents',
-      category: 'utility',
-      icon: 'FileText',
-      version: '1.8.0',
-      author: 'Community',
-      isPublic: true,
-      tags: ['pdf', 'document', 'text-extraction'],
-      configuration: {
-        inputType: 'file',
-        outputFormat: 'text',
-        parameters: {
-          extractImages: false,
-          preserveFormatting: true,
-          language: 'auto'
-        }
-      },
-      usage: {
-        instructions: 'Upload PDF file for text extraction',
-        examples: [
-          {
-            input: 'document.pdf',
-            output: 'Extracted text content',
-            description: 'Converts PDF to readable text format'
-          }
-        ]
-      },
-      createdAt: new Date(),
-      updatedAt: new Date()
     }
-  ];
+  ]);
 
   const categories = [
     { id: 'all', name: 'All Templates', count: templates.length },
@@ -190,6 +131,12 @@ const TemplateGallery = ({ onTemplateSelect, onTemplateExecute }: TemplateGaller
       return matchesSearch && matchesCategory;
     });
   }, [templates, searchTerm, selectedCategory]);
+
+  const handleDeleteTemplate = (templateId: string) => {
+    if (confirm('Are you sure you want to delete this template?')) {
+      setTemplates(prev => prev.filter(t => t.id !== templateId));
+    }
+  };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -247,54 +194,14 @@ const TemplateGallery = ({ onTemplateSelect, onTemplateExecute }: TemplateGaller
           >
             <Eye className="h-3 w-3" />
           </Button>
-          <Button size="sm" variant="outline" className="border-slate-600">
-            <Download className="h-3 w-3" />
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+            onClick={() => handleDeleteTemplate(template.id)}
+          >
+            <Trash2 className="h-3 w-3" />
           </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const TemplateListItem = ({ template }: { template: PowerUPTemplate }) => (
-    <Card className="bg-slate-800/50 border-slate-700/50">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center space-x-3">
-              <h3 className="text-white font-semibold">{template.name}</h3>
-              <Badge className={getCategoryColor(template.category)}>
-                {template.category}
-              </Badge>
-              <span className="text-slate-400 text-sm">v{template.version}</span>
-            </div>
-            <p className="text-slate-400 text-sm mt-1">{template.description}</p>
-            <div className="flex items-center space-x-2 mt-2">
-              {template.tags.slice(0, 3).map(tag => (
-                <Badge key={tag} className="bg-slate-600/50 text-slate-300 text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button 
-              size="sm" 
-              className="bg-gradient-primary"
-              onClick={() => onTemplateExecute?.(template)}
-            >
-              <Play className="h-3 w-3 mr-2" />
-              Execute
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="border-slate-600"
-              onClick={() => onTemplateSelect?.(template)}
-            >
-              <Eye className="h-3 w-3" />
-            </Button>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -310,6 +217,16 @@ const TemplateGallery = ({ onTemplateSelect, onTemplateExecute }: TemplateGaller
           </CardTitle>
           
           <div className="flex items-center space-x-2">
+            <Button
+              onClick={onCreateVisualTemplate}
+              className="bg-gradient-accent hover:bg-gradient-primary"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <Target className="h-4 w-4 mr-1" />
+              Create Visual Template
+            </Button>
+            
             <Button
               size="sm"
               variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -364,7 +281,49 @@ const TemplateGallery = ({ onTemplateSelect, onTemplateExecute }: TemplateGaller
               ) : (
                 <div className="space-y-3">
                   {filteredTemplates.map(template => (
-                    <TemplateListItem key={template.id} template={template} />
+                    <Card key={template.id} className="bg-slate-800/50 border-slate-700/50">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3">
+                              <h3 className="text-white font-semibold">{template.name}</h3>
+                              <Badge className={getCategoryColor(template.category)}>
+                                {template.category}
+                              </Badge>
+                              <span className="text-slate-400 text-sm">v{template.version}</span>
+                            </div>
+                            <p className="text-slate-400 text-sm mt-1">{template.description}</p>
+                          </div>
+                          
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-primary"
+                              onClick={() => onTemplateExecute?.(template)}
+                            >
+                              <Play className="h-3 w-3 mr-2" />
+                              Execute
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-slate-600"
+                              onClick={() => onTemplateSelect?.(template)}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-red-500/50 text-red-400"
+                              onClick={() => handleDeleteTemplate(template.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}

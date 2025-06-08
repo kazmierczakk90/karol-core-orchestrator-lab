@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -28,6 +27,8 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
+import { Badge } from '@/components/ui/badge';
+import { useEffect } from 'react';
 
 interface ExtractedLink {
   url: string;
@@ -39,7 +40,7 @@ const IndexContent = () => {
   const { t } = useTranslation();
   const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
   const [activeOpenAITab, setActiveOpenAITab] = useState('browser');
-  const [activeDataTab, setActiveDataTab] = useState('system-agents');
+  const [activeDataTab, setActiveDataTab] = useState('url-scrap');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTrainingCallModal, setShowTrainingCallModal] = useState(false);
   const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
@@ -50,7 +51,7 @@ const IndexContent = () => {
   // Real-time updates
   const { updates, isConnected } = useRealTimeUpdates();
 
-  // Keyboard shortcuts
+  // Enhanced keyboard shortcuts with new functions
   useKeyboardShortcuts({
     onMenuSwitch: (level) => setMenuLevel(level),
     onSearch: () => {
@@ -76,9 +77,53 @@ const IndexContent = () => {
           setActiveDataTab('analytics');
           setMenuLevel(2);
           break;
+        case 'visual-template':
+          setActiveOpenAITab('browser');
+          setMenuLevel(1);
+          break;
       }
     }
   });
+
+  // Handle keyboard shortcuts for new functionality
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey) {
+        if (event.key === 'v' || event.key === 'V') {
+          event.preventDefault();
+          // Toggle visual inspector in browser
+          setActiveOpenAITab('browser');
+          setMenuLevel(1);
+        } else if (event.key === 't' || event.key === 'T') {
+          event.preventDefault();
+          // Create new template
+          setActiveDataTab('template-gallery');
+          setMenuLevel(2);
+        }
+      }
+      
+      if (event.ctrlKey) {
+        if (event.key === 's' || event.key === 'S') {
+          event.preventDefault();
+          // Save current template (context-dependent)
+          console.log('Save shortcut triggered');
+        } else if (event.key === 'e' || event.key === 'E') {
+          event.preventDefault();
+          // Export current data
+          setActiveDataTab('export');
+          setMenuLevel(2);
+        }
+      }
+      
+      if (event.key === 'Delete') {
+        // Delete selected items (context-dependent)
+        console.log('Delete shortcut triggered');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
     try {
@@ -149,6 +194,10 @@ const IndexContent = () => {
     }
   };
 
+  const handleMenuLevelChange = (level: 1 | 2) => {
+    setMenuLevel(level);
+  };
+
   const toggleCollapse = (menuKey: string) => {
     setCollapsedMenus(prev => ({
       ...prev,
@@ -185,7 +234,7 @@ const IndexContent = () => {
   return (
     <GlobalErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-        {/* Header z logo */}
+        {/* Header without Switch Level button */}
         <div className="bg-gradient-dark backdrop-blur-sm border-b border-slate-700 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
@@ -209,6 +258,11 @@ const IndexContent = () => {
                 <span className="font-bold">KK1.1 AGI</span>
               </Button>
 
+              {/* Menu Level Indicator */}
+              <Badge className={`${menuLevel === 1 ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'} border-slate-600`}>
+                Level {menuLevel} {menuLevel === 1 ? '(OpenAI/Browser)' : '(Data/Tables)'}
+              </Badge>
+
               {/* Real-time status indicator */}
               <div className="flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
@@ -220,14 +274,8 @@ const IndexContent = () => {
             
             <div className="flex items-center space-x-4">
               <div className="text-xs text-slate-400">
-                Shortcuts: Ctrl+1/2 (Menu) • / (Search) • Alt+F2 (Browser) • Alt+F4 (Extract)
+                Shortcuts: Ctrl+1/2 (Menu) • Alt+V (Visual) • Alt+T (Template) • Alt+F4 (Extract) • Del (Delete)
               </div>
-              <Button
-                onClick={switchMenuLevel}
-                className="bg-gradient-secondary hover:bg-gradient-primary"
-              >
-                Switch to Level {menuLevel === 1 ? '2' : '1'}
-              </Button>
               <div className="text-right">
                 <p className="text-white font-medium">{t('status.active')}</p>
                 <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
@@ -288,6 +336,7 @@ const IndexContent = () => {
           showTrainingCallModal={showTrainingCallModal}
           setShowTrainingCallModal={setShowTrainingCallModal}
           onLinksExtracted={handleLinksExtracted}
+          onMenuLevelChange={handleMenuLevelChange}
         />
 
         {/* Training Call Modal */}
@@ -296,15 +345,21 @@ const IndexContent = () => {
           onClose={() => setShowTrainingCallModal(false)} 
         />
 
-        {/* Floating Action Key */}
+        {/* Enhanced Floating Action Key with context awareness */}
         <FloatingActionKey
           onExtractLinks={handleExtractLinks}
           onOpenBrowser={() => {
             setActiveOpenAITab('browser');
             setMenuLevel(1);
           }}
-          onOpenMiniAI={() => setActiveDataTab('mini-ai')}
-          onOpenCommander={() => setActiveOpenAITab('commander')}
+          onOpenMiniAI={() => {
+            setActiveDataTab('mini-ai');
+            setMenuLevel(2);
+          }}
+          onOpenCommander={() => {
+            setActiveOpenAITab('commander');
+            setMenuLevel(1);
+          }}
           onOpenTrainingCall={() => setShowTrainingCallModal(true)}
         />
       </div>

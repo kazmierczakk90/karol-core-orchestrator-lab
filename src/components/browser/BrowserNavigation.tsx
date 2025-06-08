@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/useTranslation';
 import { 
   Search, ChevronLeft, ChevronRight, RefreshCw, 
-  Menu, ZoomIn, ZoomOut, ExternalLink 
+  Menu, ZoomIn, ZoomOut, ExternalLink, Target 
 } from 'lucide-react';
 import { BrowserState } from '@/types/browser';
 
@@ -20,6 +20,8 @@ interface BrowserNavigationProps {
   onZoomChange: (delta: number) => void;
   onOpenInNewTab: () => void;
   browserState: BrowserState;
+  visualInspectMode?: boolean;
+  onToggleVisualInspect?: () => void;
 }
 
 const BrowserNavigation = ({
@@ -33,7 +35,9 @@ const BrowserNavigation = ({
   onReload,
   onZoomChange,
   onOpenInNewTab,
-  browserState
+  browserState,
+  visualInspectMode = false,
+  onToggleVisualInspect
 }: BrowserNavigationProps) => {
   const { t } = useTranslation();
 
@@ -101,6 +105,23 @@ const BrowserNavigation = ({
           >
             <Search className="h-4 w-4" />
           </Button>
+          
+          {/* Visual Inspector Toggle */}
+          {onToggleVisualInspect && browserState.currentUrl && (
+            <Button 
+              onClick={onToggleVisualInspect}
+              variant={visualInspectMode ? "default" : "outline"}
+              size="sm" 
+              className={`${visualInspectMode 
+                ? 'bg-cyan-500 hover:bg-cyan-600 text-white' 
+                : 'border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20'
+              } px-2 md:px-3 hover-gradient-scale`}
+              title="Toggle Visual Element Inspector"
+            >
+              <Target className="h-4 w-4" />
+              <span className="hidden md:inline ml-1">Visual</span>
+            </Button>
+          )}
         </div>
 
         {browserState.currentUrl && (

@@ -8,11 +8,19 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Globe, RefreshCw, AlertTriangle } from 'lucide-react';
 import { BrowserState } from '@/types/browser';
+import VisualElementInspector from './VisualElementInspector';
 
 interface ExtractedLink {
   url: string;
   title: string;
   domain: string;
+}
+
+interface SelectedElement {
+  selector: string;
+  tag: string;
+  text: string;
+  attributes: Record<string, string>;
 }
 
 interface BrowserContentProps {
@@ -21,6 +29,9 @@ interface BrowserContentProps {
   onIframeError: () => void;
   onClearError: () => void;
   onOpenInNewTab: () => void;
+  visualInspectMode?: boolean;
+  onToggleVisualInspect?: () => void;
+  onElementSelected?: (element: SelectedElement) => void;
 }
 
 const BrowserContent = ({
@@ -28,14 +39,17 @@ const BrowserContent = ({
   extractedLinks,
   onIframeError,
   onClearError,
-  onOpenInNewTab
+  onOpenInNewTab,
+  visualInspectMode = false,
+  onToggleVisualInspect,
+  onElementSelected
 }: BrowserContentProps) => {
   const { t, tArray } = useTranslation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const browserFeatures = tArray('browser.features');
 
   return (
-    <div className="flex-1 bg-gradient-dark p-3 md:p-6">
+    <div className="flex-1 bg-gradient-dark p-3 md:p-6 relative">
       <Card className="h-full bg-gradient-dark border-slate-700 hover-gradient-scale">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -50,6 +64,11 @@ const BrowserContent = ({
               {extractedLinks.length > 0 && (
                 <Badge variant="outline" className="border-blue-500/50 text-blue-400 text-xs">
                   {extractedLinks.length} linków
+                </Badge>
+              )}
+              {visualInspectMode && (
+                <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs animate-pulse">
+                  Visual Inspector Active
                 </Badge>
               )}
             </div>
@@ -95,7 +114,7 @@ const BrowserContent = ({
               </div>
             </div>
           ) : browserState.currentUrl ? (
-            <div className="h-full bg-white rounded border border-slate-600 overflow-hidden">
+            <div className="h-full bg-white rounded border border-slate-600 overflow-hidden relative">
               <iframe
                 ref={iframeRef}
                 src={browserState.currentUrl}
@@ -113,6 +132,16 @@ const BrowserContent = ({
                   console.log('Iframe loaded successfully');
                 }}
               />
+              
+              {/* Visual Element Inspector */}
+              {visualInspectMode && onToggleVisualInspect && onElementSelected && (
+                <VisualElementInspector
+                  isActive={visualInspectMode}
+                  onToggle={onToggleVisualInspect}
+                  onElementSelected={onElementSelected}
+                  iframeRef={iframeRef}
+                />
+              )}
             </div>
           ) : (
             <div className="h-full bg-gradient-dark rounded border border-slate-600 p-4 md:p-6">
