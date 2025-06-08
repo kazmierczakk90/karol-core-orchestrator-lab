@@ -80,15 +80,23 @@ const FloatingActionKey = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.altKey) {
         if (event.code === 'Space') {
+          event.preventDefault();
           setIsExpanded(!isExpanded);
         } else if (event.code === 'F1') {
+          event.preventDefault();
           onOpenCommander();
         } else if (event.code === 'F2') {
+          event.preventDefault();
           onOpenBrowser();
         } else if (event.code === 'F3') {
+          event.preventDefault();
           onOpenMiniAI();
         } else if (event.code === 'F4') {
+          event.preventDefault();
           onExtractLinks();
+        } else if (event.code === 'F5' && onOpenTrainingCall) {
+          event.preventDefault();
+          onOpenTrainingCall();
         }
       }
     };
@@ -98,7 +106,7 @@ const FloatingActionKey = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isExpanded, onOpenCommander, onOpenBrowser, onOpenMiniAI, onExtractLinks]);
+  }, [isExpanded, onOpenCommander, onOpenBrowser, onOpenMiniAI, onExtractLinks, onOpenTrainingCall]);
 
   return (
     <TooltipProvider>

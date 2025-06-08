@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AGIDashboard from '@/components/AGIDashboard';
@@ -37,7 +38,7 @@ interface ExtractedLink {
 const IndexContent = () => {
   const { t } = useTranslation();
   const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
-  const [activeOpenAITab, setActiveOpenAITab] = useState('chat');
+  const [activeOpenAITab, setActiveOpenAITab] = useState('browser');
   const [activeDataTab, setActiveDataTab] = useState('system-agents');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTrainingCallModal, setShowTrainingCallModal] = useState(false);
@@ -125,6 +126,7 @@ const IndexContent = () => {
     setExtractedLinks(prev => [...links, ...prev]);
     setActiveDataTab('url-scrap');
     setMobileMenuOpen(false);
+    setMenuLevel(2); // Switch to data level when links are extracted
   };
 
   const handleExtractLinks = () => {
@@ -163,6 +165,7 @@ const IndexContent = () => {
     { value: 'commander', label: 'Commander', icon: Users },
     { value: 'workflow', label: 'Workflow', icon: Workflow },
     { value: 'orchestrator', label: 'Orchestrator', icon: Network },
+    { value: 'browser', label: 'Browser', icon: Globe },
   ];
 
   const dataTabs = [
@@ -217,7 +220,7 @@ const IndexContent = () => {
             
             <div className="flex items-center space-x-4">
               <div className="text-xs text-slate-400">
-                Shortcuts: Ctrl+1/2 (Menu) • / (Search) • Alt+S (Scraper)
+                Shortcuts: Ctrl+1/2 (Menu) • / (Search) • Alt+F2 (Browser) • Alt+F4 (Extract)
               </div>
               <Button
                 onClick={switchMenuLevel}
@@ -284,6 +287,7 @@ const IndexContent = () => {
           extractedLinks={extractedLinks}
           showTrainingCallModal={showTrainingCallModal}
           setShowTrainingCallModal={setShowTrainingCallModal}
+          onLinksExtracted={handleLinksExtracted}
         />
 
         {/* Training Call Modal */}
@@ -295,7 +299,10 @@ const IndexContent = () => {
         {/* Floating Action Key */}
         <FloatingActionKey
           onExtractLinks={handleExtractLinks}
-          onOpenBrowser={() => setActiveDataTab('url-scrap')}
+          onOpenBrowser={() => {
+            setActiveOpenAITab('browser');
+            setMenuLevel(1);
+          }}
           onOpenMiniAI={() => setActiveDataTab('mini-ai')}
           onOpenCommander={() => setActiveOpenAITab('commander')}
           onOpenTrainingCall={() => setShowTrainingCallModal(true)}

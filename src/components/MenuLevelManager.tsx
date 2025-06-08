@@ -5,6 +5,7 @@ import OpenAIChat from './OpenAIChat';
 import AgentCommander from './AgentCommander';
 import WorkflowBuilder from './WorkflowBuilder';
 import AgentOrchestrator from './AgentOrchestrator';
+import BrowserCore from './BrowserCore';
 import SystemAgentsTable from './SystemAgentsTable';
 import MiniAIInstancesTable from './MiniAIInstancesTable';
 import MemoryEntriesTable from './MemoryEntriesTable';
@@ -31,6 +32,7 @@ interface MenuLevelManagerProps {
   extractedLinks: Array<{url: string, title: string, domain: string}>;
   showTrainingCallModal: boolean;
   setShowTrainingCallModal: (show: boolean) => void;
+  onLinksExtracted?: (links: Array<{url: string, title: string, domain: string}>) => void;
 }
 
 const MenuLevelManager = ({
@@ -45,14 +47,15 @@ const MenuLevelManager = ({
   dataTabs,
   extractedLinks,
   showTrainingCallModal,
-  setShowTrainingCallModal
+  setShowTrainingCallModal,
+  onLinksExtracted
 }: MenuLevelManagerProps) => {
 
   const renderOpenAISection = (isMain: boolean) => (
     <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-800/90 border-b border-cyan-800/30 p-4 transition-all duration-500`}>
       <Tabs value={activeOpenAITab} onValueChange={setActiveOpenAITab} className="w-full h-full">
         <div className="flex items-center justify-between mb-2">
-          <TabsList className="grid grid-cols-4 bg-gradient-dark border border-cyan-800/30 flex-1 mr-4">
+          <TabsList className="grid grid-cols-5 bg-gradient-dark border border-cyan-800/30 flex-1 mr-4">
             {openAITabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -67,6 +70,14 @@ const MenuLevelManager = ({
                 </TabsTrigger>
               );
             })}
+            <TabsTrigger 
+              value="browser"
+              onDoubleClick={() => toggleCollapse('openai')}
+              className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white"
+            >
+              <openAITabs.find(tab => tab.value === 'browser')?.icon || (() => <span>🌐</span>)} />
+              <span className="hidden md:inline">Browser</span>
+            </TabsTrigger>
           </TabsList>
           <Button
             onClick={() => toggleCollapse('openai')}
@@ -94,6 +105,10 @@ const MenuLevelManager = ({
             
             <TabsContent value="orchestrator" className="h-full m-0">
               <AgentOrchestrator />
+            </TabsContent>
+
+            <TabsContent value="browser" className="h-full m-0">
+              <BrowserCore onLinksExtracted={onLinksExtracted} />
             </TabsContent>
           </div>
         )}
