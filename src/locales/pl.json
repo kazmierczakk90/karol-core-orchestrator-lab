@@ -6,12 +6,7 @@
     "miniAI": "Mini AI",
     "browser": "Przeglądarka",
     "links": "Linki",
-    "mindMaps": "Mapy Myśli",
-    "analytics": "Analityka",
-    "processes": "Procesy",
-    "templates": "Szablony",
-    "marketplace": "Rynek",
-    "export": "Eksport"
+    "mindMaps": "Mapy Myśli"
   },
   "common": {
     "loading": "Ładowanie...",
@@ -31,80 +26,7 @@
     "import": "Importuj",
     "copy": "Kopiuj",
     "paste": "Wklej",
-    "clear": "Wyczyść",
-    "saving": "Zapisywanie...",
-    "saved": "Zapisano",
-    "unsaved": "Niezapisane zmiany",
-    "autoSave": "Auto-zapis",
-    "draft": "Szkic",
-    "recover": "Przywróć",
-    "discard": "Odrzuć"
-  },
-  "flashMemory": {
-    "title": "Flash Memory",
-    "description": "System automatycznego zapisywania i odzyskiwania danych",
-    "autoSaveEnabled": "Auto-zapis włączony",
-    "lastSaved": "Ostatni zapis",
-    "unsavedChanges": "Masz niezapisane zmiany",
-    "recoverDraft": "Znaleziono niezapisane zmiany. Czy chcesz je przywrócić?",
-    "draftRecovered": "Przywrócono niezapisane zmiany",
-    "draftSaved": "Auto-zapis wykonany",
-    "saveShortcut": "Naciśnij Ctrl+S aby zapisać",
-    "savingInProgress": "Zapisywanie w toku..."
-  },
-  "processJournal": {
-    "title": "Dziennik Procesów",
-    "description": "Historia wszystkich operacji wykonanych w systemie",
-    "allProcesses": "Wszystkie procesy",
-    "activeProcesses": "Aktywne procesy",
-    "completedProcesses": "Ukończone procesy",
-    "failedProcesses": "Procesy z błędami",
-    "processStarted": "Proces rozpoczęty",
-    "processCompleted": "Proces ukończony",
-    "processFailed": "Proces zakończony błędem",
-    "exportProcesses": "Eksportuj procesy",
-    "exportErrors": "Eksportuj błędy",
-    "noProcesses": "Brak procesów do wyświetlenia",
-    "duration": "Czas trwania",
-    "progress": "Postęp",
-    "status": "Status",
-    "metadata": "Metadane"
-  },
-  "errorManagement": {
-    "title": "Zarządzanie Błędami",
-    "description": "Kolekcja i analiza błędów systemu",
-    "totalErrors": "Wszystkie błędy",
-    "resolvedErrors": "Rozwiązane błędy",
-    "criticalErrors": "Błędy krytyczne",
-    "errorTypes": "Typy błędów",
-    "errorOccurred": "Wystąpił błąd",
-    "errorResolved": "Błąd rozwiązany",
-    "errorDetails": "Szczegóły błędu",
-    "stackTrace": "Ślad stosu",
-    "errorContext": "Kontekst błędu",
-    "reportError": "Zgłoś błąd",
-    "errorSeverity": {
-      "low": "Niski",
-      "medium": "Średni", 
-      "high": "Wysoki",
-      "critical": "Krytyczny"
-    },
-    "errorTypes": {
-      "compilation": "Kompilacja",
-      "runtime": "Wykonanie",
-      "network": "Sieć",
-      "validation": "Walidacja"
-    }
-  },
-  "saveSystem": {
-    "saveShortcut": "Ctrl+S - Zapisz",
-    "saveAsShortcut": "Ctrl+Shift+S - Zapisz jako",
-    "quickSaveShortcut": "Alt+S - Szybki zapis",
-    "saveSuccessful": "Zmiany zapisane pomyślnie",
-    "saveFailed": "Błąd zapisywania zmian",
-    "saveInProgress": "Zapisywanie...",
-    "saveStatus": "Status zapisu",
-    "hasUnsavedChanges": "Masz niezapisane zmiany"
+    "clear": "Wyczyść"
   },
   "agentCommander": {
     "title": "Generator Komend Agentów AI",
@@ -134,8 +56,6 @@
     "copyCommand": "Skopiuj komendę",
     "generatedCommand": "Wygenerowana komenda agenta",
     "selectedAgent": "Wybrany Agent",
-    "formSaved": "Formularz zapisany automatycznie",
-    "formRecovered": "Przywrócono dane formularza",
     "priorities": {
       "critical": "Krytyczny (RED ALERT)",
       "high": "Wysoki (HIGH)",
@@ -182,90 +102,24 @@
     "loadingContent": "Ładowanie zawartości...",
     "openInNewTab": "Otwórz w nowej karcie",
     "errorLoading": "Nie można załadować strony. Strona może blokować wyświetlanie w iframe.",
-    "visualInspector": "Inspektor Wizualny",
-    "inspectorActive": "Inspektor aktywny",
-    "inspectorInactive": "Inspektor nieaktywny",
-    "elementSelected": "Element zaznaczony",
-    "elementsSelected": "elementów zaznaczonych",
-    "createTemplate": "Utwórz szablon",
-    "saveTemplate": "Zapisz szablon",
-    "templateSaved": "Szablon zapisany pomyślnie",
-    "navigating": "Nawigacja do strony",
-    "extractingLinks": "Ekstrakcja linków",
     "features": [
       "Renderowanie stron internetowych",
       "Ekstrakcja treści dla AI",
       "Integracja z Link Collector",
       "Automatyczna ekstrakcja linków",
-      "Zoom i kontrola nawigacji",
-      "Inspektor wizualny elementów",
-      "Auto-zapis historii przeglądania",
-      "Tworzenie szablonów ekstrakcji"
+      "Zoom i kontrola nawigacji"
     ]
-  },
-  "templates": {
-    "title": "Galeria Szablonów",
-    "description": "Zarządzaj szablonami ekstrakcji danych",
-    "createNew": "Utwórz nowy szablon",
-    "createVisual": "Utwórz wizualnie",
-    "editTemplate": "Edytuj szablon",
-    "deleteTemplate": "Usuń szablon",
-    "executeTemplate": "Wykonaj szablon",
-    "templateName": "Nazwa szablonu",
-    "templateDescription": "Opis szablonu",
-    "templateCategory": "Kategoria",
-    "templateDomains": "Domeny",
-    "templateSelectors": "Selektory",
-    "templateSaved": "Szablon zapisany",
-    "templateDeleted": "Szablon usunięty",
-    "templateExecuted": "Szablon wykonany",
-    "noTemplates": "Brak szablonów do wyświetlenia"
   },
   "miniAI": {
     "title": "Mini AI Dashboard",
     "myMiniAIs": "Moje Mini AI",
     "executions": "Wykonania",
     "memory": "Pamięć",
-    "creator": "Kreator",
-    "createNew": "Utwórz nowy Mini AI",
-    "configure": "Konfiguruj",
-    "execute": "Wykonaj",
-    "aiSaved": "Mini AI zapisane",
-    "aiExecuted": "Mini AI wykonane"
-  },
-  "analytics": {
-    "title": "Analityka Systemu",
-    "description": "Monitoring wydajności i procesów",
-    "processJournal": "Dziennik Procesów",
-    "errorAnalysis": "Analiza Błędów",
-    "performanceMetrics": "Metryki Wydajności",
-    "systemHealth": "Stan Systemu",
-    "liveMonitoring": "Monitoring Live",
-    "historicalData": "Dane Historyczne"
-  },
-  "shortcuts": {
-    "title": "Skróty Klawiszowe",
-    "description": "Dostępne kombinacje klawiszy",
-    "globalShortcuts": "Skróty Globalne",
-    "contextShortcuts": "Skróty Kontekstowe",
-    "menuSwitching": "Przełączanie Menu",
-    "visualInspector": "Inspektor Wizualny",
-    "quickActions": "Szybkie Akcje",
-    "toggleShortcuts": "Pokaż/Ukryj skróty"
+    "creator": "Kreator"
   },
   "status": {
     "active": "Aktywny",
-    "inactive": "Nieaktywny",
-    "running": "Uruchomiony",
-    "completed": "Ukończony",
-    "failed": "Błąd",
-    "idle": "Bezczynny",
-    "loading": "Ładowanie",
-    "saving": "Zapisywanie",
-    "processing": "Przetwarzanie",
     "allSystemsOperational": "Wszystkie systemy działają",
-    "ready": "Gotowy",
-    "connected": "Połączony",
-    "disconnected": "Rozłączony"
+    "ready": "Gotowy"
   }
 }

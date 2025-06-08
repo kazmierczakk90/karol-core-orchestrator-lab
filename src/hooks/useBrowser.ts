@@ -1,7 +1,16 @@
 
 import { useState, useRef } from 'react';
 import { useGlobalStore } from '@/stores/globalStore';
-import { BrowserState } from '@/types/common';
+
+interface BrowserState {
+  currentUrl: string;
+  isLoading: boolean;
+  loadingProgress: number;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  zoomLevel: number;
+  error: boolean;
+}
 
 export const useBrowser = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -14,7 +23,7 @@ export const useBrowser = () => {
     canGoBack: false,
     canGoForward: false,
     zoomLevel: 100,
-    error: null
+    error: false
   });
 
   const [history, setHistory] = useState<string[]>([]);
@@ -36,7 +45,7 @@ export const useBrowser = () => {
       currentUrl: formattedUrl,
       isLoading: true,
       loadingProgress: 0,
-      error: null
+      error: false
     }));
 
     // Simulate loading
@@ -118,9 +127,10 @@ export const useBrowser = () => {
         ...prev,
         isLoading: true,
         loadingProgress: 0,
-        error: null
+        error: false
       }));
       
+      // Simulate reload
       setTimeout(() => {
         setBrowserState(prev => ({
           ...prev,
@@ -142,7 +152,7 @@ export const useBrowser = () => {
   const handleIframeError = () => {
     setBrowserState(prev => ({
       ...prev,
-      error: 'Nie można załadować strony. Strona może blokować wyświetlanie w iframe.',
+      error: true,
       isLoading: false
     }));
   };
@@ -150,7 +160,7 @@ export const useBrowser = () => {
   const clearError = () => {
     setBrowserState(prev => ({
       ...prev,
-      error: null
+      error: false
     }));
   };
 

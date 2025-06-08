@@ -14,17 +14,10 @@ import EnhancedURLTable from './EnhancedURLTable';
 import SmartScraperBuilder from './scraper/SmartScraperBuilder';
 import TemplateGallery from './gallery/TemplateGallery';
 import AdvancedAnalytics from './analytics/AdvancedAnalytics';
-import ProcessJournal from './analytics/ProcessJournal';
 import BulkScheduler from './scheduler/BulkScheduler';
 import TemplateMarketplace from './marketplace/TemplateMarketplace';
 import AdvancedExporter from './export/AdvancedExporter';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { 
-  ExtractionTemplate, 
-  PowerUPTemplate, 
-  templateConverter, 
-  isExtractionTemplate 
-} from '@/types/common';
 
 interface MenuLevelManagerProps {
   menuLevel: 1 | 2;
@@ -78,6 +71,7 @@ const MenuLevelManager = ({
   onMenuLevelChange
 }: MenuLevelManagerProps) => {
 
+  // Auto-switch menu level based on tab selection
   const handleOpenAITabChange = (tab: string) => {
     setActiveOpenAITab(tab);
     if (menuLevel !== 1) {
@@ -95,25 +89,7 @@ const MenuLevelManager = ({
   const handleCreateVisualTemplate = () => {
     setActiveOpenAITab('browser');
     onMenuLevelChange?.(1);
-  };
-
-  const handleTemplateCreated = (template: ExtractionTemplate) => {
-    console.log('Template created:', template);
-    setActiveDataTab('template-gallery');
-    onMenuLevelChange?.(2);
-  };
-
-  // Universal template handler that works with both template types
-  const handleTemplateExecuted = (template: ExtractionTemplate | PowerUPTemplate) => {
-    console.log('Template executed:', template);
-    setActiveDataTab('url-scrap');
-    onMenuLevelChange?.(2);
-  };
-
-  // Template converter for PowerUP compatibility
-  const handlePowerUPTemplateExecute = (template: PowerUPTemplate) => {
-    const extractionTemplate = templateConverter.powerUPToExtraction(template);
-    handleTemplateExecuted(extractionTemplate);
+    // The browser will open with visual inspect mode
   };
 
   const renderOpenAISection = (isMain: boolean) => (
@@ -162,8 +138,19 @@ const MenuLevelManager = ({
             <TabsContent value="browser" className="h-full m-0">
               <BrowserCore 
                 onLinksExtracted={onLinksExtracted}
-                onTemplateCreated={handleTemplateCreated}
-                onTemplateExecuted={handleTemplateExecuted}
+                visualInspectMode={false}
+                onTemplateCreated={(template) => {
+                  console.log('Template created:', template);
+                  // Switch to template gallery to show the new template
+                  setActiveDataTab('template-gallery');
+                  onMenuLevelChange?.(2);
+                }}
+                onTemplateExecuted={(template) => {
+                  console.log('Template executed:', template);
+                  // Switch to URL scrap table to show results
+                  setActiveDataTab('url-scrap');
+                  onMenuLevelChange?.(2);
+                }}
               />
             </TabsContent>
           </div>
@@ -229,15 +216,16 @@ const MenuLevelManager = ({
                 onTemplateSelect={(template) => {
                   console.log('Template selected:', template);
                 }}
-                onTemplateExecute={handleTemplateExecuted}
+                onTemplateExecute={(template) => {
+                  console.log('Template executed:', template);
+                  // Switch to URL scrap table to show results
+                  setActiveDataTab('url-scrap');
+                }}
               />
             </TabsContent>
 
             <TabsContent value="analytics" className="h-full m-0">
-              <div className="space-y-6">
-                <AdvancedAnalytics />
-                <ProcessJournal />
-              </div>
+              <AdvancedAnalytics />
             </TabsContent>
 
             <TabsContent value="scheduler" className="h-full m-0">
