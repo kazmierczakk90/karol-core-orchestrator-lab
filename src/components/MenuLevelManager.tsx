@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import OpenAIChat from './OpenAIChat';
@@ -17,7 +16,7 @@ import AdvancedAnalytics from './analytics/AdvancedAnalytics';
 import BulkScheduler from './scheduler/BulkScheduler';
 import TemplateMarketplace from './marketplace/TemplateMarketplace';
 import AdvancedExporter from './export/AdvancedExporter';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Globe } from 'lucide-react';
 
 interface MenuLevelManagerProps {
   menuLevel: 1 | 2;
@@ -75,7 +74,7 @@ const MenuLevelManager = ({
               onDoubleClick={() => toggleCollapse('openai')}
               className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white"
             >
-              <openAITabs.find(tab => tab.value === 'browser')?.icon || (() => <span>🌐</span>)} />
+              <Globe className="h-4 w-4" />
               <span className="hidden md:inline">Browser</span>
             </TabsTrigger>
           </TabsList>
