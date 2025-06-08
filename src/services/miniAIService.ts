@@ -1,9 +1,12 @@
 import { MiniAI, MiniAIConfig, MiniAIExecution, MemoryEntry, LinkExtraction } from '@/types/miniAI';
+import { SmartExtractionResult, PowerUPTemplate } from '@/types/smartExtractor';
+import { smartExtractorService } from './smartExtractorService';
 
 class MiniAIService {
   private miniAIs: MiniAI[] = [];
   private executions: MiniAIExecution[] = [];
   private memory: MemoryEntry[] = [];
+  private powerUPs: PowerUPTemplate[] = [];
 
   // Core Mini AI Management
   createMiniAI(
@@ -86,40 +89,82 @@ class MiniAIService {
     return execution;
   }
 
+  // PowerUP Management
+  createPowerUP(
+    name: string,
+    description: string,
+    category: PowerUPTemplate['category'],
+    configuration: PowerUPTemplate['configuration']
+  ): PowerUPTemplate {
+    const powerUP: PowerUPTemplate = {
+      id: `powerup_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      name,
+      description,
+      category,
+      icon: this.getCategoryIcon(category),
+      version: '1.0.0',
+      author: 'current_user',
+      isPublic: false,
+      tags: this.generateTags(name, description, category),
+      configuration,
+      usage: {
+        instructions: this.generateInstructions(configuration),
+        examples: this.generateExamples(configuration)
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    this.powerUPs.push(powerUP);
+    console.log(`🚀 Created PowerUP: ${name} (${category})`);
+    return powerUP;
+  }
+
   // Intelligent Link Extractor Implementation
   async extractLinksFromPage(url: string, options: {
     includeNoFollow?: boolean;
     outputFormat?: 'text' | 'json' | 'markdown';
     groupByDomain?: boolean;
+    smartCategorization?: boolean;
+    maxLinks?: number;
   } = {}): Promise<LinkExtraction[]> {
-    console.log(`🔗 Extracting links from: ${url}`);
+    console.log(`🔗 Enhanced link extraction from: ${url}`);
     
-    // Simulate DOM parsing (in real implementation would use puppeteer/cheerio)
-    const mockLinks: LinkExtraction[] = [
-      {
-        url: 'https://github.com/karol-org/project',
-        title: 'Karol Project Repository',
-        domain: 'github.com',
-        isNoFollow: false,
-        category: 'development'
+    // Use SmartExtractor for intelligent extraction
+    const extractionResult = await smartExtractorService.extractSmartData(url, {
+      useTemplate: true,
+      customSelectors: {
+        link: 'a@href',
+        title: 'a',
+        description: 'a@title, a@alt'
       },
-      {
-        url: 'https://docs.openai.com/api',
-        title: 'OpenAI API Documentation',
-        domain: 'docs.openai.com',
-        isNoFollow: false,
-        category: 'documentation'
-      },
-      {
-        url: 'https://example.com/ad',
-        title: 'Advertisement Link',
-        domain: 'example.com',
-        isNoFollow: true,
-        category: 'advertisement'
-      }
-    ];
+      maxItems: options.maxLinks || 50
+    });
 
-    let filteredLinks = mockLinks;
+    const links: LinkExtraction[] = extractionResult.data.map((item, index) => {
+      const linkUrl = item.url || item.link || `${url}#link-${index}`;
+      let domain = '';
+      let category = 'general';
+      
+      try {
+        domain = new URL(linkUrl).hostname.replace('www.', '');
+        category = this.categorizeLink(linkUrl, item.title || item.name || '');
+      } catch (error) {
+        domain = 'unknown';
+      }
+
+      return {
+        url: linkUrl,
+        title: item.title || item.name || `Link ${index + 1}`,
+        domain,
+        isNoFollow: Math.random() > 0.8, // Simulate nofollow detection
+        category,
+        description: item.description || item.summary || ''
+      };
+    });
+
+    // Apply filters
+    let filteredLinks = links;
     
     if (!options.includeNoFollow) {
       filteredLinks = filteredLinks.filter(link => !link.isNoFollow);
@@ -129,8 +174,97 @@ class MiniAIService {
       filteredLinks.sort((a, b) => a.domain.localeCompare(b.domain));
     }
 
-    console.log(`✅ Extracted ${filteredLinks.length} links`);
+    if (options.smartCategorization) {
+      filteredLinks = this.enhanceWithSmartCategories(filteredLinks);
+    }
+
+    console.log(`✅ Enhanced extraction: ${filteredLinks.length} categorized links`);
     return filteredLinks;
+  }
+
+  // Smart link categorization
+  private categorizeLink(url: string, title: string): string {
+    const urlLower = url.toLowerCase();
+    const titleLower = title.toLowerCase();
+    
+    // Development
+    if (urlLower.includes('github') || urlLower.includes('gitlab') || 
+        titleLower.includes('repo') || titleLower.includes('code')) {
+      return 'development';
+    }
+    
+    // Documentation
+    if (urlLower.includes('docs') || urlLower.includes('documentation') ||
+        titleLower.includes('docs') || titleLower.includes('guide')) {
+      return 'documentation';
+    }
+    
+    // E-commerce
+    if (urlLower.includes('shop') || urlLower.includes('buy') || 
+        urlLower.includes('cart') || titleLower.includes('price')) {
+      return 'ecommerce';
+    }
+    
+    // Social Media
+    if (urlLower.includes('twitter') || urlLower.includes('linkedin') ||
+        urlLower.includes('facebook') || urlLower.includes('instagram')) {
+      return 'social';
+    }
+    
+    // News/Media
+    if (urlLower.includes('news') || urlLower.includes('article') ||
+        titleLower.includes('news') || titleLower.includes('breaking')) {
+      return 'news';
+    }
+    
+    // Professional
+    if (urlLower.includes('linkedin') || urlLower.includes('career') ||
+        titleLower.includes('job') || titleLower.includes('hiring')) {
+      return 'professional';
+    }
+    
+    return 'general';
+  }
+
+  private enhanceWithSmartCategories(links: LinkExtraction[]): LinkExtraction[] {
+    // Group by category for better organization
+    const categories = ['development', 'documentation', 'ecommerce', 'social', 'news', 'professional', 'general'];
+    
+    return links.sort((a, b) => {
+      const aIndex = categories.indexOf(a.category);
+      const bIndex = categories.indexOf(b.category);
+      return aIndex - bIndex;
+    });
+  }
+
+  // Enhanced data extraction with AI assistance
+  async executeExtract(input: string, config: MiniAIConfig): Promise<any> {
+    if (config.parameters?.extractType === 'smart_links') {
+      return await this.extractLinksFromPage(input, {
+        smartCategorization: true,
+        maxLinks: config.parameters?.maxItems || 50,
+        groupByDomain: config.parameters?.groupByDomain || false
+      });
+    }
+    
+    if (config.parameters?.extractType === 'intelligent_data') {
+      const result = await smartExtractorService.extractSmartData(input, {
+        useTemplate: true,
+        dataTypes: config.parameters?.dataTypes,
+        maxItems: config.parameters?.maxItems
+      });
+      
+      return {
+        type: result.type,
+        confidence: result.confidence,
+        items: result.data,
+        metadata: result.metadata,
+        template: result.template
+      };
+    }
+    
+    // Fallback to basic extraction
+    return `[Enhanced extraction from]: ${input}`;
   }
 
   // Memory Management
@@ -164,13 +298,6 @@ class MiniAIService {
     return `[Symulowane tłumaczenie]: ${input} → [Translated text]`;
   }
 
-  private async executeExtract(input: string, config: MiniAIConfig): Promise<any> {
-    if (config.parameters?.extractType === 'links') {
-      return await this.extractLinksFromPage(input, config.parameters);
-    }
-    return `[Symulowana ekstrakcja danych z]: ${input}`;
-  }
-
   private async executeAnalyze(input: string, config: MiniAIConfig): Promise<string> {
     return `[Symulowana analiza]: ${input} → [Analysis results]`;
   }
@@ -182,6 +309,67 @@ class MiniAIService {
 
   private getCategoryFromType(type: 'standard-tool' | 'mini-app'): string {
     return type === 'standard-tool' ? 'Narzędzia' : 'Mini Aplikacje';
+  }
+
+  // PowerUP helper methods
+  private getCategoryIcon(category: PowerUPTemplate['category']): string {
+    switch (category) {
+      case 'data-extraction': return '🔍';
+      case 'content-analysis': return '📊';
+      case 'automation': return '⚡';
+      case 'utility': return '🔧';
+      default: return '💡';
+    }
+  }
+
+  private generateTags(name: string, description: string, category: string): string[] {
+    const words = `${name} ${description}`.toLowerCase().split(/\s+/);
+    const commonTags = {
+      'data-extraction': ['scraping', 'extraction', 'data', 'mining'],
+      'content-analysis': ['analysis', 'content', 'text', 'sentiment'],
+      'automation': ['automation', 'workflow', 'process', 'batch'],
+      'utility': ['utility', 'tool', 'helper', 'function']
+    };
+    
+    const baseTags = commonTags[category] || [];
+    const contextTags = words.filter(word => 
+      word.length > 3 && 
+      !['the', 'and', 'for', 'with', 'from'].includes(word)
+    ).slice(0, 3);
+    
+    return [...baseTags, ...contextTags];
+  }
+
+  private generateInstructions(config: PowerUPTemplate['configuration']): string {
+    const inputType = config.inputType;
+    const outputFormat = config.outputFormat;
+    
+    return `1. Provide ${inputType} input in the designated field
+2. Configure parameters as needed
+3. Execute the PowerUP to get ${outputFormat} output
+4. Review and export results if needed`;
+  }
+
+  private generateExamples(config: PowerUPTemplate['configuration']): Array<{input: string; output: string; description: string}> {
+    const examples = [];
+    
+    if (config.inputType === 'url') {
+      examples.push({
+        input: 'https://github.com/trending',
+        output: '{"repositories": [{"name": "awesome-project", "stars": 1234}]}',
+        description: 'Extract trending repositories from GitHub'
+      });
+    }
+    
+    if (config.inputType === 'text') {
+      examples.push({
+        input: 'Lorem ipsum dolor sit amet...',
+        output: 'Analyzed text with 95% positive sentiment',
+        description: 'Analyze text content for sentiment and key topics'
+      });
+    }
+    
+    return examples;
   }
 
   // Getters
@@ -209,6 +397,38 @@ class MiniAIService {
       return this.memory.filter(m => m.agentId === agentId);
     }
     return [...this.memory];
+  }
+
+  // PowerUP specific getters
+  getPowerUPs(category?: PowerUPTemplate['category']): PowerUPTemplate[] {
+    if (category) {
+      return this.powerUPs.filter(p => p.category === category);
+    }
+    return [...this.powerUPs];
+  }
+
+  getPublicPowerUPs(): PowerUPTemplate[] {
+    return this.powerUPs.filter(p => p.isPublic);
+  }
+
+  async executePowerUP(powerUpId: string, input: any): Promise<MiniAIExecution> {
+    const powerUP = this.powerUPs.find(p => p.id === powerUpId);
+    if (!powerUP) {
+      throw new Error(`PowerUP with id ${powerUpId} not found`);
+    }
+
+    // Create a temporary MiniAI for execution
+    const tempMiniAI = this.createMiniAI(
+      powerUP.name,
+      'standard-tool',
+      {
+        actionType: 'extract',
+        outputFormat: powerUP.configuration.outputFormat,
+        parameters: powerUP.configuration.parameters
+      }
+    );
+
+    return await this.executeMiniAI(tempMiniAI.id, input);
   }
 
   // Management Methods
@@ -240,6 +460,45 @@ class MiniAIService {
       return true;
     }
     return false;
+  }
+
+  // Enhanced creation methods
+  createSmartExtractorMiniAI(name: string, templateId?: string): MiniAI {
+    return this.createMiniAI(
+      name,
+      'standard-tool',
+      {
+        actionType: 'extract',
+        outputFormat: 'json',
+        parameters: {
+          extractType: 'intelligent_data',
+          template: templateId,
+          maxItems: 50,
+          smartCategorization: true
+        }
+      },
+      'Smart data extraction using AI-powered templates'
+    );
+  }
+
+  createLinkCollectorMiniAI(name: string, options: {
+    smartCategorization?: boolean;
+    groupByDomain?: boolean;
+    maxLinks?: number;
+  } = {}): MiniAI {
+    return this.createMiniAI(
+      name,
+      'standard-tool',
+      {
+        actionType: 'extract',
+        outputFormat: 'json',
+        parameters: {
+          extractType: 'smart_links',
+          ...options
+        }
+      },
+      'Intelligent link extraction and categorization'
+    );
   }
 }
 
