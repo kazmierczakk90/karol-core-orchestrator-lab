@@ -53,7 +53,9 @@ export const AddMiniAIModal = ({ isOpen, onOpenChange, onMiniAIAdded, isCreating
   });
 
   const onSubmit = (values: MiniAIFormValues) => {
-    onMiniAIAdded(values, {
+    // The `values` object is validated by Zod, so we can be sure `name` and `type` are strings.
+    // We cast it to CreateMiniAIData to satisfy TypeScript, as there seems to be a type inference issue.
+    onMiniAIAdded(values as CreateMiniAIData, {
         onSuccess: () => {
             form.reset();
             onOpenChange(false);
