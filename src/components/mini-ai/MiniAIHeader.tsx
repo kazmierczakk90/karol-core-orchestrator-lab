@@ -24,10 +24,10 @@ const MiniAIHeader = ({ miniAIs }: MiniAIHeaderProps) => {
           </div>
           <div className="flex items-center space-x-2">
             <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
-              {miniAIs.filter(m => m.isActive).length} aktywnych
+              {miniAIs.filter(m => m.is_active).length} aktywnych
             </Badge>
             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50">
-              {miniAIs.filter(m => m.isPinned).length} przypiętych
+              {miniAIs.filter(m => m.is_pinned).length} przypiętych
             </Badge>
           </div>
         </div>

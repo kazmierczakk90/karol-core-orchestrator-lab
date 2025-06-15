@@ -1,4 +1,5 @@
-import { MiniAI, MiniAIConfig, MiniAIExecution, MemoryEntry, LinkExtraction } from '@/types/miniAI';
+
+import { MiniAI, MiniAIConfig, CreateMiniAIData, MiniAIExecution, MemoryEntry, LinkExtraction } from '@/types/miniAI';
 
 class MiniAIService {
   private miniAIs: MiniAI[] = [];
@@ -18,13 +19,13 @@ class MiniAIService {
       type,
       description,
       category: this.getCategoryFromType(type),
-      isActive: true,
-      isPinned: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      is_active: true,
+      is_pinned: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       config,
       author: 'current_user',
-      isPublic: false
+      is_public: false
     };
 
     this.miniAIs.push(miniAI);
@@ -190,11 +191,11 @@ class MiniAIService {
   }
 
   getActiveMiniAIs(): MiniAI[] {
-    return this.miniAIs.filter(m => m.isActive);
+    return this.miniAIs.filter(m => m.is_active);
   }
 
   getPinnedMiniAIs(): MiniAI[] {
-    return this.miniAIs.filter(m => m.isPinned);
+    return this.miniAIs.filter(m => m.is_pinned);
   }
 
   getExecutions(miniAIId?: string): MiniAIExecution[] {
@@ -215,8 +216,8 @@ class MiniAIService {
   toggleMiniAI(miniAIId: string): boolean {
     const miniAI = this.miniAIs.find(m => m.id === miniAIId);
     if (miniAI) {
-      miniAI.isActive = !miniAI.isActive;
-      miniAI.updatedAt = new Date();
+      miniAI.is_active = !miniAI.is_active;
+      miniAI.updated_at = new Date().toISOString();
       return true;
     }
     return false;
@@ -225,7 +226,7 @@ class MiniAIService {
   pinMiniAI(miniAIId: string): boolean {
     const miniAI = this.miniAIs.find(m => m.id === miniAIId);
     if (miniAI) {
-      miniAI.isPinned = !miniAI.isPinned;
+      miniAI.is_pinned = !miniAI.is_pinned;
       return true;
     }
     return false;

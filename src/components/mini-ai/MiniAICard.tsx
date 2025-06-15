@@ -14,8 +14,8 @@ interface MiniAICardProps {
 }
 
 const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICardProps) => {
-  const getStatusColor = (isActive: boolean) => {
-    return isActive 
+  const getStatusColor = (isActive: boolean | null) => {
+    return isActive
       ? 'bg-green-500/20 text-green-400 border-green-500/50'
       : 'bg-gray-500/20 text-gray-400 border-gray-500/50';
   };
@@ -33,7 +33,7 @@ const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICard
           <div className="flex-1">
             <CardTitle className="text-white text-sm flex items-center space-x-2">
               <span>{miniAI.name}</span>
-              {miniAI.isPinned && <Pin className="h-3 w-3 text-yellow-400" />}
+              {miniAI.is_pinned && <Pin className="h-3 w-3 text-yellow-400" />}
             </CardTitle>
             <CardDescription className="text-xs text-slate-400 mt-1">
               {miniAI.description}
@@ -44,8 +44,8 @@ const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICard
           <Badge className={getTypeColor(miniAI.type)}>
             {miniAI.type === 'standard-tool' ? 'Narzędzie' : 'Mini App'}
           </Badge>
-          <Badge className={getStatusColor(miniAI.isActive)}>
-            {miniAI.isActive ? 'Aktywny' : 'Nieaktywny'}
+          <Badge className={getStatusColor(miniAI.is_active)}>
+            {miniAI.is_active ? 'Aktywny' : 'Nieaktywny'}
           </Badge>
         </div>
       </CardHeader>
@@ -55,7 +55,7 @@ const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICard
             onClick={() => onExecute(miniAI)}
             size="sm"
             className="bg-green-600 hover:bg-green-700 text-xs"
-            disabled={!miniAI.isActive}
+            disabled={!miniAI.is_active}
           >
             <Play className="h-3 w-3 mr-1" />
             Uruchom
@@ -66,7 +66,7 @@ const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICard
             variant="outline"
             className="border-slate-600 text-slate-300 text-xs"
           >
-            {miniAI.isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+            {miniAI.is_active ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
           </Button>
           <Button
             onClick={() => onPin(miniAI.id)}
