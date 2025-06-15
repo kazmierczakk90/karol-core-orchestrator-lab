@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Zap, Play, Pause, Settings, Trash2, Plus, RefreshCw, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
-import { SystemConnection } from '@/types/system';
+import { SystemConnection, ConnectionType, ConnectionStatus } from '@/types/system';
 import AddConnectionModal from '@/components/connections/AddConnectionModal';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -25,12 +25,12 @@ const SystemConnectionsTable = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: connections, isLoading, error: queryError } = useQuery<SystemConnection[]>({
+  const { data: connections, isLoading, error: queryError } = useQuery({
     queryKey: ['connections'],
-    queryFn: async () => {
+    queryFn: async (): Promise<SystemConnection[]> => {
       const { data, error } = await supabase.from('system_connections').select('*').order('created_at', { ascending: true });
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data as SystemConnection[]) || [];
     },
   });
 
@@ -39,8 +39,8 @@ const SystemConnectionsTable = () => {
       const connectionsToSeed = initialConnectionsData.map(c => ({
         name: c.name,
         description: c.description,
-        type: c.type,
-        status: c.status,
+        type: c.type as ConnectionType,
+        status: c.status as ConnectionStatus,
         endpoint: c.endpoint,
         last_ping: c.lastPing.toISOString(),
         response_time: c.responseTime,
@@ -249,7 +249,7 @@ const SystemConnectionsTable = () => {
                     <TableCell>
                       <div>
                         <div className="font-semibold text-white">{connection.name}</div>
-                        <div className="text-slate-400 text-sm">{connection.description}</div>
+                        <div className="text-slate-400 text-sm">{connection.description ?? ''}</div>
                       </div>
                     </TableCell>
                     
