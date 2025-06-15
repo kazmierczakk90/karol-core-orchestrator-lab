@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { FukoMessage } from '@/types/fuko';
 import type { FukoAgent } from '@/types/agent';
@@ -23,11 +22,11 @@ class FukoService {
       console.error('Error creating FUKO message:', error);
       return null;
     }
-    return data;
+    return data as FukoMessage;
   }
   
   async getAgents(): Promise<FukoAgent[]> {
-    const { data, error } = await supabase.from('agents').select('*');
+    const { data, error } = await supabase.from('fuko_agents').select('*');
     if (error) {
       console.error('Error fetching agents:', error);
       return [];
@@ -44,14 +43,14 @@ class FukoService {
     return data as FukoMessage[];
   }
 
-  async updateAgentStatus(agentId: string, status: FukoAgent['status']): Promise<boolean> {
+  async updateAgentStatusByName(agentName: string, status: FukoAgent['status']): Promise<boolean> {
     const { error } = await supabase
-      .from('agents')
+      .from('fuko_agents')
       .update({ status: status, last_update: new Date().toISOString() })
-      .eq('id', agentId);
+      .eq('name', agentName);
     
     if (error) {
-      console.error(`Error updating agent ${agentId} status:`, error);
+      console.error(`Error updating agent ${agentName} status:`, error);
       return false;
     }
     return true;

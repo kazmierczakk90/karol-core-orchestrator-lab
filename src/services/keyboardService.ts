@@ -262,14 +262,14 @@ export class KeyboardService {
     voiceService.speak(`System aktywny. ${activeCount} agentów online. Wydajność ${avgPerformance.toFixed(0)} procent.`);
   }
 
-  private async activateAgent(agentId: string) {
-    console.log(`Activating agent: ${agentId}`);
-    const success = await fukoService.updateAgentStatus(agentId, 'active');
+  private async activateAgent(agentName: string) {
+    console.log(`Activating agent: ${agentName}`);
+    const success = await fukoService.updateAgentStatusByName(agentName, 'active');
     if (success) {
-      this.showNotification('Agent Activated', `${agentId} is now active`);
-      voiceService.speak(`Agent ${agentId} aktywowany`);
+      this.showNotification('Agent Activated', `${agentName} is now active`);
+      voiceService.speak(`Agent ${agentName} aktywowany`);
     } else {
-      this.showNotification('Activation Failed', `Could not activate ${agentId}`);
+      this.showNotification('Activation Failed', `Could not activate ${agentName}`);
     }
   }
 
@@ -278,7 +278,7 @@ export class KeyboardService {
     const dormantAgents = agents.filter(a => a.status === 'dormant');
     if (dormantAgents.length > 0) {
       const randomAgent = dormantAgents[Math.floor(Math.random() * dormantAgents.length)];
-      await this.activateAgent(randomAgent.id);
+      await this.activateAgent(randomAgent.name);
     } else {
       this.showNotification('No Dormant Agents', 'All agents are already active');
     }
