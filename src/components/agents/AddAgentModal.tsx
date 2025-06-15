@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,8 +58,12 @@ export const AddAgentModal = ({ isOpen, onOpenChange, onAgentAdded, isCreating }
 
   const onSubmit = (values: AgentFormValues) => {
     const agentData: CreateAgentData = {
-        ...values,
-        capabilities: values.capabilities.split(',').map(s => s.trim()).filter(Boolean),
+      identifier: values.identifier,
+      name: values.name,
+      type: values.type,
+      description: values.description,
+      version: values.version,
+      capabilities: values.capabilities.split(',').map(s => s.trim()).filter(Boolean),
     };
     onAgentAdded(agentData, {
         onSuccess: () => {
