@@ -1,16 +1,18 @@
 
+import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
 import { useLinkExtractor } from '@/hooks/useLinkExtractor';
 import { useModals } from '@/hooks/useModals';
 
 import Header from '@/components/Header';
-import AnalyticsDashboard from '@/components/AnalyticsDashboard';
-import MenuLevelManager from '@/components/MenuLevelManager';
-import TrainingCallModal from '@/components/TrainingCallModal';
 import FloatingActionKey from '@/components/FloatingActionKey';
 
-import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap } from 'lucide-react';
+import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader } from 'lucide-react';
+
+const AnalyticsDashboard = React.lazy(() => import('@/components/AnalyticsDashboard'));
+const TrainingCallModal = React.lazy(() => import('@/components/TrainingCallModal'));
+const MenuLevelManager = React.lazy(() => import('@/components/MenuLevelManager'));
 
 const IndexContent = () => {
   const { 
@@ -26,6 +28,10 @@ const IndexContent = () => {
     showTrainingCallModal, setShowTrainingCallModal,
     showAnalyticsDashboard, setShowAnalyticsDashboard
   } = useModals();
+
+  const handleLogoClick = useCallback(() => {
+    setShowAnalyticsDashboard(true);
+  }, [setShowAnalyticsDashboard]);
 
   const openAITabs = [
     { value: 'chat', label: 'Chat', icon: MessageSquare },
@@ -44,7 +50,7 @@ const IndexContent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      <Header onLogoClick={() => setShowAnalyticsDashboard(true)} />
+      <Header onLogoClick={handleLogoClick} />
 
       <AnalyticsDashboard 
         isOpen={showAnalyticsDashboard} 
@@ -77,10 +83,21 @@ const IndexContent = () => {
   );
 };
 
+const LoadingFallback = () => (
+  <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+    <div className="flex flex-col items-center space-y-4">
+      <Loader className="h-12 w-12 text-cyan-400 animate-spin" />
+      <p className="text-slate-300">Loading Karol Core Interface...</p>
+    </div>
+  </div>
+);
+
 const Index = () => {
   return (
     <LanguageProvider>
-      <IndexContent />
+      <Suspense fallback={<LoadingFallback />}>
+        <IndexContent />
+      </Suspense>
     </LanguageProvider>
   );
 };

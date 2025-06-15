@@ -1,15 +1,17 @@
 
-import { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import OpenAIChat from './OpenAIChat';
-import AgentCommander from './AgentCommander';
-import WorkflowBuilder from './WorkflowBuilder';
-import AgentOrchestrator from './AgentOrchestrator';
-import SystemAgentsTable from './SystemAgentsTable';
-import MiniAIInstancesTable from './MiniAIInstancesTable';
-import MemoryEntriesTable from './MemoryEntriesTable';
-import SystemConnectionsTable from './SystemConnectionsTable';
-import URLScrapTable from './URLScrapTable';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const OpenAIChat = React.lazy(() => import('./OpenAIChat'));
+const AgentCommander = React.lazy(() => import('./AgentCommander'));
+const WorkflowBuilder = React.lazy(() => import('./WorkflowBuilder'));
+const AgentOrchestrator = React.lazy(() => import('./AgentOrchestrator'));
+const SystemAgentsTable = React.lazy(() => import('./SystemAgentsTable'));
+const MiniAIInstancesTable = React.lazy(() => import('./MiniAIInstancesTable'));
+const MemoryEntriesTable = React.lazy(() => import('./MemoryEntriesTable'));
+const SystemConnectionsTable = React.lazy(() => import('./SystemConnectionsTable'));
+const URLScrapTable = React.lazy(() => import('./URLScrapTable'));
 
 interface MenuLevelManagerProps {
   activeOpenAITab: string;
@@ -20,6 +22,14 @@ interface MenuLevelManagerProps {
   dataTabs: Array<{value: string, label: string, icon: any}>;
   extractedLinks: Array<{url: string, title: string, domain: string}>;
 }
+
+const LoadingFallback = () => (
+    <div className="p-4">
+        <div className="bg-slate-800/50 rounded-lg p-4 animate-pulse">
+            <div className="h-40 bg-slate-700/50 rounded"></div>
+        </div>
+    </div>
+);
 
 const MenuLevelManager = ({
   activeOpenAITab,
@@ -63,21 +73,23 @@ const MenuLevelManager = ({
 
         {isMain && (
           <div className="flex-1 overflow-auto mt-4">
-            <TabsContent value="chat" className="h-full m-0">
-              <OpenAIChat />
-            </TabsContent>
-            
-            <TabsContent value="commander" className="h-full m-0 overflow-auto">
-              <AgentCommander />
-            </TabsContent>
-            
-            <TabsContent value="workflow" className="h-full m-0">
-              <WorkflowBuilder />
-            </TabsContent>
-            
-            <TabsContent value="orchestrator" className="h-full m-0">
-              <AgentOrchestrator />
-            </TabsContent>
+            <Suspense fallback={<LoadingFallback />}>
+              <TabsContent value="chat" className="h-full m-0">
+                <OpenAIChat />
+              </TabsContent>
+              
+              <TabsContent value="commander" className="h-full m-0 overflow-auto">
+                <AgentCommander />
+              </TabsContent>
+              
+              <TabsContent value="workflow" className="h-full m-0">
+                <WorkflowBuilder />
+              </TabsContent>
+              
+              <TabsContent value="orchestrator" className="h-full m-0">
+                <AgentOrchestrator />
+              </TabsContent>
+            </Suspense>
           </div>
         )}
       </Tabs>
@@ -111,25 +123,27 @@ const MenuLevelManager = ({
 
         {isMain && (
           <div className="flex-1 overflow-auto mt-4">
-            <TabsContent value="system-agents" className="h-full m-0">
-              <SystemAgentsTable />
-            </TabsContent>
-            
-            <TabsContent value="mini-ai" className="h-full m-0">
-              <MiniAIInstancesTable />
-            </TabsContent>
-            
-            <TabsContent value="memory" className="h-full m-0">
-              <MemoryEntriesTable />
-            </TabsContent>
-            
-            <TabsContent value="connections" className="h-full m-0">
-              <SystemConnectionsTable />
-            </TabsContent>
-            
-            <TabsContent value="url-scrap" className="h-full m-0">
-              <URLScrapTable extractedLinks={extractedLinks} />
-            </TabsContent>
+            <Suspense fallback={<LoadingFallback />}>
+              <TabsContent value="system-agents" className="h-full m-0">
+                <SystemAgentsTable />
+              </TabsContent>
+              
+              <TabsContent value="mini-ai" className="h-full m-0">
+                <MiniAIInstancesTable />
+              </TabsContent>
+              
+              <TabsContent value="memory" className="h-full m-0">
+                <MemoryEntriesTable />
+              </TabsContent>
+              
+              <TabsContent value="connections" className="h-full m-0">
+                <SystemConnectionsTable />
+              </TabsContent>
+              
+              <TabsContent value="url-scrap" className="h-full m-0">
+                <URLScrapTable extractedLinks={extractedLinks} />
+              </TabsContent>
+            </Suspense>
           </div>
         )}
       </Tabs>

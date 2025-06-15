@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Brain } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -33,4 +34,4 @@ const Header = ({ onLogoClick }: HeaderProps) => {
     );
 };
 
-export default Header;
+export default React.memo(Header);
