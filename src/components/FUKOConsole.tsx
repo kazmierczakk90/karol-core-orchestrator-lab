@@ -1,23 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, Command, AlertTriangle, Activity, Zap, MessageSquare } from 'lucide-react';
-import { fukoCore } from '@/services/fukoCore';
-import { FUKOMessage, Agent } from '@/types/fuko';
+import { useFuko, CreateFUKOMessageData } from '@/hooks/useFuko';
 
 const FUKOConsole = () => {
-  const [messages, setMessages] = useState<FUKOMessage[]>([]);
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const { messages, agents, kpiData, createFukoMessage, isLoadingMessages, isLoadingAgents, isLoadingKpi } = useFuko();
+
   const [alerts, setAlerts] = useState<string[]>([]);
-  const [kpiData, setKpiData] = useState<Record<string, { value: number; threshold: number; trend: string }>>({});
   
-  // FUKO Message creation form
-  const [newMessage, setNewMessage] = useState({
+  const [newMessage, setNewMessage] = useState<Partial<CreateFUKOMessageData>>({
     F: '',
     U: '',
     K: '',
@@ -25,69 +21,34 @@ const FUKOConsole = () => {
     P: '',
     Z: '',
     K2: '',
-    sourceAgent: '@ceo',
-    priority: 'medium' as const
+    source_agent: '@ceo',
+    priority: 'medium'
   });
 
-  useEffect(() => {
-    refreshData();
-    
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(refreshData, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const refreshData = () => {
-    setMessages(fukoCore.getMessages());
-    setAgents(fukoCore.getAgents());
-    setAlerts(fukoCore.getAlerts());
-    setKpiData(fukoCore.getKPIData());
-  };
-
-  const createFUKOMessage = () => {
+  const handleCreateFUKOMessage = () => {
     if (!newMessage.F || !newMessage.U || !newMessage.K2) {
       alert('Funkcja (F), Uzasadnienie (U) i Komenda (K2) są wymagane');
       return;
     }
 
-    fukoCore.createFUKOMessage(
-      newMessage.F,
-      newMessage.U,
-      newMessage.K,
-      newMessage.O,
-      newMessage.P,
-      newMessage.Z,
-      newMessage.K2,
-      newMessage.sourceAgent,
-      newMessage.priority
-    );
+    createFukoMessage(newMessage as CreateFUKOMessageData);
 
-    // Reset form
     setNewMessage({
-      F: '',
-      U: '',
-      K: '',
-      O: '',
-      P: '',
-      Z: '',
-      K2: '',
-      sourceAgent: '@ceo',
-      priority: 'medium'
+      F: '', U: '', K: '', O: '', P: '', Z: '', K2: '', source_agent: '@ceo', priority: 'medium'
     });
-
-    refreshData();
   };
 
   const executeScenario = (scenarioName: string) => {
-    const scenarios = {
-      'senior_health_check': { userId: 'senior_001' },
-      'lead_nurturing': { leadId: 'lead_12345', score: 85 },
-      'system_optimization': { currentLoad: 85 },
-      'emergency_response': { alertType: 'system_critical' }
+    const scenarios: Record<string, CreateFUKOMessageData> = {
+        'senior_health_check': { F: "Senior Health Check", U: "Monitor senior activity and health metrics", K2: "&senior-agent --check-vitals --user_id senior_001", K: "User is senior_001", O: "Vital signs checked", P: "Daily at 8am", Z: "senior-agent active", source_agent: "@ceo", priority: "high"},
+        'lead_nurturing': { F: "Lead Nurturing", U: "Convert high-scoring leads to customers", K2: "&crm-agent --nurture-lead --lead_id lead_12345", K: "Lead score > 80", O: "Lead converted", P: "On score update", Z: "crm-agent active", source_agent: "@ceo", priority: "medium"},
+        'system_optimization': { F: "System Optimization", U: "Optimize system performance and resources", K2: "&guardian-core --optimize-resources", K: "CPU Load > 85%", O: "CPU Load < 70%", P: "On high load alert", Z: "guardian-core active", source_agent: "@ceo", priority: "high"},
+        'emergency_response': { F: "Emergency Response", U: "Handle critical system alerts", K2: "&guardian-core --emergency --alert_type system_critical", K: "Critical alert received", O: "System stabilized", P: "On critical alert", Z: "guardian-core active", source_agent: "@ceo", priority: "urgent"},
     };
 
-    fukoCore.executeScenario(scenarioName, scenarios[scenarioName]);
-    refreshData();
+    if (scenarios[scenarioName]) {
+      createFukoMessage(scenarios[scenarioName]);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -143,7 +104,8 @@ const FUKOConsole = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                {messages.map((message) => (
+                {isLoadingMessages && <p className="text-slate-300">Loading messages...</p>}
+                {messages?.map((message) => (
                   <Card key={message.id} className="bg-slate-900/50 border-slate-700/50">
                     <CardHeader>
                       <div className="flex items-center justify-between">
@@ -155,11 +117,11 @@ const FUKOConsole = () => {
                             {message.status}
                           </Badge>
                           <span className="text-sm text-slate-400">
-                            {message.sourceAgent} → {message.targetAgent || 'routing...'}
+                            {message.source_agent} → {message.target_agent || 'routing...'}
                           </span>
                         </div>
                         <span className="text-xs text-slate-500">
-                          {message.timestamp.toLocaleTimeString()}
+                          {new Date(message.timestamp).toLocaleTimeString()}
                         </span>
                       </div>
                     </CardHeader>
@@ -193,10 +155,10 @@ const FUKOConsole = () => {
                           <p className="text-cyan-400 font-semibold">K2 (Komenda):</p>
                           <p className="text-white font-mono">{message.K2}</p>
                         </div>
-                        {message.executionResult && (
+                        {message.execution_result && (
                           <div className="col-span-2">
                             <p className="text-green-400 font-semibold">Wynik wykonania:</p>
-                            <p className="text-green-300">{message.executionResult}</p>
+                            <p className="text-green-300">{message.execution_result}</p>
                           </div>
                         )}
                       </div>
@@ -286,16 +248,9 @@ const FUKOConsole = () => {
                   />
                 </div>
                 <div className="flex space-x-4 col-span-2">
-                  <Button onClick={createFUKOMessage} className="bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={handleCreateFUKOMessage} className="bg-blue-600 hover:bg-blue-700">
                     <Zap className="h-4 w-4 mr-2" />
                     Create FUKO Message
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => fukoCore.checkKPIThresholds()}
-                    className="border-yellow-500/50 text-yellow-400"
-                  >
-                    Check KPI Thresholds
                   </Button>
                 </div>
               </div>
@@ -309,8 +264,9 @@ const FUKOConsole = () => {
               <CardTitle className="text-cyan-400">Active Agents</CardTitle>
             </CardHeader>
             <CardContent>
+              {isLoadingAgents && <p className="text-slate-300">Loading agents...</p>}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {agents.map((agent) => (
+                {agents?.map((agent) => (
                   <Card key={agent.id} className="bg-slate-900/50 border-slate-700/50">
                     <CardHeader>
                       <div className="flex items-center justify-between">
@@ -410,11 +366,12 @@ const FUKOConsole = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {isLoadingKpi && <p className="text-slate-300">Loading KPIs...</p>}
                 <div className="space-y-4">
                   {Object.entries(kpiData).map(([key, data]) => (
                     <div key={key} className="p-3 bg-slate-900/50 rounded">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-white capitalize">{key.replace('_', ' ')}</span>
+                        <span className="text-white capitalize truncate" title={key}>{key.substring(0,8)}...</span>
                         <div className="flex items-center space-x-2">
                           <span className="text-white">{data.value}</span>
                           <Badge className={data.value >= data.threshold ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}>
@@ -444,7 +401,7 @@ const FUKOConsole = () => {
               <CardContent>
                 <div className="space-y-2">
                   {alerts.length === 0 ? (
-                    <p className="text-slate-400">No active alerts</p>
+                    <p className="text-slate-400">No active alerts. (Feature in development)</p>
                   ) : (
                     alerts.map((alert, index) => (
                       <div key={index} className="p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">

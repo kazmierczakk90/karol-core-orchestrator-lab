@@ -1,4 +1,3 @@
-
 import React, { useState, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -6,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const OpenAIChat = React.lazy(() => import('./OpenAIChat'));
 const AgentCommander = React.lazy(() => import('./AgentCommander'));
 const WorkflowBuilder = React.lazy(() => import('./WorkflowBuilder'));
-const AgentOrchestrator = React.lazy(() => import('./AgentOrchestrator'));
+const FUKOConsole = React.lazy(() => import('./FUKOConsole'));
 const SystemAgentsTable = React.lazy(() => import('./SystemAgentsTable'));
 const MiniAIInstancesTable = React.lazy(() => import('./MiniAIInstancesTable'));
 const MemoryEntriesTable = React.lazy(() => import('./MemoryEntriesTable'));
@@ -87,7 +86,7 @@ const MenuLevelManager = ({
               </TabsContent>
               
               <TabsContent value="orchestrator" className="h-full m-0">
-                <AgentOrchestrator />
+                <FUKOConsole />
               </TabsContent>
             </Suspense>
           </div>

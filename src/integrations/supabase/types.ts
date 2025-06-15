@@ -120,6 +120,96 @@ export type Database = {
         }
         Relationships: []
       }
+      fuko_agents: {
+        Row: {
+          capabilities: string[]
+          category: string
+          competency_score: number
+          dependencies: string[] | null
+          id: string
+          last_update: string
+          mode: string
+          name: string
+          performance: number
+          status: string
+        }
+        Insert: {
+          capabilities: string[]
+          category: string
+          competency_score?: number
+          dependencies?: string[] | null
+          id?: string
+          last_update?: string
+          mode: string
+          name: string
+          performance?: number
+          status?: string
+        }
+        Update: {
+          capabilities?: string[]
+          category?: string
+          competency_score?: number
+          dependencies?: string[] | null
+          id?: string
+          last_update?: string
+          mode?: string
+          name?: string
+          performance?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      fuko_messages: {
+        Row: {
+          execution_result: string | null
+          F: string
+          id: string
+          K: string
+          K2: string
+          O: string
+          P: string
+          priority: string
+          source_agent: string
+          status: string
+          target_agent: string | null
+          timestamp: string
+          U: string
+          Z: string
+        }
+        Insert: {
+          execution_result?: string | null
+          F: string
+          id?: string
+          K: string
+          K2: string
+          O: string
+          P: string
+          priority?: string
+          source_agent: string
+          status?: string
+          target_agent?: string | null
+          timestamp?: string
+          U: string
+          Z: string
+        }
+        Update: {
+          execution_result?: string | null
+          F?: string
+          id?: string
+          K?: string
+          K2?: string
+          O?: string
+          P?: string
+          priority?: string
+          source_agent?: string
+          status?: string
+          target_agent?: string | null
+          timestamp?: string
+          U?: string
+          Z?: string
+        }
+        Relationships: []
+      }
       improvement_events: {
         Row: {
           agent_id: string | null
@@ -183,6 +273,30 @@ export type Database = {
           status?: string | null
           timestamp?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      kpi_data: {
+        Row: {
+          id: string
+          last_update: string
+          threshold: number
+          trend: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          last_update?: string
+          threshold: number
+          trend: string
+          value: number
+        }
+        Update: {
+          id?: string
+          last_update?: string
+          threshold?: number
+          trend?: string
+          value?: number
         }
         Relationships: []
       }
@@ -305,6 +419,36 @@ export type Database = {
         }
         Relationships: []
       }
+      openai_agents: {
+        Row: {
+          assistant_id: string | null
+          description: string
+          id: string
+          instructions: string | null
+          is_active: boolean | null
+          last_used: string | null
+          name: string
+        }
+        Insert: {
+          assistant_id?: string | null
+          description: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          last_used?: string | null
+          name: string
+        }
+        Update: {
+          assistant_id?: string | null
+          description?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          last_used?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       POSTS: {
         Row: {
           CONTENT: string | null
@@ -320,6 +464,71 @@ export type Database = {
           CONTENT?: string | null
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      project_files: {
+        Row: {
+          id: string
+          name: string
+          openai_file_id: string | null
+          project_id: string | null
+          size: number
+          type: string
+          uploaded_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          openai_file_id?: string | null
+          project_id?: string | null
+          size: number
+          type: string
+          uploaded_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          openai_file_id?: string | null
+          project_id?: string | null
+          size?: number
+          type?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          description: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
