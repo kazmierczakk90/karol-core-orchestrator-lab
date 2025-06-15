@@ -9,6 +9,11 @@ import { Bot, Search, Play, Pause, Settings, Trash2, Plus, Activity, Loader2 } f
 import { supabase } from '@/integrations/supabase/client';
 import { Agent, CreateAgentData } from '@/types/agent';
 import { useToast } from '@/hooks/use-toast';
+import { errorHandlingService } from '@/services/errorHandlingService';
+import { loggingService } from '@/services/loggingService';
+import { validateDataSafe, AgentSchema } from '@/lib/validation';
+import { useGlobalLoading } from '@/contexts/GlobalLoadingContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const SystemAgentsTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,26 +21,49 @@ const SystemAgentsTable = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { setLoading: setGlobalLoading } = useGlobalLoading();
 
-  // Fetch agents from Supabase
+  // Fetch agents from Supabase with error handling and retry
   const fetchAgents = async () => {
+    setGlobalLoading('agents', true);
+    
     try {
-      const { data, error } = await supabase
-        .from('agents')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const result = await errorHandlingService.withRetry(
+        async () => {
+          const { data, error } = await supabase
+            .from('agents')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setAgents(data || []);
+          if (error) throw error;
+          return data || [];
+        },
+        {
+          maxAttempts: 3,
+          delay: 1000,
+          retryCondition: (error) => errorHandlingService.isRetryableError(error)
+        },
+        'fetch-agents'
+      );
+
+      // Validate and filter agents
+      const validAgents = result.filter(agent => {
+        const validation = validateDataSafe(AgentSchema, agent);
+        if (!validation.success) {
+          console.warn('Invalid agent data:', validation.error, agent);
+          return false;
+        }
+        return true;
+      }) as Agent[];
+
+      setAgents(validAgents);
+      await loggingService.logSystemEvent('Agents fetched successfully', { count: validAgents.length });
     } catch (error) {
-      console.error('Error fetching agents:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load agents",
-        variant: "destructive"
-      });
+      errorHandlingService.handleSupabaseError(error, 'Fetching agents');
+      await loggingService.logError(error instanceof Error ? error : new Error('Unknown error'), 'Fetching agents');
     } finally {
       setLoading(false);
+      setGlobalLoading('agents', false);
     }
   };
 
@@ -246,9 +274,21 @@ const SystemAgentsTable = () => {
 
       <CardContent>
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
-            <span className="ml-2 text-slate-300">Loading agents...</span>
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-4 p-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
+                </div>
+                <div className="space-x-2">
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-8" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="rounded-lg border border-slate-700/50 overflow-hidden">

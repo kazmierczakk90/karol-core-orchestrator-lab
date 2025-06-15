@@ -1,5 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { loggingService } from './loggingService';
+import { CreateImprovementEventSchema, validateDataSafe } from '@/lib/validation';
+import { errorHandlingService } from './errorHandlingService';
 
 export interface ImprovementEvent {
   id: string;
@@ -129,7 +132,21 @@ class AutoImprovementService {
     }
   };
 
-  public trackEvent(event: Omit<ImprovementEvent, 'id' | 'timestamp'>) {
+  public async trackEvent(event: Omit<ImprovementEvent, 'id' | 'timestamp'>) {
+    // Validate event data
+    const eventData = {
+      event_type: event.eventType,
+      context: event.context,
+      details: event.details,
+      agent_id: event.agentId
+    };
+
+    const validation = validateDataSafe(CreateImprovementEventSchema, eventData);
+    if (!validation.success) {
+      console.error('Invalid improvement event data:', validation.error);
+      return;
+    }
+
     const fullEvent: ImprovementEvent = {
       ...event,
       id: crypto.randomUUID(),
@@ -137,10 +154,34 @@ class AutoImprovementService {
     };
 
     this.events.push(fullEvent);
-    this.loggerAgent.log(fullEvent);
+
+    // Store in database
+    try {
+      const { error } = await supabase
+        .from('improvement_events')
+        .insert([{
+          event_type: event.eventType,
+          context: event.context,
+          details: event.details,
+          agent_id: event.agentId,
+          impact: this.calculateEventImpact(event)
+        }]);
+
+      if (error) {
+        errorHandlingService.handleSupabaseError(error, 'Storing improvement event');
+      }
+    } catch (error) {
+      errorHandlingService.handleError(error, 'Tracking improvement event');
+    }
+
+    // Log the event
+    await loggingService.logSystemEvent(`Auto-Improvement: ${event.eventType}`, {
+      context: event.context,
+      agentId: event.agentId
+    });
 
     // Automatyczna analiza i generowanie sugestii
-    this.analyzeAndSuggest(fullEvent);
+    await this.analyzeAndSuggest(fullEvent);
 
     console.log(`🎯 Auto-Improvement: Zarejestrowano zdarzenie ${event.eventType}`);
   }
@@ -271,6 +312,34 @@ class AutoImprovementService {
     });
     
     return performance;
+  }
+
+  private calculateEventImpact(event: Omit<ImprovementEvent, 'id' | 'timestamp'>): 'low' | 'medium' | 'high' {
+    // Calculate impact based on event type and context
+    if (event.eventType === 'decision' && event.agentId === '@ceo') return 'high';
+    if (event.eventType === 'command' && event.details?.success === false) return 'medium';
+    if (event.eventType === 'action' && event.details?.duration > 5000) return 'medium';
+    return 'low';
+  }
+
+  public async getEventsFromDatabase(limit: number = 100): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('improvement_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        errorHandlingService.handleSupabaseError(error, 'Fetching improvement events');
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      errorHandlingService.handleError(error, 'Getting improvement events');
+      return [];
+    }
   }
 }
 
