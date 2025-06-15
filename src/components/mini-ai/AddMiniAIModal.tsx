@@ -26,8 +26,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { CreateMiniAIData } from '@/types/miniAI';
 
 const miniAIFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  type: z.string().min(1, "Type is required"),
+  name: z.string().nonempty("Name is required"),
+  type: z.string().nonempty("Type is required"),
   description: z.string().optional(),
   category: z.string().optional(),
 });
