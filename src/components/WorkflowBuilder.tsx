@@ -5,26 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Workflow, Plus, Play, Save, Copy, Trash2, ArrowRight, Clock, CheckCircle, XCircle } from 'lucide-react';
-
-interface WorkflowStep {
-  id: string;
-  type: 'action' | 'condition' | 'delay' | 'parallel';
-  title: string;
-  description: string;
-  agentId?: string;
-  condition?: string;
-  delayMinutes?: number;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-}
-
-interface WorkflowTemplate {
-  id: string;
-  name: string;
-  description: string;
-  steps: WorkflowStep[];
-  category: string;
-}
+import { Workflow, Plus, Play, Save, Copy, Trash2, ArrowRight } from 'lucide-react';
+import { WorkflowStep, WorkflowTemplate } from '@/types/workflow';
+import { WorkflowStepCard } from './workflow/WorkflowStepCard';
 
 const WorkflowBuilder = () => {
   const [workflows, setWorkflows] = useState<WorkflowTemplate[]>([
@@ -54,48 +37,33 @@ const WorkflowBuilder = () => {
     }
   ]);
 
-  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowTemplate | null>(null);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowTemplate | null>(workflows[0]);
   const [isRunning, setIsRunning] = useState(false);
-
-  const stepTypeColors = {
-    action: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    condition: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    delay: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-    parallel: 'bg-green-500/20 text-green-400 border-green-500/30'
-  };
-
-  const statusColors = {
-    pending: 'bg-gray-500/20 text-gray-400',
-    running: 'bg-blue-500/20 text-blue-400',
-    completed: 'bg-green-500/20 text-green-400',
-    failed: 'bg-red-500/20 text-red-400'
-  };
-
-  const statusIcons = {
-    pending: Clock,
-    running: Play,
-    completed: CheckCircle,
-    failed: XCircle
-  };
 
   const executeWorkflow = async (workflow: WorkflowTemplate) => {
     setIsRunning(true);
-    setSelectedWorkflow(workflow);
+    
+    // Create a deep copy to avoid modifying the original state directly during simulation
+    const executingWorkflow = JSON.parse(JSON.stringify(workflow));
+    setSelectedWorkflow(executingWorkflow);
 
-    // Simulate workflow execution
-    for (let i = 0; i < workflow.steps.length; i++) {
-      const updatedWorkflow = { ...workflow };
-      updatedWorkflow.steps[i].status = 'running';
-      setSelectedWorkflow(updatedWorkflow);
+    for (let i = 0; i < executingWorkflow.steps.length; i++) {
+        executingWorkflow.steps[i].status = 'running';
+        setSelectedWorkflow({ ...executingWorkflow });
 
-      // Simulate step execution time
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-      updatedWorkflow.steps[i].status = 'completed';
-      setSelectedWorkflow(updatedWorkflow);
+        executingWorkflow.steps[i].status = 'completed';
+        setSelectedWorkflow({ ...executingWorkflow });
     }
-
-    setIsRunning(false);
+    
+    // Reset status after execution
+    setTimeout(() => {
+        const finalWorkflow = JSON.parse(JSON.stringify(executingWorkflow));
+        finalWorkflow.steps.forEach((step: WorkflowStep) => step.status = 'pending');
+        setSelectedWorkflow(finalWorkflow);
+        setIsRunning(false);
+    }, 2000);
   };
 
   const addNewStep = () => {
@@ -130,6 +98,22 @@ const WorkflowBuilder = () => {
     setSelectedWorkflow(updatedWorkflow);
     setWorkflows(prev => prev.map(wf => wf.id === selectedWorkflow.id ? updatedWorkflow : wf));
   };
+  
+  const updateStep = (updatedStep: WorkflowStep) => {
+    if (!selectedWorkflow) return;
+
+    const updatedWorkflow = {
+      ...selectedWorkflow,
+      steps: selectedWorkflow.steps.map(step =>
+        step.id === updatedStep.id ? updatedStep : step
+      ),
+    };
+
+    setSelectedWorkflow(updatedWorkflow);
+    setWorkflows(prev =>
+      prev.map(wf => (wf.id === selectedWorkflow.id ? updatedWorkflow : wf))
+    );
+  };
 
   return (
     <div className="h-full flex space-x-4">
@@ -152,7 +136,7 @@ const WorkflowBuilder = () => {
                 className={`bg-slate-700/50 border-slate-600/50 cursor-pointer hover:border-cyan-400/50 transition-colors ${
                   selectedWorkflow?.id === workflow.id ? 'border-cyan-400 bg-cyan-400/10' : ''
                 }`}
-                onClick={() => setSelectedWorkflow(workflow)}
+                onClick={() => setSelectedWorkflow(JSON.parse(JSON.stringify(workflow)))}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
@@ -280,42 +264,19 @@ const WorkflowBuilder = () => {
 
                 <div className="space-y-3">
                   {selectedWorkflow.steps.map((step, index) => {
-                    const StatusIcon = statusIcons[step.status];
                     return (
                       <div key={step.id} className="flex items-center space-x-3">
                         <div className="flex-shrink-0 w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                           {index + 1}
                         </div>
                         
-                        <Card className={`flex-1 bg-slate-700/50 border ${stepTypeColors[step.type]}`}>
-                          <CardContent className="p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center space-x-2">
-                                <h4 className="font-semibold text-white">{step.title}</h4>
-                                <Badge className={`text-xs ${statusColors[step.status]}`}>
-                                  <StatusIcon className="h-3 w-3 mr-1" />
-                                  {step.status}
-                                </Badge>
-                              </div>
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                className="text-red-400 hover:text-red-300"
-                                onClick={() => removeStep(step.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <p className="text-slate-400 text-sm">{step.description}</p>
-                            {step.agentId && (
-                              <div className="mt-2">
-                                <Badge className="bg-cyan-500/20 text-cyan-400 text-xs">
-                                  Agent: {step.agentId}
-                                </Badge>
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
+                        <div className="flex-1">
+                          <WorkflowStepCard 
+                            step={step}
+                            onUpdate={updateStep}
+                            onDelete={removeStep}
+                          />
+                        </div>
                         
                         {index < selectedWorkflow.steps.length - 1 && (
                           <ArrowRight className="h-4 w-4 text-slate-500" />

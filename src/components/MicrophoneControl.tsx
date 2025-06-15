@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Volume2 } from 'lucide-react';
 import { voiceService } from '@/services/voiceService';
+import { keyboardService } from '@/services/keyboardService';
 
 const MicrophoneControl = () => {
   const [isListening, setIsListening] = useState(false);
@@ -13,15 +14,21 @@ const MicrophoneControl = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    // Check microphone permission on mount
     checkMicrophonePermission();
   }, []);
 
   const checkMicrophonePermission = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-      setHasPermission(true);
+      // A quick check without prompting the user
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasMic = devices.some(d => d.kind === 'audioinput');
+      if (hasMic) {
+         // Check for permission status without triggering a prompt
+        const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        if (permissionStatus.state === 'granted') {
+             setHasPermission(true);
+        }
+      }
     } catch (error) {
       setHasPermission(false);
     }
@@ -33,20 +40,24 @@ const MicrophoneControl = () => {
     if (!granted) {
       alert('Dostęp do mikrofonu jest wymagany dla funkcji głosowych. Sprawdź ustawienia przeglądarki.');
     }
+    return granted;
   };
 
   const startListening = async () => {
-    if (!hasPermission) {
-      await requestMicrophoneAccess();
-      return;
+    let permissionGranted = hasPermission;
+    if (!permissionGranted) {
+      permissionGranted = await requestMicrophoneAccess();
     }
+
+    if (!permissionGranted) return;
 
     const success = voiceService.startListening(
       (text, isFinal) => {
-        if (isFinal) {
+        if (isFinal && text.trim()) {
           setLastCommand(text);
           setIsProcessing(true);
-          processVoiceCommand(text);
+          keyboardService.processVoiceCommand(text);
+          setTimeout(() => setIsProcessing(false), 2000);
         }
       },
       (error) => {
@@ -67,16 +78,6 @@ const MicrophoneControl = () => {
     setIsListening(false);
     setIsProcessing(false);
     voiceService.speak('Tryb głosowy wyłączony');
-  };
-
-  const processVoiceCommand = (command: string) => {
-    console.log(`Processing voice command: ${command}`);
-    
-    // Simulate processing time
-    setTimeout(() => {
-      setIsProcessing(false);
-      voiceService.speak('Polecenie wykonane');
-    }, 1500);
   };
 
   const testSpeech = () => {
