@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Send, Bot, User, Search, Paperclip, File as FileIcon, X, Loader2, Mic } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Search, Paperclip, File as FileIcon, X, Loader2, Mic, MicOff } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
+import { voiceService } from '@/services/voiceService';
 import { ChatMessage, Agent, ProjectFile } from '@/types/openai';
 
 const OpenAIChat = () => {
@@ -16,6 +17,8 @@ const OpenAIChat = () => {
   const [selectedAgent, setSelectedAgent] = useState('@ceo');
   const [agentSearchQuery, setAgentSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,6 +104,7 @@ const OpenAIChat = () => {
           agentId: selectedAgent,
         };
         setMessages(prev => [...prev, errorMessage]);
+        voiceService.speak(errorMessage.content);
         setIsLoading(false);
         setIsUploadingFiles(false);
         return;
@@ -131,6 +135,7 @@ const OpenAIChat = () => {
     try {
       const response = await openaiService.sendMessage(messageContent, selectedAgent);
       setMessages(prev => [...prev, response]);
+      voiceService.speak(response.content);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
@@ -141,6 +146,7 @@ const OpenAIChat = () => {
         agentId: selectedAgent
       };
       setMessages(prev => [...prev, errorMessage]);
+      voiceService.speak(errorMessage.content);
     } finally {
       setIsLoading(false);
     }
@@ -168,6 +174,39 @@ const OpenAIChat = () => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleToggleListening = async () => {
+    if (isListening) {
+      voiceService.stopListening();
+      setIsListening(false);
+      return;
+    }
+
+    const hasPermission = await voiceService.requestMicrophoneAccess();
+    if (!hasPermission) {
+      setMicError("Dostęp do mikrofonu został odrzucony. Włącz go w ustawieniach przeglądarki.");
+      return;
+    }
+    
+    setMicError(null);
+    setInput('');
+
+    voiceService.startListening(
+      (text, isFinal) => {
+        setInput(text);
+        if (isFinal && text.trim()) {
+          voiceService.stopListening();
+          setIsListening(false);
+        }
+      },
+      (error) => {
+        console.error('Voice recognition error:', error);
+        setMicError('Wystąpił błąd podczas rozpoznawania mowy.');
+        setIsListening(false);
+      }
+    );
+    setIsListening(true);
   };
 
   const selectedAgentInfo = allAgents.find(a => a.id === selectedAgent);
@@ -360,7 +399,7 @@ const OpenAIChat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Napisz wiadomość lub załącz plik..."
+            placeholder={isListening ? "Słucham..." : "Napisz wiadomość lub załącz plik..."}
             className="bg-slate-900/50 border-slate-700/50 text-white"
             disabled={isLoading}
           />
@@ -374,13 +413,19 @@ const OpenAIChat = () => {
           <Button 
             variant="outline" 
             size="icon" 
-            disabled
-            title="Voice input (coming soon)"
-            className="bg-slate-900/50 border-slate-700/50 text-white cursor-not-allowed"
+            onClick={handleToggleListening}
+            disabled={isLoading}
+            title="Wprowadzanie głosowe"
+            className={`bg-slate-900/50 border-slate-700/50 text-white transition-colors ${
+              isListening
+                ? 'border-red-500 text-red-500 hover:bg-red-500/10'
+                : 'hover:bg-slate-700'
+            }`}
           >
-            <Mic className="h-4 w-4" />
+            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </Button>
         </div>
+        {micError && <p className="text-xs text-red-400 mt-2">{micError}</p>}
       </CardContent>
     </Card>
   );
