@@ -9,6 +9,90 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agents: {
+        Row: {
+          capabilities: string[] | null
+          created_at: string | null
+          description: string | null
+          id: string
+          identifier: string | null
+          is_active: boolean | null
+          last_used: string | null
+          name: string
+          owner_id: string | null
+          performance: number | null
+          status: string | null
+          tasks_completed: number | null
+          type: string | null
+          version: string | null
+        }
+        Insert: {
+          capabilities?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          identifier?: string | null
+          is_active?: boolean | null
+          last_used?: string | null
+          name: string
+          owner_id?: string | null
+          performance?: number | null
+          status?: string | null
+          tasks_completed?: number | null
+          type?: string | null
+          version?: string | null
+        }
+        Update: {
+          capabilities?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          identifier?: string | null
+          is_active?: boolean | null
+          last_used?: string | null
+          name?: string
+          owner_id?: string | null
+          performance?: number | null
+          status?: string | null
+          tasks_completed?: number | null
+          type?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
+      analytics: {
+        Row: {
+          agent_id: string | null
+          context: string | null
+          created_at: string | null
+          description: string | null
+          event_type: string
+          id: string
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          agent_id?: string | null
+          context?: string | null
+          created_at?: string | null
+          description?: string | null
+          event_type: string
+          id?: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          agent_id?: string | null
+          context?: string | null
+          created_at?: string | null
+          description?: string | null
+          event_type?: string
+          id?: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string | null
@@ -32,6 +116,102 @@ export type Database = {
           email?: string | null
           id?: never
           name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      improvement_events: {
+        Row: {
+          agent_id: string | null
+          context: string | null
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          impact: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          context?: string | null
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          impact?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          context?: string | null
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          impact?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      keyboard_actions: {
+        Row: {
+          action_type: string
+          context: string | null
+          error_message: string | null
+          id: string
+          key_combo: string
+          status: string | null
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          context?: string | null
+          error_message?: string | null
+          id?: string
+          key_combo: string
+          status?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          context?: string | null
+          error_message?: string | null
+          id?: string
+          key_combo?: string
+          status?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      logs: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          log_type: string
+          message: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          log_type: string
+          message?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          log_type?: string
+          message?: string | null
           user_id?: string | null
         }
         Relationships: []

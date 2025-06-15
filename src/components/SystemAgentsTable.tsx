@@ -1,45 +1,89 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Bot, Search, Play, Pause, Settings, Trash2, Plus, Activity } from 'lucide-react';
-
-interface SystemAgent {
-  id: string;
-  name: string;
-  type: 'core' | 'karol' | 'integration' | 'utility';
-  status: 'active' | 'inactive' | 'maintenance' | 'error';
-  description: string;
-  tasksCompleted: number;
-  lastUsed: Date;
-  capabilities: string[];
-  version: string;
-}
+import { Bot, Search, Play, Pause, Settings, Trash2, Plus, Activity, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Agent, CreateAgentData } from '@/types/agent';
+import { useToast } from '@/hooks/use-toast';
 
 const SystemAgentsTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const [agents, setAgents] = useState<SystemAgent[]>([
-    { id: '@ceo', name: 'CEO Agent', type: 'core', status: 'active', description: 'Strategic decision making and high-level planning', tasksCompleted: 47, lastUsed: new Date(), capabilities: ['strategy', 'planning', 'leadership'], version: '2.1.0' },
-    { id: '@logger', name: 'Logger Agent', type: 'utility', status: 'active', description: 'System logging and monitoring', tasksCompleted: 156, lastUsed: new Date(), capabilities: ['logging', 'monitoring', 'alerts'], version: '1.8.2' },
-    { id: '@voice-core', name: 'Voice Core', type: 'core', status: 'active', description: 'Voice processing and communication', tasksCompleted: 23, lastUsed: new Date(), capabilities: ['voice', 'speech', 'audio'], version: '3.0.1' },
-    { id: '@analiza', name: 'Analiza Agent', type: 'utility', status: 'active', description: 'Data analysis and insights', tasksCompleted: 89, lastUsed: new Date(), capabilities: ['analysis', 'data', 'insights'], version: '2.3.5' },
-    { id: '@router', name: 'Router Agent', type: 'core', status: 'active', description: 'Task routing and distribution', tasksCompleted: 234, lastUsed: new Date(), capabilities: ['routing', 'distribution', 'load-balancing'], version: '1.9.0' },
-    { id: '@kontroling', name: 'Kontroling Agent', type: 'utility', status: 'active', description: 'Quality control and oversight', tasksCompleted: 67, lastUsed: new Date(), capabilities: ['quality', 'control', 'validation'], version: '1.5.3' },
-    { id: '@system-admin', name: 'System Admin', type: 'core', status: 'active', description: 'System administration and maintenance', tasksCompleted: 178, lastUsed: new Date(), capabilities: ['admin', 'maintenance', 'system'], version: '2.0.8' },
-    { id: '@guardian-core', name: 'Guardian Core', type: 'core', status: 'active', description: 'Security and protection', tasksCompleted: 45, lastUsed: new Date(), capabilities: ['security', 'protection', 'monitoring'], version: '2.2.1' },
-    { id: '@karol-core', name: 'Karol Core', type: 'karol', status: 'active', description: 'Core Karol system functionality', tasksCompleted: 312, lastUsed: new Date(), capabilities: ['core', 'orchestration', 'identity'], version: '4.1.2' },
-    { id: '@karol-voice', name: 'Karol Voice', type: 'karol', status: 'active', description: 'Karol voice processing', tasksCompleted: 56, lastUsed: new Date(), capabilities: ['voice', 'karol-identity', 'communication'], version: '3.1.0' },
-    { id: '@google-search', name: 'Google Search', type: 'integration', status: 'active', description: 'Google Search integration', tasksCompleted: 134, lastUsed: new Date(), capabilities: ['search', 'google', 'web'], version: '1.4.7' },
-    { id: '@google-maps', name: 'Google Maps', type: 'integration', status: 'active', description: 'Google Maps integration', tasksCompleted: 28, lastUsed: new Date(), capabilities: ['maps', 'location', 'navigation'], version: '1.2.3' },
-    { id: '@party-app', name: 'Party App', type: 'integration', status: 'maintenance', description: 'Event and party management', tasksCompleted: 15, lastUsed: new Date(), capabilities: ['events', 'parties', 'management'], version: '0.9.1' },
-    { id: '@fuko-lang', name: 'FUKO Lang', type: 'karol', status: 'active', description: 'FUKO language processing', tasksCompleted: 98, lastUsed: new Date(), capabilities: ['language', 'fuko', 'processing'], version: '2.5.0' },
-    { id: '@skyai.ai', name: 'SkyAI', type: 'integration', status: 'active', description: 'Advanced AI solutions', tasksCompleted: 76, lastUsed: new Date(), capabilities: ['ai', 'automation', 'solutions'], version: '1.7.4' }
-  ]);
+  // Fetch agents from Supabase
+  const fetchAgents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('agents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAgents(data || []);
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load agents",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Set up real-time subscription
+  useEffect(() => {
+    fetchAgents();
+
+    const channel = supabase
+      .channel('agents-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'agents'
+        },
+        (payload) => {
+          console.log('Real-time update:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            setAgents(prev => [payload.new as Agent, ...prev]);
+            toast({
+              title: "New Agent",
+              description: `Agent "${payload.new.name}" has been added`,
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            setAgents(prev => 
+              prev.map(agent => 
+                agent.id === payload.new.id ? payload.new as Agent : agent
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setAgents(prev => 
+              prev.filter(agent => agent.id !== payload.old.id)
+            );
+            toast({
+              title: "Agent Removed",
+              description: `Agent has been deleted`,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
 
   const typeColors = {
     core: 'bg-blue-500/20 text-blue-400',
@@ -57,18 +101,68 @@ const SystemAgentsTable = () => {
 
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         agent.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (agent.identifier && agent.identifier.toLowerCase().includes(searchQuery.toLowerCase())) ||
                          agent.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedType === 'all' || agent.type === selectedType;
     return matchesSearch && matchesType;
   });
 
-  const toggleAgentStatus = (agentId: string) => {
-    setAgents(prev => prev.map(agent => 
-      agent.id === agentId 
-        ? { ...agent, status: agent.status === 'active' ? 'inactive' : 'active' }
-        : agent
-    ));
+  const toggleAgentStatus = async (agentId: string) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return;
+
+    const newStatus = agent.status === 'active' ? 'inactive' : 'active';
+    const newIsActive = newStatus === 'active';
+
+    try {
+      const { error } = await supabase
+        .from('agents')
+        .update({ 
+          status: newStatus,
+          is_active: newIsActive 
+        })
+        .eq('id', agentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Agent Updated",
+        description: `Agent status changed to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating agent:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update agent status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteAgent = async (agentId: string) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return;
+
+    try {
+      const { error } = await supabase
+        .from('agents')
+        .delete()
+        .eq('id', agentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Agent Deleted",
+        description: `Agent "${agent.name}" has been deleted`,
+      });
+    } catch (error) {
+      console.error('Error deleting agent:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete agent",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusCounts = () => {
@@ -151,114 +245,122 @@ const SystemAgentsTable = () => {
       </CardHeader>
 
       <CardContent>
-        <div className="rounded-lg border border-slate-700/50 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-slate-700/50">
-                <TableHead className="text-slate-300">Agent</TableHead>
-                <TableHead className="text-slate-300">Type</TableHead>
-                <TableHead className="text-slate-300">Status</TableHead>
-                <TableHead className="text-slate-300">Tasks</TableHead>
-                <TableHead className="text-slate-300">Capabilities</TableHead>
-                <TableHead className="text-slate-300">Version</TableHead>
-                <TableHead className="text-slate-300">Last Used</TableHead>
-                <TableHead className="text-slate-300">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAgents.map((agent) => (
-                <TableRow key={agent.id} className="border-slate-700/50 hover:bg-slate-700/30">
-                  <TableCell>
-                    <div>
-                      <div className="font-mono text-cyan-400 font-semibold">{agent.id}</div>
-                      <div className="text-slate-300 font-medium">{agent.name}</div>
-                      <div className="text-slate-400 text-sm">{agent.description}</div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Badge className={`${typeColors[agent.type]}`}>
-                      {agent.type}
-                    </Badge>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Badge className={`${statusColors[agent.status]}`}>
-                      {agent.status}
-                    </Badge>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Activity className="h-4 w-4 text-slate-400" />
-                      <span className="text-white font-semibold">{agent.tasksCompleted}</span>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {agent.capabilities.slice(0, 3).map((capability) => (
-                        <Badge key={capability} className="bg-slate-600/50 text-slate-300 text-xs">
-                          {capability}
-                        </Badge>
-                      ))}
-                      {agent.capabilities.length > 3 && (
-                        <Badge className="bg-slate-600/50 text-slate-300 text-xs">
-                          +{agent.capabilities.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-slate-300 font-mono text-sm">{agent.version}</span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-slate-400 text-sm">
-                      {agent.lastUsed.toLocaleDateString()}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-cyan-400"
-                        onClick={() => toggleAgentStatus(agent.id)}
-                      >
-                        {agent.status === 'active' ? (
-                          <Pause className="h-3 w-3" />
-                        ) : (
-                          <Play className="h-3 w-3" />
-                        )}
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-blue-400"
-                      >
-                        <Settings className="h-3 w-3" />
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-red-400 text-red-400"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+            <span className="ml-2 text-slate-300">Loading agents...</span>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-slate-700/50 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-700/50">
+                  <TableHead className="text-slate-300">Agent</TableHead>
+                  <TableHead className="text-slate-300">Type</TableHead>
+                  <TableHead className="text-slate-300">Status</TableHead>
+                  <TableHead className="text-slate-300">Tasks</TableHead>
+                  <TableHead className="text-slate-300">Capabilities</TableHead>
+                  <TableHead className="text-slate-300">Version</TableHead>
+                  <TableHead className="text-slate-300">Last Used</TableHead>
+                  <TableHead className="text-slate-300">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {filteredAgents.map((agent) => (
+                  <TableRow key={agent.id} className="border-slate-700/50 hover:bg-slate-700/30">
+                    <TableCell>
+                      <div>
+                        <div className="font-mono text-cyan-400 font-semibold">{agent.identifier || agent.id}</div>
+                        <div className="text-slate-300 font-medium">{agent.name}</div>
+                        <div className="text-slate-400 text-sm">{agent.description}</div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge className={`${typeColors[agent.type] || 'bg-slate-500/20 text-slate-400'}`}>
+                        {agent.type}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge className={`${statusColors[agent.status] || 'bg-slate-500/20 text-slate-400'}`}>
+                        {agent.status}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Activity className="h-4 w-4 text-slate-400" />
+                        <span className="text-white font-semibold">{agent.tasks_completed}</span>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {agent.capabilities?.slice(0, 3).map((capability) => (
+                          <Badge key={capability} className="bg-slate-600/50 text-slate-300 text-xs">
+                            {capability}
+                          </Badge>
+                        ))}
+                        {agent.capabilities && agent.capabilities.length > 3 && (
+                          <Badge className="bg-slate-600/50 text-slate-300 text-xs">
+                            +{agent.capabilities.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="text-slate-300 font-mono text-sm">{agent.version}</span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="text-slate-400 text-sm">
+                        {new Date(agent.last_used).toLocaleDateString()}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-cyan-400"
+                          onClick={() => toggleAgentStatus(agent.id)}
+                        >
+                          {agent.status === 'active' ? (
+                            <Pause className="h-3 w-3" />
+                          ) : (
+                            <Play className="h-3 w-3" />
+                          )}
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-blue-400"
+                        >
+                          <Settings className="h-3 w-3" />
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-red-400 text-red-400"
+                          onClick={() => deleteAgent(agent.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
-        {filteredAgents.length === 0 && (
+        {!loading && filteredAgents.length === 0 && (
           <div className="text-center py-8 text-slate-400">
             <Bot className="h-16 w-16 mx-auto mb-4 opacity-50" />
             <p className="text-lg">No agents found</p>
