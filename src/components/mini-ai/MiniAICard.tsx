@@ -8,8 +8,8 @@ import { MiniAI } from '@/types/miniAI';
 interface MiniAICardProps {
   miniAI: MiniAI;
   onExecute: (miniAI: MiniAI) => void;
-  onToggle: (miniAIId: string) => void;
-  onPin: (miniAIId: string) => void;
+  onToggle: (miniAI: MiniAI) => void;
+  onPin: (miniAI: MiniAI) => void;
   onDelete: (miniAIId: string) => void;
 }
 
@@ -61,7 +61,7 @@ const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICard
             Uruchom
           </Button>
           <Button
-            onClick={() => onToggle(miniAI.id)}
+            onClick={() => onToggle(miniAI)}
             size="sm"
             variant="outline"
             className="border-slate-600 text-slate-300 text-xs"
@@ -69,7 +69,7 @@ const MiniAICard = ({ miniAI, onExecute, onToggle, onPin, onDelete }: MiniAICard
             {miniAI.is_active ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
           </Button>
           <Button
-            onClick={() => onPin(miniAI.id)}
+            onClick={() => onPin(miniAI)}
             size="sm"
             variant="outline"
             className="border-slate-600 text-slate-300 text-xs"

@@ -9,87 +9,20 @@ import MiniAICard from './mini-ai/MiniAICard';
 import ExecutionsList from './mini-ai/ExecutionsList';
 import MemoryList from './mini-ai/MemoryList';
 import CreatorTab from './mini-ai/CreatorTab';
+import { useMiniAI } from '@/hooks/useMiniAI';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
 
 const MiniAIDashboard = () => {
-  const [miniAIs, setMiniAIs] = useState<MiniAI[]>([]);
+  const { miniAIs = [], isLoading, updateMiniAI, deleteMiniAI } = useMiniAI();
   const [executions, setExecutions] = useState<MiniAIExecution[]>([]);
   const [memory, setMemory] = useState<MemoryEntry[]>([]);
 
+  // Local service is still used for non-persistent execution and memory for now.
   useEffect(() => {
-    loadData();
-    
-    // Create some default Mini AIs for demonstration
-    if (miniAIService.getMiniAIs().length === 0) {
-      createDefaultMiniAIs();
-    }
-  }, []);
-
-  const loadData = () => {
-    setMiniAIs(miniAIService.getMiniAIs());
     setExecutions(miniAIService.getExecutions());
     setMemory(miniAIService.getMemory());
-  };
-
-  const createDefaultMiniAIs = () => {
-    // Intelligent Link Extractor
-    miniAIService.createMiniAI(
-      'Inteligentny Ekstraktor Linków',
-      'standard-tool',
-      {
-        actionType: 'extract',
-        outputFormat: 'json',
-        parameters: {
-          extractType: 'links',
-          includeNoFollow: false,
-          groupByDomain: true
-        }
-      },
-      'Ekstrakcja i uporządkowanie linków z danej strony'
-    );
-
-    // Text Summarizer
-    miniAIService.createMiniAI(
-      'Podsumowywacz Tekstu',
-      'standard-tool',
-      {
-        actionType: 'summarize',
-        outputFormat: 'markdown',
-        prompt: 'Stwórz zwięzłe podsumowanie tekstu w 3-5 punktach:'
-      },
-      'Inteligentne podsumowywanie długich tekstów'
-    );
-
-    // Translator
-    miniAIService.createMiniAI(
-      'Translator AI',
-      'standard-tool',
-      {
-        actionType: 'translate',
-        outputFormat: 'text',
-        parameters: {
-          targetLanguage: 'en',
-          sourceLanguage: 'auto'
-        }
-      },
-      'Tłumaczenie tekstów między językami'
-    );
-
-    // Mini App - Task Timer
-    miniAIService.createMiniAI(
-      'Task Timer Pro',
-      'mini-app',
-      {
-        outputFormat: 'html',
-        parameters: {
-          artifactType: 'timer',
-          features: ['pomodoro', 'break_tracking', 'task_notes']
-        }
-      },
-      'Zaawansowany timer do zarządzania zadaniami'
-    );
-
-    loadData();
-  };
+  }, []);
 
   const handleExecute = async (miniAI: MiniAI) => {
     try {
@@ -99,26 +32,25 @@ const MiniAIDashboard = () => {
 
       const execution = await miniAIService.executeMiniAI(miniAI.id, testInput);
       console.log('Mini AI execution completed:', execution);
-      loadData();
+      // Reload local state
+      setExecutions(miniAIService.getExecutions());
+      setMemory(miniAIService.getMemory());
     } catch (error) {
       console.error('Error executing Mini AI:', error);
     }
   };
 
-  const handleToggle = (miniAIId: string) => {
-    miniAIService.toggleMiniAI(miniAIId);
-    loadData();
+  const handleToggle = (miniAI: MiniAI) => {
+    updateMiniAI({ id: miniAI.id, is_active: !miniAI.is_active });
   };
 
-  const handlePin = (miniAIId: string) => {
-    miniAIService.pinMiniAI(miniAIId);
-    loadData();
+  const handlePin = (miniAI: MiniAI) => {
+    updateMiniAI({ id: miniAI.id, is_pinned: !miniAI.is_pinned });
   };
 
   const handleDelete = (miniAIId: string) => {
     if (confirm('Czy na pewno chcesz usunąć ten Mini AI?')) {
-      miniAIService.deleteMiniAI(miniAIId);
-      loadData();
+      deleteMiniAI(miniAIId);
     }
   };
 
@@ -147,18 +79,39 @@ const MiniAIDashboard = () => {
         </TabsList>
 
         <TabsContent value="mini-ais" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {miniAIs.map((miniAI) => (
-              <MiniAICard
-                key={miniAI.id}
-                miniAI={miniAI}
-                onExecute={handleExecute}
-                onToggle={handleToggle}
-                onPin={handlePin}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                 <Card key={i} className="bg-slate-800/50 border-slate-700/50 p-4 space-y-3">
+                   <Skeleton className="h-5 w-3/4" />
+                   <Skeleton className="h-4 w-full" />
+                   <div className="flex space-x-2">
+                    <Skeleton className="h-5 w-1/4" />
+                    <Skeleton className="h-5 w-1/4" />
+                   </div>
+                   <div className="flex space-x-1 pt-2">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-8 w-8" />
+                   </div>
+                 </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {miniAIs.map((miniAI) => (
+                <MiniAICard
+                  key={miniAI.id}
+                  miniAI={miniAI}
+                  onExecute={handleExecute}
+                  onToggle={handleToggle}
+                  onPin={handlePin}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="executions" className="mt-6">
