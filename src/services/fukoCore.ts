@@ -1,4 +1,8 @@
+
 import { FUKOMessage, Agent, DecisionRule, KPIData } from '@/types/fuko';
+import { findBestAgent } from './fuko/routing';
+import { processCommand } from './fuko/commands';
+import { executeScenario } from './fuko/scenarios';
 
 export class FUKOCore {
   private agents: Map<string, Agent> = new Map();
@@ -34,7 +38,9 @@ export class FUKOCore {
 
   // FUKO-ROUTING Layer: Route messages to appropriate agents
   private routeMessage(message: FUKOMessage): void {
-    const targetAgent = this.findBestAgent(message);
+    const agentList = Array.from(this.agents.values());
+    const targetAgent = findBestAgent(agentList, message);
+    
     if (targetAgent) {
       message.targetAgent = targetAgent.id;
       message.status = 'processing';
@@ -45,88 +51,27 @@ export class FUKOCore {
     }
   }
 
-  private findBestAgent(message: FUKOMessage): Agent | null {
-    const availableAgents = Array.from(this.agents.values())
-      .filter(agent => agent.status === 'active')
-      .filter(agent => this.checkDependencies(message.Z, agent));
-    
-    if (availableAgents.length === 0) return null;
-    
-    // Score agents based on competency and capabilities match
-    return availableAgents.reduce((best, current) => 
-      current.competencyScore > best.competencyScore ? current : best
-    );
-  }
-
-  private checkDependencies(dependencies: string, agent: Agent): boolean {
-    const requiredDeps = dependencies.split(',').map(dep => dep.trim());
-    return requiredDeps.every(dep => 
-      agent.capabilities.some(cap => cap.includes(dep))
-    );
-  }
-
   // FUKO-MEMORY Layer: Log all decisions
   private executeMessage(message: FUKOMessage, agent: Agent): void {
     try {
-      // Simulate execution based on command
-      const result = this.processCommand(message.K2, message, agent);
+      const result = processCommand(message.K2, agent);
       message.executionResult = result;
       message.status = 'completed';
       
-      // Update agent performance
       agent.performance = Math.min(100, agent.performance + 2);
       agent.lastUpdate = new Date().toLocaleString();
       
-      // Generate follow-up if needed
       this.generateFollowUp(message, result);
       
     } catch (error) {
-      message.status = 'failed';
-      message.executionResult = `Execution failed: ${error}`;
-      agent.performance = Math.max(0, agent.performance - 5);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        message.status = 'failed';
+        message.executionResult = `Execution failed: ${errorMessage}`;
+        agent.performance = Math.max(0, agent.performance - 5);
     }
-  }
-
-  private processCommand(command: string, message: FUKOMessage, agent: Agent): string {
-    // Command processing logic
-    if (command.startsWith('/')) {
-      return this.executeSystemCommand(command, message, agent);
-    } else if (command.startsWith('&')) {
-      return this.executeAgentCommand(command, message, agent);
-    } else {
-      return `Processed: ${command} by ${agent.name}`;
-    }
-  }
-
-  private executeSystemCommand(command: string, message: FUKOMessage, agent: Agent): string {
-    const commands = {
-      '/send_sms_to_physio': 'SMS sent to physiotherapist',
-      '/alert_physio_if_inactive': 'Alert system activated',
-      '/owner_dashboard': 'Dashboard updated with latest KPIs',
-      '/ceo_decision': 'CEO decision process initiated',
-      '/sales_insights': 'Sales insights generated',
-      '/operations_onboard': 'Onboarding process started',
-      '/agent0_optimize': 'Optimization analysis completed',
-      '/controlling_alert': 'Financial alert generated',
-      '/marketing_audit': 'Marketing audit initiated'
-    };
-    
-    return commands[command] || `Unknown command: ${command}`;
-  }
-
-  private executeAgentCommand(command: string, message: FUKOMessage, agent: Agent): string {
-    const commands = {
-      '&style-shift': 'Agent style modification initiated',
-      '&activate-agent': 'Agent activation sequence started',
-      '&freeze-evolution': 'Evolution process frozen',
-      '&snapshot-system': 'System snapshot created'
-    };
-    
-    return commands[command] || `Unknown agent command: ${command}`;
   }
 
   private generateFollowUp(originalMessage: FUKOMessage, result: string): void {
-    // Generate automatic follow-up FUKO messages based on results
     if (result.includes('alert') && !result.includes('failed')) {
       this.createFUKOMessage(
         'monitor_alert_response',
@@ -163,82 +108,15 @@ export class FUKOCore {
 
   // FUKO-SCENARIOS Layer: Aggregate multiple FUKOs into logical scenarios
   executeScenario(scenarioName: string, context: Record<string, any>): void {
-    const scenarios = {
-      'senior_health_check': this.createSeniorHealthScenario,
-      'lead_nurturing': this.createLeadNurturingScenario,
-      'system_optimization': this.createSystemOptimizationScenario,
-      'emergency_response': this.createEmergencyResponseScenario
-    };
-
-    const scenarioFunction = scenarios[scenarioName];
-    if (scenarioFunction) {
-      scenarioFunction.call(this, context);
-    }
-  }
-
-  private createSeniorHealthScenario(context: Record<string, any>): void {
-    this.createFUKOMessage(
-      'check_activity_status',
-      'Monitor senior health activity',
-      `user_id: ${context.userId}`,
-      'Ensure daily activity compliance',
-      'daily_check_trigger',
-      'health_monitoring_system',
-      '/check_activity_log',
-      '@health-monitor'
-    );
-  }
-
-  private createLeadNurturingScenario(context: Record<string, any>): void {
-    this.createFUKOMessage(
-      'nurture_lead',
-      'Convert lead to customer',
-      `lead_id: ${context.leadId}, score: ${context.score}`,
-      'Increase conversion probability',
-      'lead_score > 70',
-      'crm_system',
-      '/send_personalized_offer',
-      '@sales-agent'
-    );
-  }
-
-  private createSystemOptimizationScenario(context: Record<string, any>): void {
-    this.createFUKOMessage(
-      'optimize_system_performance',
-      'Maintain optimal system efficiency',
-      'system_load_monitoring',
-      'Reduce resource usage by 15%',
-      'cpu_usage > 80%',
-      'monitoring_tools',
-      '/optimize_resource_allocation',
-      '@system-optimizer'
-    );
-  }
-
-  private createEmergencyResponseScenario(context: Record<string, any>): void {
-    this.createFUKOMessage(
-      'emergency_protocol',
-      'Handle critical system alert',
-      `alert_type: ${context.alertType}`,
-      'Resolve critical issue within 5 minutes',
-      'critical_alert_detected',
-      'emergency_systems',
-      '/activate_emergency_protocol',
-      '@guardian-core',
-      'urgent'
-    );
+    executeScenario(scenarioName, context, this.createFUKOMessage.bind(this));
   }
 
   // Initialize default agents
   private initializeAgents(): void {
-    // This data is now seeded into the fuko_agents table in Supabase.
-    // This method is kept to avoid breaking changes but its content is cleared.
     this.agents.clear();
   }
 
   private initializeRules(): void {
-    // This data is now seeded into the kpi_data table in Supabase.
-    // This method is kept to avoid breaking changes but its content is cleared.
     this.rules = [];
     this.kpiData = {};
   }
@@ -257,7 +135,6 @@ export class FUKOCore {
       this.kpiData[key].lastUpdate = new Date();
       this.kpiData[key].trend = value > oldValue ? 'up' : value < oldValue ? 'down' : 'stable';
       
-      // Check thresholds after update
       this.checkKPIThresholds();
     }
   }
@@ -284,5 +161,4 @@ export class FUKOCore {
   }
 }
 
-// Global FUKO Core instance
 export const fukoCore = new FUKOCore();
