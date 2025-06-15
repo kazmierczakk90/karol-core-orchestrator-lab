@@ -1,9 +1,9 @@
-
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
 import { useLinkExtractor } from '@/hooks/useLinkExtractor';
 import { useModals } from '@/hooks/useModals';
+import { Toaster } from "@/components/ui/sonner"
 
 import Header from '@/components/Header';
 import FloatingActionKey from '@/components/FloatingActionKey';
@@ -79,6 +79,7 @@ const IndexContent = () => {
         onOpenCommander={() => setActiveOpenAITab('commander')}
         onOpenTrainingCall={() => setShowTrainingCallModal(true)}
       />
+      <Toaster richColors theme="dark" position="bottom-right" />
     </div>
   );
 };

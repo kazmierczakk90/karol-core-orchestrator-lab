@@ -1,5 +1,20 @@
-
 import { useState } from 'react';
+import { toast } from 'sonner';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Workflow, Plus, Play, Save, Copy, Trash2, ArrowRight } from 'lucide-react';
 import { WorkflowStep, WorkflowTemplate } from '@/types/workflow';
-import { WorkflowStepCard } from './workflow/WorkflowStepCard';
+import { SortableWorkflowStep } from './workflow/SortableWorkflowStep';
 
 const WorkflowBuilder = () => {
   const [workflows, setWorkflows] = useState<WorkflowTemplate[]>([
@@ -127,6 +142,52 @@ const WorkflowBuilder = () => {
     );
   };
 
+  const cloneWorkflow = () => {
+    if (!selectedWorkflow) return;
+    const newWorkflow: WorkflowTemplate = {
+      ...JSON.parse(JSON.stringify(selectedWorkflow)),
+      id: `wf_${Date.now()}`,
+      name: `${selectedWorkflow.name} (Copy)`,
+    };
+    setWorkflows(prev => [...prev, newWorkflow]);
+    setSelectedWorkflow(newWorkflow);
+    toast.success(`Workflow "${selectedWorkflow.name}" sklonowany!`);
+  };
+
+  const saveWorkflow = () => {
+    if (!selectedWorkflow) return;
+    // W prawdziwej aplikacji byłoby to wywołanie API.
+    // Tutaj upewniamy się, że główna lista jest zaktualizowana i pokazujemy powiadomienie.
+    setWorkflows(prev => prev.map(wf => wf.id === selectedWorkflow.id ? selectedWorkflow : wf));
+    toast.success(`Workflow "${selectedWorkflow.name}" zapisany!`);
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const {active, over} = event;
+    
+    if (over && active.id !== over.id && selectedWorkflow) {
+      const oldIndex = selectedWorkflow.steps.findIndex(step => step.id === active.id);
+      const newIndex = selectedWorkflow.steps.findIndex(step => step.id === over.id);
+      
+      const newSteps = arrayMove(selectedWorkflow.steps, oldIndex, newIndex);
+      
+      const updatedWorkflow = {
+        ...selectedWorkflow,
+        steps: newSteps,
+      };
+
+      setSelectedWorkflow(updatedWorkflow);
+      setWorkflows(prev => prev.map(wf => wf.id === selectedWorkflow.id ? updatedWorkflow : wf));
+    }
+  }
+
   return (
     <div className="h-full flex space-x-4">
       {/* Workflow Templates List */}
@@ -202,7 +263,7 @@ const WorkflowBuilder = () => {
 
       {/* Workflow Builder */}
       <div className="flex-1">
-        <Card className="bg-slate-800/50 border-cyan-800/30 h-full">
+        <Card className="bg-slate-800/50 border-cyan-800/30 h-full flex flex-col">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -215,11 +276,11 @@ const WorkflowBuilder = () => {
               </div>
               {selectedWorkflow && (
                 <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" className="border-slate-600">
+                  <Button size="sm" variant="outline" className="border-slate-600" onClick={cloneWorkflow}>
                     <Copy className="h-4 w-4 mr-1" />
                     Clone
                   </Button>
-                  <Button size="sm" className="bg-gradient-secondary">
+                  <Button size="sm" className="bg-gradient-secondary" onClick={saveWorkflow}>
                     <Save className="h-4 w-4 mr-1" />
                     Save
                   </Button>
@@ -229,7 +290,7 @@ const WorkflowBuilder = () => {
           </CardHeader>
           
           {selectedWorkflow && (
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1 overflow-y-auto pr-2">
               {/* Workflow Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -285,30 +346,35 @@ const WorkflowBuilder = () => {
                     Add Step
                   </Button>
                 </div>
-
-                <div className="space-y-3">
-                  {selectedWorkflow.steps.map((step, index) => {
-                    return (
-                      <div key={step.id} className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                          {index + 1}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <WorkflowStepCard 
-                            step={step}
-                            onUpdate={updateStep}
-                            onDelete={removeStep}
-                          />
-                        </div>
-                        
-                        {index < selectedWorkflow.steps.length - 1 && (
-                          <ArrowRight className="h-4 w-4 text-slate-500" />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                
+                <DndContext 
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext 
+                    items={selectedWorkflow.steps.map(s => s.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-3">
+                      {selectedWorkflow.steps.map((step, index) => (
+                         <div key={step.id} className="flex items-center space-x-2">
+                            <div className="flex-1">
+                              <SortableWorkflowStep
+                                  step={step}
+                                  index={index}
+                                  onUpdate={updateStep}
+                                  onDelete={removeStep}
+                              />
+                            </div>
+                            {index < selectedWorkflow.steps.length - 1 && (
+                              <ArrowRight className="h-4 w-4 text-slate-500 flex-shrink-0" />
+                            )}
+                         </div>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
 
                 {selectedWorkflow.steps.length === 0 && (
                   <div className="text-center py-8 text-slate-400">
