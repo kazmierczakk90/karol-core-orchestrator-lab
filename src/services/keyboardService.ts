@@ -154,7 +154,7 @@ export class KeyboardService {
     }
   }
 
-  private processVoiceCommand(command: string) {
+  public processVoiceCommand(command: string) {
     console.log(`Voice command: ${command}`);
     const lowercaseCommand = command.toLowerCase();
     
