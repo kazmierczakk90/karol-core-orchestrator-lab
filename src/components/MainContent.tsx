@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +11,7 @@ const MiniAIInstancesTable = React.lazy(() => import('./MiniAIInstancesTable'));
 const MemoryEntriesTable = React.lazy(() => import('./MemoryEntriesTable'));
 const SystemConnectionsTable = React.lazy(() => import('./SystemConnectionsTable'));
 const URLScrapTable = React.lazy(() => import('./URLScrapTable'));
+const MetaDecisionLayer = React.lazy(() => import('./MetaDecisionLayer'));
 
 interface MainContentProps {
   activeOpenAITab: string;
@@ -79,6 +79,9 @@ export const MainContent = ({
             </TabsContent>
             <TabsContent value="url-scrap" className="h-full m-0">
               <URLScrapTable extractedLinks={extractedLinks} />
+            </TabsContent>
+            <TabsContent value="meta-decisions" className="h-full m-0">
+              <MetaDecisionLayer />
             </TabsContent>
           </Suspense>
         </div>

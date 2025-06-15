@@ -1,4 +1,3 @@
-
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -9,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner"
 import Header from '@/components/Header';
 import FloatingActionKey from '@/components/FloatingActionKey';
 
-import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader } from 'lucide-react';
+import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader, Layers } from 'lucide-react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { MainContent } from '@/components/MainContent';
@@ -51,6 +50,7 @@ const IndexContent = () => {
     { value: 'memory', label: 'Memory Entries', icon: Database },
     { value: 'connections', label: 'System Connections', icon: Zap },
     { value: 'url-scrap', label: 'URL Scrap', icon: Search },
+    { value: 'meta-decisions', label: 'Meta Decisions', icon: Layers },
   ];
 
   return (
