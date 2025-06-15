@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -93,9 +92,7 @@ export const useFuko = () => {
   });
   
   const transformedKpiData = kpiData?.reduce((acc, item) => {
-      // NOTE: The kpi_data table does not have a 'name' column, so we use the 'id'.
-      // Consider adding a 'name' column for better display.
-      acc[item.id] = { value: item.value, threshold: item.threshold, trend: item.trend };
+      acc[item.name] = { value: item.value, threshold: item.threshold, trend: item.trend };
       return acc;
   }, {} as Record<string, { value: number; threshold: number; trend: string; }>) || {};
 
@@ -110,4 +107,3 @@ export const useFuko = () => {
     createFukoMessage: createMessageMutation.mutate,
   };
 };
-

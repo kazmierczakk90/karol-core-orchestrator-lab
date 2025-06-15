@@ -24,7 +24,7 @@ const FukoAnalytics = () => {
             {Object.entries(kpiData).map(([key, data]) => (
               <div key={key} className="p-3 bg-slate-900/50 rounded">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-white capitalize truncate" title={key}>{key.substring(0,8)}...</span>
+                  <span className="text-white capitalize truncate" title={key}>{key.replace(/_/g, ' ')}</span>
                   <div className="flex items-center space-x-2">
                     <span className="text-white">{data.value}</span>
                     <Badge className={data.value >= data.threshold ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}>

@@ -280,6 +280,7 @@ export type Database = {
         Row: {
           id: string
           last_update: string
+          name: string
           threshold: number
           trend: string
           value: number
@@ -287,6 +288,7 @@ export type Database = {
         Insert: {
           id?: string
           last_update?: string
+          name: string
           threshold: number
           trend: string
           value: number
@@ -294,6 +296,7 @@ export type Database = {
         Update: {
           id?: string
           last_update?: string
+          name?: string
           threshold?: number
           trend?: string
           value?: number

@@ -1,4 +1,3 @@
-
 import { FUKOMessage, Agent, DecisionRule, KPIData } from '@/types/fuko';
 
 export class FUKOCore {
@@ -232,60 +231,16 @@ export class FUKOCore {
 
   // Initialize default agents
   private initializeAgents(): void {
-    const agentDefinitions = [
-      { id: '@ceo', name: 'CEO Core', category: 'core', mode: 'CEO', capabilities: ['decision_making', 'strategic_planning'] },
-      { id: '@voice-core', name: 'Voice Core', category: 'core', mode: 'ECHO', capabilities: ['voice_synthesis', 'communication'] },
-      { id: '@guardian-core', name: 'Guardian Core', category: 'core', mode: 'LIVE', capabilities: ['monitoring', 'security', 'alerts'] },
-      { id: '@router', name: 'Router Core', category: 'system', mode: 'LIVE', capabilities: ['routing', 'load_balancing'] },
-      { id: '@controlling', name: 'Controlling Agent', category: 'system', mode: 'CEO', capabilities: ['kpi_monitoring', 'financial_analysis'] },
-      { id: '@system-admin', name: 'System Admin', category: 'system', mode: 'LIVE', capabilities: ['system_management', 'optimization'] },
-      { id: '@party-app', name: 'PartyApp Agent', category: 'project', mode: 'CREATIVE', capabilities: ['event_management', 'social_features'] },
-      { id: '@sky-solution', name: 'Sky Solution', category: 'project', mode: 'CREATIVE', capabilities: ['ai_automation', 'workflow'] },
-      { id: '@fuko-lang', name: 'FUKO Language Core', category: 'fuko', mode: 'CEO', capabilities: ['language_processing', 'command_parsing'] },
-      { id: '@karol-core', name: 'Karol Core', category: 'core', mode: 'CEO', capabilities: ['identity_management', 'core_decisions'] }
-    ];
-
-    agentDefinitions.forEach(def => {
-      const agent: Agent = {
-        ...def,
-        status: 'active',
-        performance: 85 + Math.random() * 15,
-        lastUpdate: new Date().toLocaleString(),
-        dependencies: [],
-        competencyScore: 70 + Math.random() * 30
-      } as Agent;
-      
-      this.agents.set(agent.id, agent);
-    });
+    // This data is now seeded into the fuko_agents table in Supabase.
+    // This method is kept to avoid breaking changes but its content is cleared.
+    this.agents.clear();
   }
 
   private initializeRules(): void {
-    this.rules = [
-      {
-        id: 'kpi_threshold_check',
-        name: 'KPI Threshold Monitoring',
-        condition: 'kpi_value < threshold',
-        action: 'generate_optimization_fuko',
-        priority: 1,
-        isActive: true
-      },
-      {
-        id: 'agent_performance_low',
-        name: 'Low Agent Performance',
-        condition: 'agent.performance < 50',
-        action: 'initiate_agent_recovery',
-        priority: 2,
-        isActive: true
-      }
-    ];
-
-    // Initialize sample KPI data
-    this.kpiData = {
-      'sales_conversion': { value: 67, threshold: 70, trend: 'down', lastUpdate: new Date() },
-      'system_performance': { value: 89, threshold: 85, trend: 'up', lastUpdate: new Date() },
-      'user_engagement': { value: 43, threshold: 60, trend: 'down', lastUpdate: new Date() },
-      'agent_efficiency': { value: 92, threshold: 80, trend: 'stable', lastUpdate: new Date() }
-    };
+    // This data is now seeded into the kpi_data table in Supabase.
+    // This method is kept to avoid breaking changes but its content is cleared.
+    this.rules = [];
+    this.kpiData = {};
   }
 
   // Public getter methods
