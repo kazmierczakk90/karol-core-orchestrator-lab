@@ -1,3 +1,4 @@
+
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -9,15 +10,19 @@ import Header from '@/components/Header';
 import FloatingActionKey from '@/components/FloatingActionKey';
 
 import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader } from 'lucide-react';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
+import { MainContent } from '@/components/MainContent';
+
 
 const AnalyticsDashboard = React.lazy(() => import('@/components/AnalyticsDashboard'));
 const TrainingCallModal = React.lazy(() => import('@/components/TrainingCallModal'));
-const MenuLevelManager = React.lazy(() => import('@/components/MenuLevelManager'));
 
 const IndexContent = () => {
   const { 
     activeOpenAITab, setActiveOpenAITab,
-    activeDataTab, setActiveDataTab
+    activeDataTab, setActiveDataTab,
+    activeGroup, setActiveGroup
   } = useAppMenu();
   
   const { 
@@ -57,15 +62,39 @@ const IndexContent = () => {
         onClose={() => setShowAnalyticsDashboard(false)} 
       />
 
-      <MenuLevelManager
-        activeOpenAITab={activeOpenAITab}
-        setActiveOpenAITab={setActiveOpenAITab}
-        activeDataTab={activeDataTab}
-        setActiveDataTab={setActiveDataTab}
-        openAITabs={openAITabs}
-        dataTabs={dataTabs}
-        extractedLinks={extractedLinks}
-      />
+      <div className="flex-1 flex w-full">
+         <AppSidebar
+            activeOpenAITab={activeOpenAITab}
+            setActiveOpenAITab={setActiveOpenAITab}
+            activeDataTab={activeDataTab}
+            setActiveDataTab={setActiveDataTab}
+            openAITabs={openAITabs}
+            dataTabs={dataTabs}
+            activeGroup={activeGroup}
+            setActiveGroup={setActiveGroup}
+          />
+        <SidebarInset className="flex-1 flex flex-col bg-transparent">
+          <header className="p-2 md:p-4 flex items-center border-b border-slate-700/50">
+            <SidebarTrigger className="text-slate-400 hover:text-white" />
+            <h1 className="ml-4 text-lg font-semibold text-white">
+              {activeGroup === 'openai' 
+                ? openAITabs.find(t => t.value === activeOpenAITab)?.label 
+                : dataTabs.find(t => t.value === activeDataTab)?.label}
+            </h1>
+          </header>
+          <main className="flex-1 overflow-y-auto p-4">
+            <MainContent
+              activeOpenAITab={activeOpenAITab}
+              setActiveOpenAITab={setActiveOpenAITab}
+              activeDataTab={activeDataTab}
+              setActiveDataTab={setActiveDataTab}
+              activeGroup={activeGroup}
+              extractedLinks={extractedLinks}
+            />
+          </main>
+        </SidebarInset>
+      </div>
+
 
       <TrainingCallModal 
         isOpen={showTrainingCallModal} 
@@ -74,9 +103,18 @@ const IndexContent = () => {
 
       <FloatingActionKey
         onExtractLinks={handleExtractLinks}
-        onOpenBrowser={() => setActiveDataTab('url-scrap')}
-        onOpenMiniAI={() => setActiveDataTab('mini-ai')}
-        onOpenCommander={() => setActiveOpenAITab('commander')}
+        onOpenBrowser={() => {
+            setActiveDataTab('url-scrap');
+            setActiveGroup('data');
+        }}
+        onOpenMiniAI={() => {
+            setActiveDataTab('mini-ai');
+            setActiveGroup('data');
+        }}
+        onOpenCommander={() => {
+            setActiveOpenAITab('commander');
+            setActiveGroup('openai');
+        }}
         onOpenTrainingCall={() => setShowTrainingCallModal(true)}
       />
       <Toaster richColors theme="dark" position="bottom-right" />
@@ -97,7 +135,9 @@ const Index = () => {
   return (
     <LanguageProvider>
       <Suspense fallback={<LoadingFallback />}>
-        <IndexContent />
+        <SidebarProvider>
+          <IndexContent />
+        </SidebarProvider>
       </Suspense>
     </LanguageProvider>
   );
