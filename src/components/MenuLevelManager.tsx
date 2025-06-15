@@ -1,6 +1,6 @@
 
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import OpenAIChat from './OpenAIChat';
 import AgentCommander from './AgentCommander';
 import WorkflowBuilder from './WorkflowBuilder';
@@ -10,12 +10,8 @@ import MiniAIInstancesTable from './MiniAIInstancesTable';
 import MemoryEntriesTable from './MemoryEntriesTable';
 import SystemConnectionsTable from './SystemConnectionsTable';
 import URLScrapTable from './URLScrapTable';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface MenuLevelManagerProps {
-  menuLevel: 1 | 2;
-  collapsedMenus: {[key: string]: boolean};
-  toggleCollapse: (menuKey: string) => void;
   activeOpenAITab: string;
   setActiveOpenAITab: (tab: string) => void;
   activeDataTab: string;
@@ -23,14 +19,9 @@ interface MenuLevelManagerProps {
   openAITabs: Array<{value: string, label: string, icon: any}>;
   dataTabs: Array<{value: string, label: string, icon: any}>;
   extractedLinks: Array<{url: string, title: string, domain: string}>;
-  showTrainingCallModal: boolean;
-  setShowTrainingCallModal: (show: boolean) => void;
 }
 
 const MenuLevelManager = ({
-  menuLevel,
-  collapsedMenus,
-  toggleCollapse,
   activeOpenAITab,
   setActiveOpenAITab,
   activeDataTab,
@@ -38,42 +29,40 @@ const MenuLevelManager = ({
   openAITabs,
   dataTabs,
   extractedLinks,
-  showTrainingCallModal,
-  setShowTrainingCallModal
 }: MenuLevelManagerProps) => {
+  const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
+
+  const toggleMenuLevel = () => {
+    setMenuLevel(prev => (prev === 1 ? 2 : 1));
+  };
 
   const renderOpenAISection = (isMain: boolean) => (
-    <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-800/90 border-b border-cyan-800/30 p-4 transition-all duration-500`}>
-      <Tabs value={activeOpenAITab} onValueChange={setActiveOpenAITab} className="w-full h-full">
-        <div className="flex items-center justify-between mb-2">
-          <TabsList className="grid grid-cols-4 bg-gradient-dark border border-cyan-800/30 flex-1 mr-4">
+    <div 
+      className={`${isMain ? 'flex-1 min-h-[30vh]' : 'h-20 cursor-pointer'} bg-slate-800/90 p-4 transition-all duration-300 flex flex-col justify-center border-b border-cyan-800/30`}
+      onClick={!isMain ? toggleMenuLevel : undefined}
+    >
+      <Tabs value={activeOpenAITab} onValueChange={setActiveOpenAITab} className="w-full h-full flex flex-col">
+        <div className="flex items-center justify-between">
+          <TabsList className="grid grid-cols-4 bg-gradient-dark border border-cyan-800/30 flex-1">
             {openAITabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger 
                   key={tab.value} 
                   value={tab.value}
-                  onDoubleClick={() => toggleCollapse('openai')}
                   className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-primary data-[state=active]:text-white"
+                  disabled={!isMain}
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{tab.label}</span>
+                  <span className={`${isMain ? 'hidden md:inline' : 'hidden'}`}>{tab.label}</span>
                 </TabsTrigger>
               );
             })}
           </TabsList>
-          <Button
-            onClick={() => toggleCollapse('openai')}
-            variant="outline"
-            size="sm"
-            className="border-cyan-800/30"
-          >
-            {collapsedMenus.openai ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-          </Button>
         </div>
 
-        {!collapsedMenus.openai && isMain && (
-          <div className="flex-1 overflow-auto">
+        {isMain && (
+          <div className="flex-1 overflow-auto mt-4">
             <TabsContent value="chat" className="h-full m-0">
               <OpenAIChat />
             </TabsContent>
@@ -96,37 +85,32 @@ const MenuLevelManager = ({
   );
 
   const renderDataSection = (isMain: boolean) => (
-    <div className={`${isMain ? 'flex-1' : 'h-20'} bg-slate-900/50 p-4 transition-all duration-500`}>
+    <div 
+      className={`${isMain ? 'flex-1 min-h-[30vh]' : 'h-20 cursor-pointer'} bg-slate-900/50 p-4 transition-all duration-300 flex flex-col justify-center border-b border-slate-700/50`}
+      onClick={!isMain ? toggleMenuLevel : undefined}
+    >
       <Tabs value={activeDataTab} onValueChange={setActiveDataTab} className="h-full flex flex-col">
-        <div className="flex items-center justify-between mb-2">
-          <TabsList className="grid grid-cols-5 bg-gradient-dark border border-slate-700/50 flex-1 mr-4">
+        <div className="flex items-center justify-between">
+          <TabsList className="grid grid-cols-5 bg-gradient-dark border border-slate-700/50 flex-1">
             {dataTabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger 
                   key={tab.value} 
                   value={tab.value}
-                  onDoubleClick={() => toggleCollapse('data')}
                   className="flex items-center space-x-2 hover-gradient-scale data-[state=active]:bg-gradient-secondary data-[state=active]:text-white"
+                  disabled={!isMain}
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{tab.label}</span>
+                  <span className={`${isMain ? 'hidden md:inline' : 'hidden'}`}>{tab.label}</span>
                 </TabsTrigger>
               );
             })}
           </TabsList>
-          <Button
-            onClick={() => toggleCollapse('data')}
-            variant="outline"
-            size="sm"
-            className="border-slate-700/50"
-          >
-            {collapsedMenus.data ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-          </Button>
         </div>
 
-        {!collapsedMenus.data && isMain && (
-          <div className="flex-1 overflow-auto">
+        {isMain && (
+          <div className="flex-1 overflow-auto mt-4">
             <TabsContent value="system-agents" className="h-full m-0">
               <SystemAgentsTable />
             </TabsContent>
@@ -152,21 +136,21 @@ const MenuLevelManager = ({
     </div>
   );
 
-  if (menuLevel === 1) {
-    return (
-      <div className="flex-1 flex flex-col">
-        {renderOpenAISection(true)}
-        {renderDataSection(false)}
-      </div>
-    );
-  } else {
-    return (
-      <div className="flex-1 flex flex-col">
-        {renderDataSection(true)}
-        {renderOpenAISection(false)}
-      </div>
-    );
-  }
+  return (
+    <div className="flex-1 flex flex-col">
+      {menuLevel === 1 ? (
+        <>
+          {renderDataSection(false)}
+          {renderOpenAISection(true)}
+        </>
+      ) : (
+        <>
+          {renderOpenAISection(false)}
+          {renderDataSection(true)}
+        </>
+      )}
+    </div>
+  );
 };
 
 export default MenuLevelManager;

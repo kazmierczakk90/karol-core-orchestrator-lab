@@ -37,8 +37,6 @@ const IndexContent = () => {
   const [activeDataTab, setActiveDataTab] = useState('system-agents');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showTrainingCallModal, setShowTrainingCallModal] = useState(false);
-  const [menuLevel, setMenuLevel] = useState<1 | 2>(1);
-  const [collapsedMenus, setCollapsedMenus] = useState<{[key: string]: boolean}>({});
   const [showAnalyticsDashboard, setShowAnalyticsDashboard] = useState(false);
 
   const extractCurrentPageLinks = (): ExtractedLink[] => {
@@ -109,17 +107,6 @@ const IndexContent = () => {
     }
   };
 
-  const toggleCollapse = (menuKey: string) => {
-    setCollapsedMenus(prev => ({
-      ...prev,
-      [menuKey]: !prev[menuKey]
-    }));
-  };
-
-  const switchMenuLevel = () => {
-    setMenuLevel(prev => prev === 1 ? 2 : 1);
-  };
-
   const openAITabs = [
     { value: 'chat', label: 'Chat', icon: MessageSquare },
     { value: 'commander', label: 'Commander', icon: Users },
@@ -151,12 +138,6 @@ const IndexContent = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              onClick={switchMenuLevel}
-              className="bg-gradient-secondary hover:bg-gradient-primary"
-            >
-              Switch to Level {menuLevel === 1 ? '2' : '1'}
-            </Button>
             <div className="text-right">
               <p className="text-white font-medium">{t('status.active')}</p>
               <p className="text-green-400 text-sm">{t('status.allSystemsOperational')}</p>
@@ -172,9 +153,6 @@ const IndexContent = () => {
       />
 
       <MenuLevelManager
-        menuLevel={menuLevel}
-        collapsedMenus={collapsedMenus}
-        toggleCollapse={toggleCollapse}
         activeOpenAITab={activeOpenAITab}
         setActiveOpenAITab={setActiveOpenAITab}
         activeDataTab={activeDataTab}
@@ -182,8 +160,6 @@ const IndexContent = () => {
         openAITabs={openAITabs}
         dataTabs={dataTabs}
         extractedLinks={extractedLinks}
-        showTrainingCallModal={showTrainingCallModal}
-        setShowTrainingCallModal={setShowTrainingCallModal}
       />
 
       {/* Training Call Modal */}
