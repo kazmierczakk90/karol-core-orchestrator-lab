@@ -18,9 +18,11 @@ const WorkflowBuilder = () => {
       category: 'Content',
       steps: [
         { id: 'step_1', type: 'action', title: 'Research Topic', description: 'Deep research on given topic', agentId: '@google-search', status: 'pending' },
-        { id: 'step_2', type: 'action', title: 'Create Outline', description: 'Generate content outline', agentId: '@creative', status: 'pending' },
-        { id: 'step_3', type: 'action', title: 'Write Content', description: 'Write full content based on outline', agentId: '@technical', status: 'pending' },
-        { id: 'step_4', type: 'action', title: 'Review & Edit', description: 'Review and edit content', agentId: '@kontroling', status: 'pending' },
+        { id: 'step_2', type: 'delay', title: 'Wait for approval', description: 'Wait 1 hour for manual approval', status: 'pending', delayMinutes: 60 },
+        { id: 'step_3', type: 'action', title: 'Create Outline', description: 'Generate content outline', agentId: '@creative', status: 'pending' },
+        { id: 'step_4', type: 'condition', title: 'Check Outline', description: 'Outline must be approved', status: 'pending', condition: 'status === "approved"' },
+        { id: 'step_5', type: 'action', title: 'Write Content', description: 'Write full content based on outline', agentId: '@technical', status: 'pending' },
+        { id: 'step_6', type: 'action', title: 'Review & Edit', description: 'Review and edit content', agentId: '@kontroling', status: 'pending' },
       ]
     },
     {
@@ -31,8 +33,9 @@ const WorkflowBuilder = () => {
       steps: [
         { id: 'step_1', type: 'action', title: 'Collect Data', description: 'Gather data from sources', agentId: '@vector-store', status: 'pending' },
         { id: 'step_2', type: 'action', title: 'Clean Data', description: 'Data cleaning and preprocessing', agentId: '@analiza', status: 'pending' },
-        { id: 'step_3', type: 'action', title: 'Analyze Patterns', description: 'Pattern recognition and analysis', agentId: '@analiza', status: 'pending' },
-        { id: 'step_4', type: 'action', title: 'Generate Report', description: 'Create analysis report', agentId: '@logger', status: 'pending' },
+        { id: 'step_3', type: 'condition', title: 'Verify Data Quality', description: 'Ensure data quality is above 95%', status: 'pending', condition: 'quality_score > 0.95' },
+        { id: 'step_4', type: 'action', title: 'Analyze Patterns', description: 'Pattern recognition and analysis', agentId: '@analiza', status: 'pending' },
+        { id: 'step_5', type: 'action', title: 'Generate Report', description: 'Create analysis report', agentId: '@logger', status: 'pending' },
       ]
     }
   ]);
@@ -43,18 +46,26 @@ const WorkflowBuilder = () => {
   const executeWorkflow = async (workflow: WorkflowTemplate) => {
     setIsRunning(true);
     
-    // Create a deep copy to avoid modifying the original state directly during simulation
     const executingWorkflow = JSON.parse(JSON.stringify(workflow));
     setSelectedWorkflow(executingWorkflow);
 
     for (let i = 0; i < executingWorkflow.steps.length; i++) {
-        executingWorkflow.steps[i].status = 'running';
+        const step = executingWorkflow.steps[i];
+        step.status = 'running';
         setSelectedWorkflow({ ...executingWorkflow });
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        executingWorkflow.steps[i].status = 'completed';
+        if (step.type === 'delay' && step.delayMinutes) {
+          // Shortened for simulation purposes
+          await new Promise(resolve => setTimeout(resolve, step.delayMinutes * 20)); 
+        } else {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        const shouldFail = step.type === 'condition' && Math.random() < 0.3; // 30% chance to fail condition
+        step.status = shouldFail ? 'failed' : 'completed';
         setSelectedWorkflow({ ...executingWorkflow });
+
+        if (shouldFail) break; // Stop workflow on failed condition
     }
     
     // Reset status after execution
@@ -62,8 +73,9 @@ const WorkflowBuilder = () => {
         const finalWorkflow = JSON.parse(JSON.stringify(executingWorkflow));
         finalWorkflow.steps.forEach((step: WorkflowStep) => step.status = 'pending');
         setSelectedWorkflow(finalWorkflow);
+        setWorkflows(prev => prev.map(w => w.id === finalWorkflow.id ? finalWorkflow : w));
         setIsRunning(false);
-    }, 2000);
+    }, 3000);
   };
 
   const addNewStep = () => {
@@ -72,8 +84,8 @@ const WorkflowBuilder = () => {
     const newStep: WorkflowStep = {
       id: `step_${Date.now()}`,
       type: 'action',
-      title: 'New Step',
-      description: 'Description of the new step',
+      title: 'Nowy Krok',
+      description: 'Opis nowego kroku',
       agentId: '@ceo',
       status: 'pending'
     };
@@ -152,7 +164,7 @@ const WorkflowBuilder = () => {
                     </span>
                     <Button 
                       size="sm" 
-                      className="bg-gradient-success hover:bg-gradient-secondary"
+                      className="bg-gradient-success hover:bg-gradient-secondary disabled:opacity-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         executeWorkflow(workflow);
@@ -160,7 +172,7 @@ const WorkflowBuilder = () => {
                       disabled={isRunning}
                     >
                       <Play className="h-3 w-3 mr-1" />
-                      Run
+                      {isRunning && selectedWorkflow?.id === workflow.id ? 'Running...' : 'Run'}
                     </Button>
                   </div>
                 </CardContent>
@@ -224,7 +236,11 @@ const WorkflowBuilder = () => {
                   <label className="text-slate-300 text-sm font-semibold">Workflow Name</label>
                   <Input 
                     value={selectedWorkflow.name}
-                    onChange={(e) => setSelectedWorkflow({...selectedWorkflow, name: e.target.value})}
+                    onChange={(e) => {
+                        const newName = e.target.value;
+                        setSelectedWorkflow(prev => prev && {...prev, name: newName});
+                        setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? {...w, name: newName} : w));
+                    }}
                     className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
                   />
                 </div>
@@ -232,7 +248,11 @@ const WorkflowBuilder = () => {
                   <label className="text-slate-300 text-sm font-semibold">Category</label>
                   <Input 
                     value={selectedWorkflow.category}
-                    onChange={(e) => setSelectedWorkflow({...selectedWorkflow, category: e.target.value})}
+                    onChange={(e) => {
+                        const newCat = e.target.value;
+                        setSelectedWorkflow(prev => prev && {...prev, category: newCat});
+                        setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? {...w, category: newCat} : w));
+                    }}
                     className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
                   />
                 </div>
@@ -242,7 +262,11 @@ const WorkflowBuilder = () => {
                 <label className="text-slate-300 text-sm font-semibold">Description</label>
                 <Textarea 
                   value={selectedWorkflow.description}
-                  onChange={(e) => setSelectedWorkflow({...selectedWorkflow, description: e.target.value})}
+                   onChange={(e) => {
+                        const newDesc = e.target.value;
+                        setSelectedWorkflow(prev => prev && {...prev, description: newDesc});
+                        setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? {...w, description: newDesc} : w));
+                    }}
                   className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
                   rows={2}
                 />
