@@ -1,28 +1,15 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
   DragEndEvent
 } from '@dnd-kit/core';
 import {
   arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Workflow, Plus, Play, Save, Copy, Trash2, ArrowRight } from 'lucide-react';
 import { WorkflowStep, WorkflowTemplate } from '@/types/workflow';
-import { SortableWorkflowStep } from './workflow/SortableWorkflowStep';
+import { WorkflowSidebar } from './workflow/WorkflowSidebar';
+import { WorkflowEditor } from './workflow/WorkflowEditor';
 
 const WorkflowBuilder = () => {
   const [workflows, setWorkflows] = useState<WorkflowTemplate[]>([
@@ -55,7 +42,9 @@ const WorkflowBuilder = () => {
     }
   ]);
 
-  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowTemplate | null>(workflows[0]);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowTemplate | null>(
+    workflows[0] ? JSON.parse(JSON.stringify(workflows[0])) : null
+  );
   const [isRunning, setIsRunning] = useState(false);
 
   const executeWorkflow = async (workflow: WorkflowTemplate) => {
@@ -91,6 +80,18 @@ const WorkflowBuilder = () => {
         setWorkflows(prev => prev.map(w => w.id === finalWorkflow.id ? finalWorkflow : w));
         setIsRunning(false);
     }, 3000);
+  };
+
+  const onNewWorkflow = () => {
+    const newWorkflow: WorkflowTemplate = {
+      id: `wf_${Date.now()}`,
+      name: 'New Workflow',
+      description: 'Custom workflow description',
+      category: 'Custom',
+      steps: []
+    };
+    setWorkflows(prev => [...prev, newWorkflow]);
+    setSelectedWorkflow(newWorkflow);
   };
 
   const addNewStep = () => {
@@ -156,18 +157,9 @@ const WorkflowBuilder = () => {
 
   const saveWorkflow = () => {
     if (!selectedWorkflow) return;
-    // W prawdziwej aplikacji byłoby to wywołanie API.
-    // Tutaj upewniamy się, że główna lista jest zaktualizowana i pokazujemy powiadomienie.
     setWorkflows(prev => prev.map(wf => wf.id === selectedWorkflow.id ? selectedWorkflow : wf));
     toast.success(`Workflow "${selectedWorkflow.name}" zapisany!`);
   };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   function handleDragEnd(event: DragEndEvent) {
     const {active, over} = event;
@@ -188,206 +180,31 @@ const WorkflowBuilder = () => {
     }
   }
 
+  const handleWorkflowChange = (updatedWorkflow: WorkflowTemplate) => {
+    setSelectedWorkflow(updatedWorkflow);
+    setWorkflows(prev => prev.map(w => w.id === updatedWorkflow.id ? updatedWorkflow : w));
+  }
+
   return (
     <div className="h-full flex space-x-4">
-      {/* Workflow Templates List */}
-      <div className="w-1/3">
-        <Card className="bg-slate-800/50 border-cyan-800/30 h-full">
-          <CardHeader>
-            <CardTitle className="text-cyan-400 flex items-center space-x-2">
-              <Workflow className="h-5 w-5" />
-              <span>Workflow Templates</span>
-            </CardTitle>
-            <CardDescription className="text-slate-300">
-              Gotowe szablony workflow'ów
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {workflows.map((workflow) => (
-              <Card 
-                key={workflow.id}
-                className={`bg-slate-700/50 border-slate-600/50 cursor-pointer hover:border-cyan-400/50 transition-colors ${
-                  selectedWorkflow?.id === workflow.id ? 'border-cyan-400 bg-cyan-400/10' : ''
-                }`}
-                onClick={() => setSelectedWorkflow(JSON.parse(JSON.stringify(workflow)))}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-white">{workflow.name}</h3>
-                    <Badge className="bg-slate-600/50 text-slate-300">
-                      {workflow.category}
-                    </Badge>
-                  </div>
-                  <p className="text-slate-400 text-sm mb-3">{workflow.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      {workflow.steps.length} kroków
-                    </span>
-                    <Button 
-                      size="sm" 
-                      className="bg-gradient-success hover:bg-gradient-secondary disabled:opacity-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        executeWorkflow(workflow);
-                      }}
-                      disabled={isRunning}
-                    >
-                      <Play className="h-3 w-3 mr-1" />
-                      {isRunning && selectedWorkflow?.id === workflow.id ? 'Running...' : 'Run'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            <Button 
-              className="w-full bg-gradient-primary hover:bg-gradient-secondary"
-              onClick={() => {
-                const newWorkflow: WorkflowTemplate = {
-                  id: `wf_${Date.now()}`,
-                  name: 'New Workflow',
-                  description: 'Custom workflow description',
-                  category: 'Custom',
-                  steps: []
-                };
-                setWorkflows(prev => [...prev, newWorkflow]);
-                setSelectedWorkflow(newWorkflow);
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Workflow
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Workflow Builder */}
-      <div className="flex-1">
-        <Card className="bg-slate-800/50 border-cyan-800/30 h-full flex flex-col">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-cyan-400">
-                  {selectedWorkflow ? selectedWorkflow.name : 'Select Workflow'}
-                </CardTitle>
-                <CardDescription className="text-slate-300">
-                  {selectedWorkflow ? selectedWorkflow.description : 'Choose a workflow to edit or create new one'}
-                </CardDescription>
-              </div>
-              {selectedWorkflow && (
-                <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" className="border-slate-600" onClick={cloneWorkflow}>
-                    <Copy className="h-4 w-4 mr-1" />
-                    Clone
-                  </Button>
-                  <Button size="sm" className="bg-gradient-secondary" onClick={saveWorkflow}>
-                    <Save className="h-4 w-4 mr-1" />
-                    Save
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardHeader>
-          
-          {selectedWorkflow && (
-            <CardContent className="space-y-4 flex-1 overflow-y-auto pr-2">
-              {/* Workflow Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-slate-300 text-sm font-semibold">Workflow Name</label>
-                  <Input 
-                    value={selectedWorkflow.name}
-                    onChange={(e) => {
-                        const newName = e.target.value;
-                        setSelectedWorkflow(prev => prev && {...prev, name: newName});
-                        setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? {...w, name: newName} : w));
-                    }}
-                    className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 text-sm font-semibold">Category</label>
-                  <Input 
-                    value={selectedWorkflow.category}
-                    onChange={(e) => {
-                        const newCat = e.target.value;
-                        setSelectedWorkflow(prev => prev && {...prev, category: newCat});
-                        setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? {...w, category: newCat} : w));
-                    }}
-                    className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-slate-300 text-sm font-semibold">Description</label>
-                <Textarea 
-                  value={selectedWorkflow.description}
-                   onChange={(e) => {
-                        const newDesc = e.target.value;
-                        setSelectedWorkflow(prev => prev && {...prev, description: newDesc});
-                        setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? {...w, description: newDesc} : w));
-                    }}
-                  className="bg-slate-900/50 border-slate-700/50 text-white mt-1"
-                  rows={2}
-                />
-              </div>
-
-              {/* Workflow Steps */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-white font-semibold">Workflow Steps</h3>
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-primary hover:bg-gradient-secondary"
-                    onClick={addNewStep}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Step
-                  </Button>
-                </div>
-                
-                <DndContext 
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext 
-                    items={selectedWorkflow.steps.map(s => s.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-3">
-                      {selectedWorkflow.steps.map((step, index) => (
-                         <div key={step.id} className="flex items-center space-x-2">
-                            <div className="flex-1">
-                              <SortableWorkflowStep
-                                  step={step}
-                                  index={index}
-                                  onUpdate={updateStep}
-                                  onDelete={removeStep}
-                              />
-                            </div>
-                            {index < selectedWorkflow.steps.length - 1 && (
-                              <ArrowRight className="h-4 w-4 text-slate-500 flex-shrink-0" />
-                            )}
-                         </div>
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-
-                {selectedWorkflow.steps.length === 0 && (
-                  <div className="text-center py-8 text-slate-400">
-                    <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No steps in this workflow</p>
-                    <p className="text-sm">Click "Add Step" to start building</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          )}
-        </Card>
-      </div>
+      <WorkflowSidebar
+        workflows={workflows}
+        selectedWorkflow={selectedWorkflow}
+        isRunning={isRunning}
+        onSelectWorkflow={(workflow) => setSelectedWorkflow(workflow)}
+        onExecuteWorkflow={executeWorkflow}
+        onNewWorkflow={onNewWorkflow}
+      />
+      <WorkflowEditor
+        selectedWorkflow={selectedWorkflow}
+        onWorkflowChange={handleWorkflowChange}
+        onSave={saveWorkflow}
+        onClone={cloneWorkflow}
+        onAddNewStep={addNewStep}
+        onUpdateStep={updateStep}
+        onRemoveStep={removeStep}
+        onDragEnd={handleDragEnd}
+      />
     </div>
   );
 };
