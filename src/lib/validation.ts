@@ -98,15 +98,15 @@ export const validateData = <T>(schema: z.ZodSchema<T>, data: unknown): T => {
   }
 };
 
-export const validateDataSafe = <T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } => {
+export const validateDataSafe = <T>(schema: z.ZodSchema<T>, data: unknown) => {
   try {
     const validData = schema.parse(data);
-    return { success: true, data: validData };
+    return { success: true as const, data: validData };
   } catch (error) {
     if (error instanceof z.ZodError) {
       const message = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-      return { success: false, error: `Validation failed: ${message}` };
+      return { success: false as const, error: `Validation failed: ${message}` };
     }
-    return { success: false, error: 'Unknown validation error' };
+    return { success: false as const, error: 'Unknown validation error' };
   }
 };
