@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Sidebar,
@@ -38,7 +37,7 @@ export const AppSidebar = ({
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center space-x-2">
-            <Brain className="h-8 w-8 text-cyan-400" />
+            <img src="/lovable-uploads/e937e8a7-7b24-4ba0-b98b-aade23ac4f11.png" alt="Karol Core Logo" className="h-10 w-10" />
             <div className="flex flex-col">
                 <h2 className="text-lg font-semibold text-white">Karol-Core</h2>
                 <p className="text-xs text-slate-400">Orchestrator</p>

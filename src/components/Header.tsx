@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Brain } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface HeaderProps {
@@ -17,7 +16,7 @@ const Header = ({ onLogoClick }: HeaderProps) => {
                     className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform"
                     onClick={onLogoClick}
                 >
-                    <Brain className="h-8 w-8 text-cyan-400 animate-pulse-glow" />
+                    <img src="/lovable-uploads/e937e8a7-7b24-4ba0-b98b-aade23ac4f11.png" alt="Karol Core Logo" className="h-12 w-12" />
                     <div>
                         <h1 className="text-2xl font-bold text-gradient-primary">Karol Core</h1>
                         <p className="text-slate-400 text-sm">AGI Orchestrator Lab</p>
