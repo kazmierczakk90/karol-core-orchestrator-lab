@@ -1,25 +1,13 @@
-export interface Agent {
-  id: string;
-  identifier: string;
-  name: string;
-  type: string;
-  description: string;
-  is_active: boolean;
-  status: string;
-  tasks_completed: number;
-  last_used: string;
-  capabilities: string[];
-  version: string;
-  performance: number;
-  created_at: string;
-  owner_id?: string;
-}
 
-export interface CreateAgentData {
-  identifier: string;
+export interface FukoAgent {
+  id: string;
   name: string;
-  type: string;
-  description: string;
-  capabilities?: string[];
-  version?: string;
+  category: 'core' | 'project' | 'service' | 'fuko' | 'system';
+  status: 'active' | 'dormant' | 'monitoring';
+  mode: 'CEO' | 'ECHO' | 'CREATIVE' | 'LIVE' | 'MENTOR';
+  performance: number;
+  last_update: string;
+  capabilities: string[];
+  dependencies: string[];
+  competency_score: number;
 }

@@ -1,5 +1,4 @@
-
-import { fukoCore } from './fukoCore';
+import { fukoService } from './fukoService';
 import { voiceService } from './voiceService';
 
 export class KeyboardService {
@@ -69,59 +68,59 @@ export class KeyboardService {
   }
 
   // Implementacja funkcji systemowych
-  private executeQuickAction(action: string) {
+  private async executeQuickAction(action: string) {
     console.log(`Executing quick action: ${action}`);
     switch (action) {
       case 'style-shift':
-        fukoCore.createFUKOMessage(
-          'modify_decision_style',
-          'Keyboard shortcut F1 triggered style modification',
-          'user_keyboard_input',
-          'Apply new decision parameters',
-          'F1_key_pressed',
-          'style_engine',
-          '&style-shift',
-          '@karol-core',
-          'high'
-        );
+        await fukoService.createFukoMessage({
+          F: 'modify_decision_style',
+          U: 'Keyboard shortcut F1 triggered style modification',
+          K: 'user_keyboard_input',
+          O: 'Apply new decision parameters',
+          P: 'F1_key_pressed',
+          Z: 'style_engine',
+          K2: '&style-shift',
+          source_agent: '@karol-core',
+          priority: 'high'
+        });
         this.showNotification('Style Shift Activated', 'Decision style is being modified');
         break;
       case 'activate-agent':
-        this.activateRandomDormantAgent();
+        await this.activateRandomDormantAgent();
         break;
       case 'freeze-evolution':
-        fukoCore.createFUKOMessage(
-          'freeze_evolution_process',
-          'Emergency evolution freeze via F3',
-          'evolution_state_monitoring',
-          'Lock current configuration',
-          'F3_emergency_key',
-          'evolution_control',
-          '&freeze-evolution',
-          '@guardian-core',
-          'urgent'
-        );
+        await fukoService.createFukoMessage({
+          F: 'freeze_evolution_process',
+          U: 'Emergency evolution freeze via F3',
+          K: 'evolution_state_monitoring',
+          O: 'Lock current configuration',
+          P: 'F3_emergency_key',
+          Z: 'evolution_control',
+          K2: '&freeze-evolution',
+          source_agent: '@guardian-core',
+          priority: 'urgent'
+        });
         this.showNotification('Evolution Frozen', 'System evolution locked');
         break;
       case 'emergency-stop':
-        this.emergencyShutdown();
+        await this.emergencyShutdown();
         break;
     }
   }
 
-  private refreshAllSystems() {
+  private async refreshAllSystems() {
     console.log('Refreshing all systems (F5)');
-    fukoCore.createFUKOMessage(
-      'refresh_all_systems',
-      'Manual system refresh requested',
-      'system_maintenance',
-      'Update all agent states and KPIs',
-      'F5_refresh_key',
-      'monitoring_systems',
-      '/system_refresh',
-      '@system-admin',
-      'medium'
-    );
+    await fukoService.createFukoMessage({
+      F: 'refresh_all_systems',
+      U: 'Manual system refresh requested',
+      K: 'system_maintenance',
+      O: 'Update all agent states and KPIs',
+      P: 'F5_refresh_key',
+      Z: 'monitoring_systems',
+      K2: '/system_refresh',
+      source_agent: '@system-admin',
+      priority: 'medium'
+    });
     this.showNotification('System Refresh', 'All systems refreshed');
     window.location.reload();
   }
@@ -168,111 +167,104 @@ export class KeyboardService {
     } else if (lowercaseCommand.includes('status systemu')) {
       this.showSystemStatus();
     } else {
-      fukoCore.createFUKOMessage(
-        'process_voice_command',
-        `Voice command received: ${command}`,
-        'voice_input_processing',
-        'Execute appropriate action',
-        'voice_command_detected',
-        'voice_core',
-        `/voice_process "${command}"`,
-        '@voice-core',
-        'medium'
-      );
+      fukoService.createFukoMessage({
+        F: 'process_voice_command',
+        U: `Voice command received: ${command}`,
+        K: 'voice_input_processing',
+        O: 'Execute appropriate action',
+        P: 'voice_command_detected',
+        Z: 'voice_core',
+        K2: `/voice_process "${command}"`,
+        source_agent: '@voice-core',
+        priority: 'medium'
+      });
     }
   }
 
-  private switchToNextAgent() {
+  private async switchToNextAgent() {
     console.log('Switching to next agent (F7)');
-    const agents = fukoCore.getAgents().filter(a => a.status === 'active');
-    if (agents.length > 0) {
-      const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+    const agents = await fukoService.getAgents();
+    const activeAgents = agents.filter(a => a.status === 'active');
+    if (activeAgents.length > 0) {
+      const randomAgent = activeAgents[Math.floor(Math.random() * activeAgents.length)];
       this.showNotification('Agent Switch', `Switched to ${randomAgent.name}`);
       voiceService.speak(`Przełączono na agenta ${randomAgent.name}`);
     }
   }
 
-  private optimizeSystem() {
+  private async optimizeSystem() {
     console.log('Optimizing system (F8)');
-    fukoCore.createFUKOMessage(
-      'optimize_system_performance',
-      'Manual optimization triggered via F8',
-      'performance_optimization',
-      'Improve overall system efficiency',
-      'F8_optimize_key',
-      'optimization_engine',
-      '/system_optimize',
-      '@system-optimizer',
-      'high'
-    );
+    await fukoService.createFukoMessage({
+      F: 'optimize_system_performance',
+      U: 'Manual optimization triggered via F8',
+      K: 'performance_optimization',
+      O: 'Improve overall system efficiency',
+      P: 'F8_optimize_key',
+      Z: 'optimization_engine',
+      K2: '/system_optimize',
+      source_agent: '@system-optimizer',
+      priority: 'high'
+    });
     this.showNotification('System Optimization', 'Performance optimization started');
   }
 
-  private generateReport() {
+  private async generateReport() {
     console.log('Generating report (F9)');
-    const kpiData = fukoCore.getKPIData();
-    const agents = fukoCore.getAgents();
-    const messages = fukoCore.getMessages();
+    const agents = await fukoService.getAgents();
+    const messages = await fukoService.getMessages();
     
     const report = {
       timestamp: new Date().toISOString(),
       activeAgents: agents.filter(a => a.status === 'active').length,
       totalMessages: messages.length,
-      avgPerformance: agents.reduce((sum, a) => sum + a.performance, 0) / agents.length,
-      kpiSummary: Object.keys(kpiData).map(key => ({
-        metric: key,
-        value: kpiData[key].value,
-        threshold: kpiData[key].threshold,
-        status: kpiData[key].value >= kpiData[key].threshold ? 'OK' : 'ALERT'
-      }))
+      avgPerformance: agents.length > 0 ? agents.reduce((sum, a) => sum + a.performance, 0) / agents.length : 0,
     };
     
     console.log('System Report:', report);
     this.showNotification('Report Generated', 'System report available in console');
   }
 
-  private backupSystem() {
+  private async backupSystem() {
     console.log('Creating system backup (F10)');
     const backup = {
       timestamp: new Date().toISOString(),
-      agents: fukoCore.getAgents(),
-      messages: fukoCore.getMessages(),
-      kpiData: fukoCore.getKPIData()
+      agents: await fukoService.getAgents(),
+      messages: await fukoService.getMessages(),
     };
     
     localStorage.setItem('karol-core-backup', JSON.stringify(backup));
     this.showNotification('Backup Created', 'System state saved to local storage');
   }
 
-  private enterMaintenanceMode() {
+  private async enterMaintenanceMode() {
     console.log('Entering maintenance mode (F11)');
-    fukoCore.createFUKOMessage(
-      'enter_maintenance_mode',
-      'Maintenance mode activated via F11',
-      'system_maintenance',
-      'Prepare system for maintenance operations',
-      'F11_maintenance_key',
-      'maintenance_systems',
-      '/maintenance_mode_on',
-      '@guardian-core',
-      'urgent'
-    );
+    await fukoService.createFukoMessage({
+      F: 'enter_maintenance_mode',
+      U: 'Maintenance mode activated via F11',
+      K: 'system_maintenance',
+      O: 'Prepare system for maintenance operations',
+      P: 'F11_maintenance_key',
+      Z: 'maintenance_systems',
+      K2: '/maintenance_mode_on',
+      source_agent: '@guardian-core',
+      priority: 'urgent'
+    });
     this.showNotification('Maintenance Mode', 'System entering maintenance mode');
   }
 
-  private showSystemStatus() {
+  private async showSystemStatus() {
     console.log('Showing system status (F12)');
-    const agents = fukoCore.getAgents();
+    const agents = await fukoService.getAgents();
     const activeCount = agents.filter(a => a.status === 'active').length;
-    const avgPerformance = agents.reduce((sum, a) => sum + a.performance, 0) / agents.length;
+    const avgPerformance = agents.length > 0 ? agents.reduce((sum, a) => sum + a.performance, 0) / agents.length : 0;
     
     this.showNotification('System Status', `Active: ${activeCount}/${agents.length}, Avg Performance: ${avgPerformance.toFixed(1)}%`);
     voiceService.speak(`System aktywny. ${activeCount} agentów online. Wydajność ${avgPerformance.toFixed(0)} procent.`);
   }
 
-  private activateAgent(agentId: string) {
+  private async activateAgent(agentId: string) {
     console.log(`Activating agent: ${agentId}`);
-    const success = fukoCore.activateAgent(agentId);
+    const success = await fukoService.updateAgentStatus(agentId, 'active');
     if (success) {
       this.showNotification('Agent Activated', `${agentId} is now active`);
       voiceService.speak(`Agent ${agentId} aktywowany`);
@@ -281,25 +273,36 @@ export class KeyboardService {
     }
   }
 
-  private activateRandomDormantAgent() {
-    const dormantAgents = fukoCore.getAgents().filter(a => a.status === 'dormant');
+  private async activateRandomDormantAgent() {
+    const agents = await fukoService.getAgents();
+    const dormantAgents = agents.filter(a => a.status === 'dormant');
     if (dormantAgents.length > 0) {
       const randomAgent = dormantAgents[Math.floor(Math.random() * dormantAgents.length)];
-      this.activateAgent(randomAgent.id);
+      await this.activateAgent(randomAgent.id);
     } else {
       this.showNotification('No Dormant Agents', 'All agents are already active');
     }
   }
 
-  private executeSystemScan() {
+  private async executeSystemScan() {
     console.log('Executing system scan (Alt+S)');
-    fukoCore.checkKPIThresholds();
-    this.showNotification('System Scan', 'Full system scan completed');
+    await fukoService.createFukoMessage({
+        F: 'system_scan',
+        U: 'Manual system scan triggered',
+        K: 'system_health_check',
+        O: 'Verify system integrity and performance',
+        P: 'Alt+S_scan_key',
+        Z: 'monitoring_systems',
+        K2: '/system_scan',
+        source_agent: '@system-admin',
+        priority: 'medium'
+    });
+    this.showNotification('System Scan', 'Full system scan initiated');
   }
 
-  private analyzePerformance() {
+  private async analyzePerformance() {
     console.log('Analyzing performance (Alt+A)');
-    const agents = fukoCore.getAgents();
+    const agents = await fukoService.getAgents();
     const lowPerformanceAgents = agents.filter(a => a.performance < 70);
     
     if (lowPerformanceAgents.length > 0) {
@@ -309,14 +312,14 @@ export class KeyboardService {
     }
   }
 
-  private resetAgent() {
+  private async resetAgent() {
     console.log('Resetting agent (Alt+R)');
-    // Reset random active agent
-    const activeAgents = fukoCore.getAgents().filter(a => a.status === 'active');
+    const agents = await fukoService.getAgents();
+    const activeAgents = agents.filter(a => a.status === 'active');
     if (activeAgents.length > 0) {
       const agent = activeAgents[Math.floor(Math.random() * activeAgents.length)];
-      fukoCore.deactivateAgent(agent.id);
-      setTimeout(() => fukoCore.activateAgent(agent.id), 1000);
+      await fukoService.updateAgentStatus(agent.id, 'dormant');
+      setTimeout(async () => await fukoService.updateAgentStatus(agent.id, 'active'), 1000);
       this.showNotification('Agent Reset', `${agent.name} restarted`);
     }
   }
@@ -335,26 +338,26 @@ export class KeyboardService {
     this.showNotification('Volume Adjusted', `Volume set to ${Math.round(newVolume * 100)}%`);
   }
 
-  private emergencyShutdown() {
+  private async emergencyShutdown() {
     console.log('Emergency shutdown initiated');
-    fukoCore.createFUKOMessage(
-      'emergency_system_halt',
-      'Emergency shutdown via keyboard shortcut',
-      'emergency_protocols',
-      'Safe system shutdown',
-      'emergency_key_combination',
-      'safety_systems',
-      '/emergency_stop',
-      '@guardian-core',
-      'urgent'
-    );
+    await fukoService.createFukoMessage({
+      F: 'emergency_system_halt',
+      U: 'Emergency shutdown via keyboard shortcut',
+      K: 'emergency_protocols',
+      O: 'Safe system shutdown',
+      P: 'emergency_key_combination',
+      Z: 'safety_systems',
+      K2: '/emergency_stop',
+      source_agent: '@guardian-core',
+      priority: 'urgent'
+    });
     this.showNotification('EMERGENCY SHUTDOWN', 'System shutting down safely');
     voiceService.speak('Awaryjne wyłączenie systemu');
     
-    // Deactivate all agents
-    fukoCore.getAgents().forEach(agent => {
-      fukoCore.deactivateAgent(agent.id);
-    });
+    const agents = await fukoService.getAgents();
+    for (const agent of agents) {
+      await fukoService.updateAgentStatus(agent.id, 'dormant');
+    }
   }
 
   private forceRestart() {
@@ -363,9 +366,9 @@ export class KeyboardService {
     setTimeout(() => window.location.reload(), 2000);
   }
 
-  private saveCurrentState() {
+  private async saveCurrentState() {
     console.log('Saving current state');
-    this.backupSystem();
+    await this.backupSystem();
   }
 
   private showNotification(title: string, message: string) {
