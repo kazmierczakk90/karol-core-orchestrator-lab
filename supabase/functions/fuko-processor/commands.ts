@@ -1,5 +1,5 @@
 
-import { FUKOMessage, Agent } from '@/types/fuko';
+import { FukoAgent } from './types.ts';
 
 const executeSystemCommand = (command: string): string => {
   const commands: Record<string, string> = {
@@ -28,7 +28,7 @@ const executeAgentCommand = (command: string): string => {
   return commands[command] || `Unknown agent command: ${command}`;
 };
 
-export const processCommand = (command: string, agent: Agent): string => {
+export const processCommand = (command: string, agent: FukoAgent): string => {
   if (command.startsWith('/')) {
     return executeSystemCommand(command);
   } else if (command.startsWith('&')) {

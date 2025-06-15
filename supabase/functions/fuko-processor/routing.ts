@@ -1,7 +1,7 @@
 
-import { FUKOMessage, Agent } from '@/types/fuko';
+import { FukoMessage, FukoAgent } from './types.ts';
 
-export const checkDependencies = (dependencies: string, agent: Agent): boolean => {
+export const checkDependencies = (dependencies: string, agent: FukoAgent): boolean => {
   if (!dependencies) return true;
   const requiredDeps = dependencies.split(',').map(dep => dep.trim());
   return requiredDeps.every(dep => 
@@ -9,7 +9,7 @@ export const checkDependencies = (dependencies: string, agent: Agent): boolean =
   );
 };
 
-export const findBestAgent = (agents: Agent[], message: FUKOMessage): Agent | null => {
+export const findBestAgent = (agents: FukoAgent[], message: FukoMessage): FukoAgent | null => {
   const availableAgents = agents
     .filter(agent => agent.status === 'active')
     .filter(agent => checkDependencies(message.Z, agent));
@@ -18,6 +18,6 @@ export const findBestAgent = (agents: Agent[], message: FUKOMessage): Agent | nu
   
   // Score agents based on competency and capabilities match
   return availableAgents.reduce((best, current) => 
-    current.competencyScore > best.competencyScore ? current : best
+    current.competency_score > best.competency_score ? current : best
   );
 };
