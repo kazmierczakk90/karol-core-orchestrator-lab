@@ -1,4 +1,3 @@
-
 export interface OpenAIConfig {
   apiKey: string;
   assistantId: string;
@@ -11,6 +10,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   agentId?: string;
+  files?: ProjectFile[];
 }
 
 export interface Agent {

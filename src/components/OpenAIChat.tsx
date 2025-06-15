@@ -1,21 +1,23 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Send, Bot, User, Search } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Search, Paperclip, File as FileIcon, X, Loader2, Mic } from 'lucide-react';
 import { openaiService } from '@/services/openaiService';
-import { ChatMessage, Agent } from '@/types/openai';
+import { ChatMessage, Agent, ProjectFile } from '@/types/openai';
 
 const OpenAIChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState('@ceo');
   const [agentSearchQuery, setAgentSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Pełna lista 47 agentów
   const allAgents: Agent[] = [
@@ -79,22 +81,55 @@ const OpenAIChat = () => {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && selectedFiles.length === 0) || isLoading) return;
+
+    setIsLoading(true);
+    let uploadedFiles: ProjectFile[] = [];
+
+    if (selectedFiles.length > 0) {
+      setIsUploadingFiles(true);
+      try {
+        const uploadPromises = selectedFiles.map(file => openaiService.uploadFile(file));
+        uploadedFiles = await Promise.all(uploadPromises);
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        const errorMessage: ChatMessage = {
+          id: `msg_${Date.now()}_upload_error`,
+          role: 'assistant',
+          content: 'I had trouble uploading your files. Please try again.',
+          timestamp: new Date(),
+          agentId: selectedAgent,
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setIsLoading(false);
+        setIsUploadingFiles(false);
+        return;
+      } finally {
+        setIsUploadingFiles(false);
+      }
+    }
+    
+    let messageContent = input;
+    if (uploadedFiles.length > 0) {
+      const fileNames = uploadedFiles.map(f => f.name).join(', ');
+      messageContent += `\n\n(Udostępniono pliki: ${fileNames})`;
+    }
 
     const userMessage: ChatMessage = {
       id: `msg_${Date.now()}_user`,
       role: 'user',
       content: input,
+      files: uploadedFiles,
       timestamp: new Date(),
       agentId: selectedAgent
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsLoading(true);
+    setSelectedFiles([]);
 
     try {
-      const response = await openaiService.sendMessage(input, selectedAgent);
+      const response = await openaiService.sendMessage(messageContent, selectedAgent);
       setMessages(prev => [...prev, response]);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -111,6 +146,23 @@ const OpenAIChat = () => {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFiles(prev => [...prev, ...Array.from(event.target.files!)]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -119,6 +171,14 @@ const OpenAIChat = () => {
   };
 
   const selectedAgentInfo = allAgents.find(a => a.id === selectedAgent);
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   return (
     <Card className="bg-slate-800/50 border-blue-800/30 h-full flex flex-col">
@@ -211,7 +271,20 @@ const OpenAIChat = () => {
                       : 'bg-slate-700/50 text-slate-100'
                   }`}
                 >
-                  <div className="text-sm leading-relaxed">{message.content}</div>
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
+                  {message.files && message.files.length > 0 && (
+                    <div className="mt-2 space-y-2 border-t border-white/20 pt-2">
+                      {message.files.map(file => (
+                        <div key={file.id} className="flex items-center gap-2 bg-blue-700/50 p-2 rounded-md">
+                          <FileIcon className="h-5 w-5 flex-shrink-0" />
+                          <div className="text-xs">
+                            <p className="font-medium truncate">{file.name}</p>
+                            <p className="opacity-80">{formatFileSize(file.size)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="text-xs opacity-70 mt-1">
                     {message.agentId} • {message.timestamp.toLocaleTimeString()}
                   </div>
@@ -224,7 +297,7 @@ const OpenAIChat = () => {
               </div>
             ))
           )}
-          {isLoading && (
+          {isLoading && !isUploadingFiles && (
             <div className="flex items-start space-x-3">
               <Bot className="h-6 w-6 text-cyan-400" />
               <div className="bg-slate-700/50 rounded-lg p-3">
@@ -236,24 +309,76 @@ const OpenAIChat = () => {
               </div>
             </div>
           )}
+          {isUploadingFiles && (
+            <div className="flex items-start space-x-3">
+              <Bot className="h-6 w-6 text-cyan-400" />
+              <div className="bg-slate-700/50 rounded-lg p-3 text-sm text-slate-200 flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Uploading files...</span>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
+        {selectedFiles.length > 0 && (
+          <div className="mb-2 p-2 bg-slate-900/50 rounded-lg space-y-2 max-h-32 overflow-y-auto">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between text-sm text-white bg-slate-700/50 p-2 rounded">
+                <div className="flex items-center space-x-2 truncate">
+                  <FileIcon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{file.name}</span>
+                  <span className="text-slate-400 text-xs">({formatFileSize(file.size)})</span>
+                </div>
+                <Button size="icon" variant="ghost" className="h-6 w-6 text-red-400 hover:bg-red-500/20" onClick={() => removeSelectedFile(index)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={triggerFileSelect}
+            disabled={isLoading}
+            className="bg-slate-900/50 border-slate-700/50 text-white hover:bg-slate-700"
+          >
+            <Paperclip className="h-4 w-4" />
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            onChange={handleFileSelect}
+            className="hidden"
+            accept=".txt,.pdf,.doc,.docx,.json,.csv,.md,image/*"
+          />
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Napisz wiadomość..."
+            placeholder="Napisz wiadomość lub załącz plik..."
             className="bg-slate-900/50 border-slate-700/50 text-white"
             disabled={isLoading}
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!input.trim() || isLoading}
+            disabled={(!input.trim() && selectedFiles.length === 0) || isLoading}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            <Send className="h-4 w-4" />
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            disabled
+            title="Voice input (coming soon)"
+            className="bg-slate-900/50 border-slate-700/50 text-white cursor-not-allowed"
+          >
+            <Mic className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>
