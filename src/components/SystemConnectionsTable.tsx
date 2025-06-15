@@ -1,15 +1,16 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Zap, Play, Pause, Settings, Trash2, Plus, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Zap, Play, Pause, Settings, Trash2, Plus, RefreshCw, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { SystemConnection } from '@/types/system';
 import AddConnectionModal from '@/components/connections/AddConnectionModal';
+import { useToast } from "@/components/ui/use-toast";
 
-const SystemConnectionsTable = () => {
-  const [connections, setConnections] = useState<SystemConnection[]>([
+const initialConnectionsData = [
     { id: 'conn_1', name: 'OpenAI API', type: 'api', status: 'connected', endpoint: 'https://api.openai.com', lastPing: new Date(), responseTime: 245, uptime: 99.8, requests: 1547, errors: 3, description: 'Primary AI model API connection' },
     { id: 'conn_2', name: 'Google Search API', type: 'api', status: 'connected', endpoint: 'https://www.googleapis.com/customsearch', lastPing: new Date(), responseTime: 180, uptime: 99.9, requests: 892, errors: 1, description: 'Search functionality integration' },
     { id: 'conn_3', name: 'Supabase Database', type: 'database', status: 'connected', endpoint: 'https://xhhgaysawtaeimxeodfd.supabase.co', lastPing: new Date(), responseTime: 95, uptime: 99.95, requests: 2341, errors: 2, description: 'Primary database connection' },
@@ -17,8 +18,93 @@ const SystemConnectionsTable = () => {
     { id: 'conn_5', name: 'Voice Processing', type: 'service', status: 'testing', endpoint: 'https://api.elevenlabs.io', lastPing: new Date(), responseTime: 450, uptime: 97.2, requests: 234, errors: 12, description: 'Voice synthesis and processing' },
     { id: 'conn_6', name: 'Party App Webhook', type: 'webhook', status: 'error', endpoint: 'https://partyapp.club/webhook', lastPing: new Date(), responseTime: 0, uptime: 85.3, requests: 156, errors: 45, description: 'Event notifications from PartyApp' },
     { id: 'conn_7', name: 'Slack Integration', type: 'integration', status: 'disconnected', endpoint: 'https://hooks.slack.com/services', lastPing: new Date(), responseTime: 0, uptime: 0, requests: 0, errors: 0, description: 'Team communication integration' }
-  ]);
+];
+
+const SystemConnectionsTable = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: connections, isLoading, error: queryError } = useQuery<SystemConnection[]>({
+    queryKey: ['connections'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('system_connections').select('*').order('created_at', { ascending: true });
+      if (error) throw new Error(error.message);
+      return data || [];
+    },
+  });
+
+  const { mutate: seedConnections } = useMutation({
+    mutationFn: async () => {
+      const connectionsToSeed = initialConnectionsData.map(c => ({
+        name: c.name,
+        description: c.description,
+        type: c.type,
+        status: c.status,
+        endpoint: c.endpoint,
+        last_ping: c.lastPing.toISOString(),
+        response_time: c.responseTime,
+        uptime: c.uptime,
+        requests: c.requests,
+        errors: c.errors,
+      }));
+      const { error } = await supabase.from('system_connections').insert(connectionsToSeed);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Seeding failed', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  useEffect(() => {
+    if (connections && connections.length === 0) {
+      seedConnections();
+    }
+  }, [connections, seedConnections]);
+
+  useEffect(() => {
+    const channel = supabase.channel('system_connections_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_connections' },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ['connections'] });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  const updateConnectionMutation = useMutation({
+    mutationFn: async (connection: Partial<SystemConnection> & Pick<SystemConnection, 'id'>) => {
+        const { id, ...updateData } = connection;
+        const { error } = await supabase.from('system_connections').update(updateData).eq('id', id);
+        if (error) throw error;
+    },
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['connections'] });
+    },
+    onError: (error: Error) => {
+        toast({ title: 'Update Failed', description: error.message, variant: 'destructive' });
+    }
+  });
+
+  const deleteConnectionMutation = useMutation({
+    mutationFn: async (connectionId: string) => {
+        const { error } = await supabase.from('system_connections').delete().eq('id', connectionId);
+        if (error) throw error;
+    },
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['connections'] });
+        toast({ title: 'Connection Deleted' });
+    },
+    onError: (error: Error) => {
+        toast({ title: 'Deletion Failed', description: error.message, variant: 'destructive' });
+    }
+  });
 
   const typeColors = {
     api: 'bg-blue-500/20 text-blue-400',
@@ -49,44 +135,32 @@ const SystemConnectionsTable = () => {
   };
 
   const testConnection = (connectionId: string) => {
-    setConnections(prev => prev.map(conn => 
-      conn.id === connectionId 
-        ? { ...conn, status: 'testing', lastPing: new Date() }
-        : conn
-    ));
+    updateConnectionMutation.mutate({ id: connectionId, status: 'testing', last_ping: new Date().toISOString() });
 
-    // Simulate connection test
     setTimeout(() => {
-      setConnections(prev => prev.map(conn => 
-        conn.id === connectionId 
-          ? { 
-              ...conn, 
-              status: Math.random() > 0.2 ? 'connected' : 'error',
-              responseTime: Math.floor(Math.random() * 500) + 50,
-              lastPing: new Date()
-            }
-          : conn
-      ));
+      updateConnectionMutation.mutate({
+        id: connectionId,
+        status: Math.random() > 0.2 ? 'connected' : 'error',
+        response_time: Math.floor(Math.random() * 500) + 50,
+        last_ping: new Date().toISOString()
+      });
     }, 2000);
   };
 
-  const toggleConnection = (connectionId: string) => {
-    setConnections(prev => prev.map(conn => 
-      conn.id === connectionId 
-        ? { 
-            ...conn, 
-            status: conn.status === 'connected' ? 'disconnected' : 'connected',
-            lastPing: new Date()
-          }
-        : conn
-    ));
-  };
-  
-  const handleAddConnection = (newConnection: SystemConnection) => {
-    setConnections(prev => [...prev, newConnection]);
+  const toggleConnection = (connection: SystemConnection) => {
+    updateConnectionMutation.mutate({
+      id: connection.id,
+      status: connection.status === 'connected' ? 'disconnected' : 'connected',
+      last_ping: new Date().toISOString()
+    });
   };
 
+  const deleteConnection = (connectionId: string) => {
+    deleteConnectionMutation.mutate(connectionId);
+  }
+  
   const getConnectionStats = () => {
+    if (!connections) return { total: 0, connected: 0, disconnected: 0, error: 0, testing: 0 };
     return {
       total: connections.length,
       connected: connections.filter(c => c.status === 'connected').length,
@@ -142,129 +216,144 @@ const SystemConnectionsTable = () => {
         </CardHeader>
 
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-slate-700/50">
-                <TableHead className="text-slate-300">Connection</TableHead>
-                <TableHead className="text-slate-300">Type</TableHead>
-                <TableHead className="text-slate-300">Status</TableHead>
-                <TableHead className="text-slate-300">Endpoint</TableHead>
-                <TableHead className="text-slate-300">Response Time</TableHead>
-                <TableHead className="text-slate-300">Uptime</TableHead>
-                <TableHead className="text-slate-300">Requests</TableHead>
-                <TableHead className="text-slate-300">Errors</TableHead>
-                <TableHead className="text-slate-300">Last Ping</TableHead>
-                <TableHead className="text-slate-300">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {connections.map((connection) => (
-                <TableRow key={connection.id} className="border-slate-700/50 hover:bg-slate-700/30">
-                  <TableCell>
-                    <div>
-                      <div className="font-semibold text-white">{connection.name}</div>
-                      <div className="text-slate-400 text-sm">{connection.description}</div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Badge className={typeColors[connection.type]}>
-                      {connection.type}
-                    </Badge>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Badge className={statusColors[connection.status]}>
-                      {connection.status}
-                    </Badge>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-slate-300 text-sm font-mono truncate max-w-xs block" title={connection.endpoint}>
-                      {connection.endpoint}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className={`font-semibold ${getResponseTimeColor(connection.responseTime)}`}>
-                      {connection.responseTime === 0 ? '-' : `${connection.responseTime}ms`}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className={`font-semibold ${getUptimeColor(connection.uptime)}`}>
-                      {connection.uptime === 0 ? '-' : `${connection.uptime}%`}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-slate-300 font-semibold">{connection.requests.toLocaleString()}</span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className={`font-semibold ${connection.errors > 0 ? 'text-red-400' : 'text-green-400'}`}>
-                      {connection.errors}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-slate-400 text-sm">
-                      {connection.lastPing.toLocaleTimeString()}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-green-400"
-                        onClick={() => testConnection(connection.id)}
-                        disabled={connection.status === 'testing'}
-                      >
-                        <RefreshCw className={`h-3 w-3 ${connection.status === 'testing' ? 'animate-spin' : ''}`} />
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-cyan-400"
-                        onClick={() => toggleConnection(connection.id)}
-                      >
-                        {connection.status === 'connected' ? (
-                          <Pause className="h-3 w-3" />
-                        ) : (
-                          <Play className="h-3 w-3" />
-                        )}
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-blue-400"
-                      >
-                        <Settings className="h-3 w-3" />
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-600 hover:border-red-400 text-red-400"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {isLoading && (
+            <div className="flex justify-center items-center py-10">
+              <Loader2 className="h-8 w-8 text-cyan-400 animate-spin" />
+            </div>
+          )}
+          {queryError && (
+            <div className="text-center py-10 text-red-400">
+              <p>Error loading connections:</p>
+              <p>{(queryError as Error).message}</p>
+            </div>
+          )}
+          {!isLoading && !queryError && (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-700/50">
+                  <TableHead className="text-slate-300">Connection</TableHead>
+                  <TableHead className="text-slate-300">Type</TableHead>
+                  <TableHead className="text-slate-300">Status</TableHead>
+                  <TableHead className="text-slate-300">Endpoint</TableHead>
+                  <TableHead className="text-slate-300">Response Time</TableHead>
+                  <TableHead className="text-slate-300">Uptime</TableHead>
+                  <TableHead className="text-slate-300">Requests</TableHead>
+                  <TableHead className="text-slate-300">Errors</TableHead>
+                  <TableHead className="text-slate-300">Last Ping</TableHead>
+                  <TableHead className="text-slate-300">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {connections?.map((connection) => (
+                  <TableRow key={connection.id} className="border-slate-700/50 hover:bg-slate-700/30">
+                    <TableCell>
+                      <div>
+                        <div className="font-semibold text-white">{connection.name}</div>
+                        <div className="text-slate-400 text-sm">{connection.description}</div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge className={typeColors[connection.type]}>
+                        {connection.type}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge className={statusColors[connection.status]}>
+                        {connection.status}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="text-slate-300 text-sm font-mono truncate max-w-xs block" title={connection.endpoint}>
+                        {connection.endpoint}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className={`font-semibold ${getResponseTimeColor(connection.response_time)}`}>
+                        {connection.response_time === 0 ? '-' : `${connection.response_time}ms`}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className={`font-semibold ${getUptimeColor(connection.uptime)}`}>
+                        {connection.uptime === 0 ? '-' : `${connection.uptime}%`}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="text-slate-300 font-semibold">{connection.requests.toLocaleString()}</span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className={`font-semibold ${connection.errors > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                        {connection.errors}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="text-slate-400 text-sm">
+                        {new Date(connection.last_ping).toLocaleTimeString()}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-green-400"
+                          onClick={() => testConnection(connection.id)}
+                          disabled={connection.status === 'testing' || updateConnectionMutation.isPending}
+                        >
+                          <RefreshCw className={`h-3 w-3 ${connection.status === 'testing' ? 'animate-spin' : ''}`} />
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-cyan-400"
+                          onClick={() => toggleConnection(connection)}
+                          disabled={updateConnectionMutation.isPending}
+                        >
+                          {connection.status === 'connected' ? (
+                            <Pause className="h-3 w-3" />
+                          ) : (
+                            <Play className="h-3 w-3" />
+                          )}
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-blue-400"
+                        >
+                          <Settings className="h-3 w-3" />
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 hover:border-red-400 text-red-400"
+                          onClick={() => deleteConnection(connection.id)}
+                          disabled={deleteConnectionMutation.isPending && deleteConnectionMutation.variables === connection.id}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
       <AddConnectionModal 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAddConnection={handleAddConnection}
       />
     </>
   );

@@ -1,25 +1,68 @@
-
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SystemConnection, ConnectionType } from '@/types/system';
-import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/components/ui/use-toast";
 
 interface AddConnectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddConnection: (connection: SystemConnection) => void;
 }
 
-const AddConnectionModal = ({ isOpen, onClose, onAddConnection }: AddConnectionModalProps) => {
+type NewConnection = Omit<SystemConnection, 'id' | 'created_at' | 'last_ping' | 'uptime' | 'requests' | 'errors' | 'response_time' | 'status'>;
+
+const AddConnectionModal = ({ isOpen, onClose }: AddConnectionModalProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<ConnectionType>('api');
   const [endpoint, setEndpoint] = useState('');
   const [error, setError] = useState('');
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const addConnectionMutation = useMutation({
+    mutationFn: async (newConnection: NewConnection) => {
+      const { data, error } = await supabase.from('system_connections').insert([
+        { 
+          ...newConnection,
+          status: 'disconnected',
+          last_ping: new Date().toISOString(),
+          response_time: 0,
+          uptime: 100,
+          requests: 0,
+          errors: 0,
+        }
+      ]).select();
+      
+      if (error) {
+        throw error;
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
+      toast({
+        title: "Connection Added",
+        description: "The new connection has been successfully added.",
+      });
+      handleClose();
+    },
+    onError: (error: Error) => {
+      setError(`Failed to add connection: ${error.message}`);
+      toast({
+        title: "Error",
+        description: `Failed to add connection: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
 
   const handleSubmit = () => {
     if (!name || !endpoint) {
@@ -28,21 +71,12 @@ const AddConnectionModal = ({ isOpen, onClose, onAddConnection }: AddConnectionM
     }
     setError('');
 
-    const newConnection: SystemConnection = {
-      id: `conn_${uuidv4().substring(0, 8)}`,
+    addConnectionMutation.mutate({
       name,
       description,
       type,
       endpoint,
-      status: 'disconnected', // New connections start as disconnected
-      lastPing: new Date(),
-      responseTime: 0,
-      uptime: 0,
-      requests: 0,
-      errors: 0,
-    };
-    onAddConnection(newConnection);
-    handleClose();
+    });
   };
   
   const handleClose = () => {
@@ -101,10 +135,13 @@ const AddConnectionModal = ({ isOpen, onClose, onAddConnection }: AddConnectionM
             <Input id="endpoint" value={endpoint} onChange={(e) => setEndpoint(e.target.value)} className="col-span-3 bg-slate-800 border-slate-700 focus:ring-cyan-500" placeholder="https://api.example.com/v1" />
           </div>
           {error && <p className="col-span-4 text-red-400 text-sm text-center">{error}</p>}
+          {addConnectionMutation.isError && <p className="col-span-4 text-red-400 text-sm text-center">{(addConnectionMutation.error as Error).message}</p>}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} className="border-slate-700 hover:bg-slate-800">Cancel</Button>
-          <Button onClick={handleSubmit} className="bg-gradient-primary hover:bg-gradient-secondary">Save Connection</Button>
+          <Button onClick={handleSubmit} className="bg-gradient-primary hover:bg-gradient-secondary" disabled={addConnectionMutation.isPending}>
+            {addConnectionMutation.isPending ? 'Saving...' : 'Save Connection'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

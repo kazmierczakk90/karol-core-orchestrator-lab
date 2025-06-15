@@ -216,6 +216,95 @@ export type Database = {
         }
         Relationships: []
       }
+      memory_entries: {
+        Row: {
+          agent_id: string | null
+          content: string
+          context: string | null
+          expires_at: string | null
+          id: string
+          importance: number | null
+          memory_type: string | null
+          timestamp: string | null
+          trigger_rules: string[] | null
+        }
+        Insert: {
+          agent_id?: string | null
+          content: string
+          context?: string | null
+          expires_at?: string | null
+          id?: string
+          importance?: number | null
+          memory_type?: string | null
+          timestamp?: string | null
+          trigger_rules?: string[] | null
+        }
+        Update: {
+          agent_id?: string | null
+          content?: string
+          context?: string | null
+          expires_at?: string | null
+          id?: string
+          importance?: number | null
+          memory_type?: string | null
+          timestamp?: string | null
+          trigger_rules?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_entries_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mini_ai: {
+        Row: {
+          author: string | null
+          category: string | null
+          config: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_pinned: boolean | null
+          is_public: boolean | null
+          name: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          config?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_pinned?: boolean | null
+          is_public?: boolean | null
+          name: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          config?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_pinned?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       POSTS: {
         Row: {
           CONTENT: string | null
@@ -231,6 +320,51 @@ export type Database = {
           CONTENT?: string | null
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      system_connections: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          endpoint: string
+          errors: number | null
+          id: string
+          last_ping: string | null
+          name: string
+          requests: number | null
+          response_time: number | null
+          status: string
+          type: string
+          uptime: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          endpoint: string
+          errors?: number | null
+          id?: string
+          last_ping?: string | null
+          name: string
+          requests?: number | null
+          response_time?: number | null
+          status: string
+          type: string
+          uptime?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          endpoint?: string
+          errors?: number | null
+          id?: string
+          last_ping?: string | null
+          name?: string
+          requests?: number | null
+          response_time?: number | null
+          status?: string
+          type?: string
+          uptime?: number | null
         }
         Relationships: []
       }
