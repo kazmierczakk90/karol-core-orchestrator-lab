@@ -318,8 +318,8 @@ export class KeyboardService {
     const activeAgents = agents.filter(a => a.status === 'active');
     if (activeAgents.length > 0) {
       const agent = activeAgents[Math.floor(Math.random() * activeAgents.length)];
-      await fukoService.updateAgentStatus(agent.id, 'dormant');
-      setTimeout(async () => await fukoService.updateAgentStatus(agent.id, 'active'), 1000);
+      await fukoService.updateAgentStatusByName(agent.name, 'dormant');
+      setTimeout(async () => await fukoService.updateAgentStatusByName(agent.name, 'active'), 1000);
       this.showNotification('Agent Reset', `${agent.name} restarted`);
     }
   }
@@ -356,7 +356,7 @@ export class KeyboardService {
     
     const agents = await fukoService.getAgents();
     for (const agent of agents) {
-      await fukoService.updateAgentStatus(agent.id, 'dormant');
+      await fukoService.updateAgentStatusByName(agent.name, 'dormant');
     }
   }
 
