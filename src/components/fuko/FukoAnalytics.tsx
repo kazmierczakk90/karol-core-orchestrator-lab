@@ -1,13 +1,22 @@
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Activity, AlertTriangle } from 'lucide-react';
+import { Activity, AlertTriangle, Loader2 } from 'lucide-react';
 import { useFuko } from '@/hooks/useFuko';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FukoAnalytics = () => {
-  const { kpiData, isLoadingKpi } = useFuko();
-  const [alerts, setAlerts] = useState<string[]>([]);
+  const { kpiData, isLoadingKpi, messages, isLoadingMessages } = useFuko();
+
+  const alerts = useMemo(() => {
+    return messages
+      ?.filter(m => m.status === 'failed')
+      .map(m => ({
+        id: m.id,
+        text: `Message "${m.F}" failed for agent ${m.target_agent || 'unassigned'}. Reason: ${m.execution_result || 'No agent found.'}`
+      })) || [];
+  }, [messages]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -52,17 +61,25 @@ const FukoAnalytics = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {alerts.length === 0 ? (
-              <p className="text-slate-400">No active alerts. (Feature in development)</p>
-            ) : (
-              alerts.map((alert, index) => (
-                <div key={index} className="p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
-                  {alert}
-                </div>
-              ))
-            )}
-          </div>
+          {isLoadingMessages ? (
+             <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {alerts.length === 0 ? (
+                <p className="text-slate-400">No active alerts. System is stable.</p>
+              ) : (
+                alerts.map((alert) => (
+                  <div key={alert.id} className="p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                    {alert.text}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
