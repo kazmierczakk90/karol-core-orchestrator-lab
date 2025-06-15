@@ -26,27 +26,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreateAgentData } from '@/types/agent';
 
-const agentSchema = z.object({
+const agentFormSchema = z.object({
   identifier: z.string().min(1, "Identifier is required"),
   name: z.string().min(1, "Name is required"),
   type: z.enum(["core", "karol", "integration", "utility"]),
   description: z.string().min(1, "Description is required"),
-  capabilities: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
+  capabilities: z.string(),
   version: z.string().min(1, "Version is required"),
 });
 
-type AgentFormValues = z.infer<typeof agentSchema>;
+type AgentFormValues = z.infer<typeof agentFormSchema>;
 
 interface AddAgentModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onAgentAdded: (agent: CreateAgentData) => void;
+  onAgentAdded: (agent: CreateAgentData, options?: { onSuccess?: () => void }) => void;
   isCreating: boolean;
 }
 
 export const AddAgentModal = ({ isOpen, onOpenChange, onAgentAdded, isCreating }: AddAgentModalProps) => {
   const form = useForm<AgentFormValues>({
-    resolver: zodResolver(agentSchema),
+    resolver: zodResolver(agentFormSchema),
     defaultValues: {
       identifier: '',
       name: '',
@@ -58,7 +58,11 @@ export const AddAgentModal = ({ isOpen, onOpenChange, onAgentAdded, isCreating }
   });
 
   const onSubmit = (values: AgentFormValues) => {
-    onAgentAdded(values, {
+    const agentData: CreateAgentData = {
+        ...values,
+        capabilities: values.capabilities.split(',').map(s => s.trim()).filter(Boolean),
+    };
+    onAgentAdded(agentData, {
         onSuccess: () => {
             form.reset();
             onOpenChange(false);
@@ -153,4 +157,3 @@ export const AddAgentModal = ({ isOpen, onOpenChange, onAgentAdded, isCreating }
     </Dialog>
   );
 };
-
