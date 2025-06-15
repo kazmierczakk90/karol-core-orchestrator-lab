@@ -1,144 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Zap, Play, Pause, Settings, Trash2, Plus, RefreshCw, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
-import { SystemConnection, ConnectionType, ConnectionStatus } from '@/types/system';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Zap, Plus, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { SystemConnection } from '@/types/system';
 import AddConnectionModal from '@/components/connections/AddConnectionModal';
-import { useToast } from "@/components/ui/use-toast";
-
-const initialConnectionsData = [
-    { id: 'conn_1', name: 'OpenAI API', type: 'api', status: 'connected', endpoint: 'https://api.openai.com', lastPing: new Date(), responseTime: 245, uptime: 99.8, requests: 1547, errors: 3, description: 'Primary AI model API connection' },
-    { id: 'conn_2', name: 'Google Search API', type: 'api', status: 'connected', endpoint: 'https://www.googleapis.com/customsearch', lastPing: new Date(), responseTime: 180, uptime: 99.9, requests: 892, errors: 1, description: 'Search functionality integration' },
-    { id: 'conn_3', name: 'Supabase Database', type: 'database', status: 'connected', endpoint: 'https://xhhgaysawtaeimxeodfd.supabase.co', lastPing: new Date(), responseTime: 95, uptime: 99.95, requests: 2341, errors: 2, description: 'Primary database connection' },
-    { id: 'conn_4', name: 'Vector Store', type: 'service', status: 'connected', endpoint: 'https://api.pinecone.io', lastPing: new Date(), responseTime: 320, uptime: 98.5, requests: 567, errors: 8, description: 'Vector database for embeddings' },
-    { id: 'conn_5', name: 'Voice Processing', type: 'service', status: 'testing', endpoint: 'https://api.elevenlabs.io', lastPing: new Date(), responseTime: 450, uptime: 97.2, requests: 234, errors: 12, description: 'Voice synthesis and processing' },
-    { id: 'conn_6', name: 'Party App Webhook', type: 'webhook', status: 'error', endpoint: 'https://partyapp.club/webhook', lastPing: new Date(), responseTime: 0, uptime: 85.3, requests: 156, errors: 45, description: 'Event notifications from PartyApp' },
-    { id: 'conn_7', name: 'Slack Integration', type: 'integration', status: 'disconnected', endpoint: 'https://hooks.slack.com/services', lastPing: new Date(), responseTime: 0, uptime: 0, requests: 0, errors: 0, description: 'Team communication integration' }
-];
+import { useConnections } from '@/hooks/useConnections';
+import { ConnectionTableRow } from './connections/ConnectionTableRow';
 
 const SystemConnectionsTable = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: connections, isLoading, error: queryError } = useQuery({
-    queryKey: ['connections'],
-    queryFn: async (): Promise<SystemConnection[]> => {
-      const { data, error } = await supabase.from('system_connections').select('*').order('created_at', { ascending: true });
-      if (error) throw new Error(error.message);
-      return (data as SystemConnection[]) || [];
-    },
-  });
-
-  const { mutate: seedConnections } = useMutation({
-    mutationFn: async () => {
-      const connectionsToSeed = initialConnectionsData.map(c => ({
-        name: c.name,
-        description: c.description,
-        type: c.type as ConnectionType,
-        status: c.status as ConnectionStatus,
-        endpoint: c.endpoint,
-        last_ping: c.lastPing.toISOString(),
-        response_time: c.responseTime,
-        uptime: c.uptime,
-        requests: c.requests,
-        errors: c.errors,
-      }));
-      const { error } = await supabase.from('system_connections').insert(connectionsToSeed);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['connections'] });
-    },
-    onError: (error: Error) => {
-      toast({ title: 'Seeding failed', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  useEffect(() => {
-    if (connections && connections.length === 0) {
-      seedConnections();
-    }
-  }, [connections, seedConnections]);
-
-  useEffect(() => {
-    const channel = supabase.channel('system_connections_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'system_connections' },
-        (payload) => {
-          queryClient.invalidateQueries({ queryKey: ['connections'] });
-        }
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
-  const updateConnectionMutation = useMutation({
-    mutationFn: async (connection: Partial<SystemConnection> & Pick<SystemConnection, 'id'>) => {
-        const { id, ...updateData } = connection;
-        const { error } = await supabase.from('system_connections').update(updateData).eq('id', id);
-        if (error) throw error;
-    },
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['connections'] });
-    },
-    onError: (error: Error) => {
-        toast({ title: 'Update Failed', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  const deleteConnectionMutation = useMutation({
-    mutationFn: async (connectionId: string) => {
-        const { error } = await supabase.from('system_connections').delete().eq('id', connectionId);
-        if (error) throw error;
-    },
-    onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['connections'] });
-        toast({ title: 'Connection Deleted' });
-    },
-    onError: (error: Error) => {
-        toast({ title: 'Deletion Failed', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  const typeColors = {
-    api: 'bg-blue-500/20 text-blue-400',
-    database: 'bg-green-500/20 text-green-400',
-    service: 'bg-purple-500/20 text-purple-400',
-    webhook: 'bg-orange-500/20 text-orange-400',
-    integration: 'bg-cyan-500/20 text-cyan-400'
-  };
-
-  const statusColors = {
-    connected: 'bg-green-500/20 text-green-400',
-    disconnected: 'bg-gray-500/20 text-gray-400',
-    error: 'bg-red-500/20 text-red-400',
-    testing: 'bg-yellow-500/20 text-yellow-400'
-  };
-
-  const getResponseTimeColor = (time: number) => {
-    if (time === 0) return 'text-gray-400';
-    if (time < 200) return 'text-green-400';
-    if (time < 500) return 'text-yellow-400';
-    return 'text-red-400';
-  };
-
-  const getUptimeColor = (uptime: number) => {
-    if (uptime >= 99) return 'text-green-400';
-    if (uptime >= 95) return 'text-yellow-400';
-    return 'text-red-400';
-  };
+  const { 
+    connections, 
+    isLoading, 
+    queryError,
+    updateConnection,
+    isUpdating,
+    deleteConnection,
+    isDeleting,
+    deleteConnectionVariables,
+   } = useConnections();
 
   const testConnection = (connectionId: string) => {
-    updateConnectionMutation.mutate({ id: connectionId, status: 'testing', last_ping: new Date().toISOString() });
+    updateConnection({ id: connectionId, status: 'testing', last_ping: new Date().toISOString() });
 
     setTimeout(() => {
-      updateConnectionMutation.mutate({
+      updateConnection({
         id: connectionId,
         status: Math.random() > 0.2 ? 'connected' : 'error',
         response_time: Math.floor(Math.random() * 500) + 50,
@@ -148,16 +37,12 @@ const SystemConnectionsTable = () => {
   };
 
   const toggleConnection = (connection: SystemConnection) => {
-    updateConnectionMutation.mutate({
+    updateConnection({
       id: connection.id,
       status: connection.status === 'connected' ? 'disconnected' : 'connected',
       last_ping: new Date().toISOString()
     });
   };
-
-  const deleteConnection = (connectionId: string) => {
-    deleteConnectionMutation.mutate(connectionId);
-  }
   
   const getConnectionStats = () => {
     if (!connections) return { total: 0, connected: 0, disconnected: 0, error: 0, testing: 0 };
@@ -245,106 +130,16 @@ const SystemConnectionsTable = () => {
               </TableHeader>
               <TableBody>
                 {connections?.map((connection) => (
-                  <TableRow key={connection.id} className="border-slate-700/50 hover:bg-slate-700/30">
-                    <TableCell>
-                      <div>
-                        <div className="font-semibold text-white">{connection.name}</div>
-                        <div className="text-slate-400 text-sm">{connection.description ?? ''}</div>
-                      </div>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Badge className={typeColors[connection.type]}>
-                        {connection.type}
-                      </Badge>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Badge className={statusColors[connection.status]}>
-                        {connection.status}
-                      </Badge>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className="text-slate-300 text-sm font-mono truncate max-w-xs block" title={connection.endpoint}>
-                        {connection.endpoint}
-                      </span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className={`font-semibold ${getResponseTimeColor(connection.response_time)}`}>
-                        {connection.response_time === 0 ? '-' : `${connection.response_time}ms`}
-                      </span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className={`font-semibold ${getUptimeColor(connection.uptime)}`}>
-                        {connection.uptime === 0 ? '-' : `${connection.uptime}%`}
-                      </span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className="text-slate-300 font-semibold">{connection.requests.toLocaleString()}</span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className={`font-semibold ${connection.errors > 0 ? 'text-red-400' : 'text-green-400'}`}>
-                        {connection.errors}
-                      </span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className="text-slate-400 text-sm">
-                        {new Date(connection.last_ping).toLocaleTimeString()}
-                      </span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-slate-600 hover:border-green-400"
-                          onClick={() => testConnection(connection.id)}
-                          disabled={connection.status === 'testing' || updateConnectionMutation.isPending}
-                        >
-                          <RefreshCw className={`h-3 w-3 ${connection.status === 'testing' ? 'animate-spin' : ''}`} />
-                        </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-slate-600 hover:border-cyan-400"
-                          onClick={() => toggleConnection(connection)}
-                          disabled={updateConnectionMutation.isPending}
-                        >
-                          {connection.status === 'connected' ? (
-                            <Pause className="h-3 w-3" />
-                          ) : (
-                            <Play className="h-3 w-3" />
-                          )}
-                        </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-slate-600 hover:border-blue-400"
-                        >
-                          <Settings className="h-3 w-3" />
-                        </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-slate-600 hover:border-red-400 text-red-400"
-                          onClick={() => deleteConnection(connection.id)}
-                          disabled={deleteConnectionMutation.isPending && deleteConnectionMutation.variables === connection.id}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <ConnectionTableRow
+                    key={connection.id}
+                    connection={connection}
+                    onTest={testConnection}
+                    onToggle={toggleConnection}
+                    onDelete={deleteConnection}
+                    isUpdating={isUpdating}
+                    isDeleting={isDeleting}
+                    deletingId={deleteConnectionVariables}
+                  />
                 ))}
               </TableBody>
             </Table>
