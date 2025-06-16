@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agent_states: {
+        Row: {
+          agent_id: string
+          current_status: string
+          emotional_state: Json | null
+          id: string
+          identity_score: number | null
+          last_decision_at: string | null
+          load_level: number | null
+          performance_score: number | null
+          style_consistency: number | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          current_status?: string
+          emotional_state?: Json | null
+          id?: string
+          identity_score?: number | null
+          last_decision_at?: string | null
+          load_level?: number | null
+          performance_score?: number | null
+          style_consistency?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          current_status?: string
+          emotional_state?: Json | null
+          id?: string
+          identity_score?: number | null
+          last_decision_at?: string | null
+          load_level?: number | null
+          performance_score?: number | null
+          style_consistency?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       agents: {
         Row: {
           capabilities: string[] | null
@@ -93,6 +132,45 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          audit_type: string
+          consistency_score: number | null
+          created_at: string
+          id: string
+          issues_found: Json | null
+          recommendations: Json | null
+          resolved: boolean | null
+          severity_level: string | null
+          target_entity: string
+          target_id: string
+        }
+        Insert: {
+          audit_type: string
+          consistency_score?: number | null
+          created_at?: string
+          id?: string
+          issues_found?: Json | null
+          recommendations?: Json | null
+          resolved?: boolean | null
+          severity_level?: string | null
+          target_entity: string
+          target_id: string
+        }
+        Update: {
+          audit_type?: string
+          consistency_score?: number | null
+          created_at?: string
+          id?: string
+          issues_found?: Json | null
+          recommendations?: Json | null
+          resolved?: boolean | null
+          severity_level?: string | null
+          target_entity?: string
+          target_id?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string | null
@@ -159,6 +237,42 @@ export type Database = {
         }
         Relationships: []
       }
+      fuko_identity: {
+        Row: {
+          agent_id: string
+          behavioral_patterns: Json | null
+          consistency_metrics: Json | null
+          core_identity: Json
+          created_at: string
+          id: string
+          identity_evolution: Json[] | null
+          last_verification: string | null
+          style_signature: string
+        }
+        Insert: {
+          agent_id: string
+          behavioral_patterns?: Json | null
+          consistency_metrics?: Json | null
+          core_identity: Json
+          created_at?: string
+          id?: string
+          identity_evolution?: Json[] | null
+          last_verification?: string | null
+          style_signature: string
+        }
+        Update: {
+          agent_id?: string
+          behavioral_patterns?: Json | null
+          consistency_metrics?: Json | null
+          core_identity?: Json
+          created_at?: string
+          id?: string
+          identity_evolution?: Json[] | null
+          last_verification?: string | null
+          style_signature?: string
+        }
+        Relationships: []
+      }
       fuko_messages: {
         Row: {
           execution_result: string | null
@@ -207,6 +321,45 @@ export type Database = {
           timestamp?: string
           U?: string
           Z?: string
+        }
+        Relationships: []
+      }
+      fuko_ram: {
+        Row: {
+          agent_id: string
+          created_at: string
+          decay_rate: number | null
+          emotional_context: Json
+          id: string
+          intensity_level: number | null
+          last_accessed: string | null
+          memory_content: string
+          memory_type: string
+          trigger_conditions: Json | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          decay_rate?: number | null
+          emotional_context: Json
+          id?: string
+          intensity_level?: number | null
+          last_accessed?: string | null
+          memory_content: string
+          memory_type: string
+          trigger_conditions?: Json | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          decay_rate?: number | null
+          emotional_context?: Json
+          id?: string
+          intensity_level?: number | null
+          last_accessed?: string | null
+          memory_content?: string
+          memory_type?: string
+          trigger_conditions?: Json | null
         }
         Relationships: []
       }
@@ -377,6 +530,57 @@ export type Database = {
           },
         ]
       }
+      meta_decisions: {
+        Row: {
+          completed_at: string | null
+          context: Json | null
+          created_at: string
+          decision_type: string
+          emotional_state: Json | null
+          execution_result: Json | null
+          id: string
+          priority: number
+          processed_at: string | null
+          routing_score: number | null
+          source_agent: string
+          status: string
+          style_fingerprint: string | null
+          target_agent: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          context?: Json | null
+          created_at?: string
+          decision_type: string
+          emotional_state?: Json | null
+          execution_result?: Json | null
+          id?: string
+          priority?: number
+          processed_at?: string | null
+          routing_score?: number | null
+          source_agent: string
+          status?: string
+          style_fingerprint?: string | null
+          target_agent?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          context?: Json | null
+          created_at?: string
+          decision_type?: string
+          emotional_state?: Json | null
+          execution_result?: Json | null
+          id?: string
+          priority?: number
+          processed_at?: string | null
+          routing_score?: number | null
+          source_agent?: string
+          status?: string
+          style_fingerprint?: string | null
+          target_agent?: string | null
+        }
+        Relationships: []
+      }
       mini_ai: {
         Row: {
           author: string | null
@@ -470,6 +674,50 @@ export type Database = {
         }
         Relationships: []
       }
+      priority_queue: {
+        Row: {
+          calculated_priority: number
+          created_at: string
+          decision_id: string | null
+          dependencies: string[] | null
+          estimated_duration: number | null
+          id: string
+          queue_position: number | null
+          resource_requirements: Json | null
+          scheduled_at: string | null
+        }
+        Insert: {
+          calculated_priority: number
+          created_at?: string
+          decision_id?: string | null
+          dependencies?: string[] | null
+          estimated_duration?: number | null
+          id?: string
+          queue_position?: number | null
+          resource_requirements?: Json | null
+          scheduled_at?: string | null
+        }
+        Update: {
+          calculated_priority?: number
+          created_at?: string
+          decision_id?: string | null
+          dependencies?: string[] | null
+          estimated_duration?: number | null
+          id?: string
+          queue_position?: number | null
+          resource_requirements?: Json | null
+          scheduled_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priority_queue_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "meta_decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_files: {
         Row: {
           id: string
@@ -535,6 +783,42 @@ export type Database = {
         }
         Relationships: []
       }
+      routing_rules: {
+        Row: {
+          actions: Json | null
+          agent_pattern: string
+          conditions: Json | null
+          created_at: string
+          decision_pattern: string
+          id: string
+          is_active: boolean | null
+          priority_modifier: number | null
+          rule_name: string
+        }
+        Insert: {
+          actions?: Json | null
+          agent_pattern: string
+          conditions?: Json | null
+          created_at?: string
+          decision_pattern: string
+          id?: string
+          is_active?: boolean | null
+          priority_modifier?: number | null
+          rule_name: string
+        }
+        Update: {
+          actions?: Json | null
+          agent_pattern?: string
+          conditions?: Json | null
+          created_at?: string
+          decision_pattern?: string
+          id?: string
+          is_active?: boolean | null
+          priority_modifier?: number | null
+          rule_name?: string
+        }
+        Relationships: []
+      }
       system_connections: {
         Row: {
           created_at: string | null
@@ -585,6 +869,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_decision_priority: {
+        Args: { decision_id: string }
+        Returns: number
+      }
+      calculate_routing_score: {
+        Args: { decision_data: Json; agent_capabilities: string[] }
+        Returns: number
+      }
       custom_access_token_hook: {
         Args: { event: Json }
         Returns: Json
