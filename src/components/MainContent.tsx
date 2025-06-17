@@ -45,6 +45,10 @@ export const MainContent = ({
   // Combine extracted links from props and hook
   const allExtractedLinks = [...extractedLinks, ...hookExtractedLinks];
 
+  const handleOpenURLScrap = () => {
+    setActiveDataTab('url-scrap');
+  };
+
   if (activeGroup === 'openai') {
     return (
       <Tabs value={activeOpenAITab} onValueChange={setActiveOpenAITab} className="w-full h-full flex flex-col">
@@ -63,7 +67,7 @@ export const MainContent = ({
               <FUKOConsole />
             </TabsContent>
             <TabsContent value="browser" className="h-full m-0">
-              <BrowserCore onLinksExtracted={handleExtractLinks} />
+              <BrowserCore onLinksExtracted={handleExtractLinks} onOpenURLScrap={handleOpenURLScrap} />
             </TabsContent>
           </Suspense>
         </div>

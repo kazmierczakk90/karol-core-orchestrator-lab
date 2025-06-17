@@ -1,3 +1,4 @@
+
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -8,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner"
 import Header from '@/components/Header';
 import FloatingActionKey from '@/components/FloatingActionKey';
 
-import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader, Layers } from 'lucide-react';
+import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader, Layers, Globe } from 'lucide-react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { MainContent } from '@/components/MainContent';
@@ -42,6 +43,7 @@ const IndexContent = () => {
     { value: 'commander', label: 'Commander', icon: Users },
     { value: 'workflow', label: 'Workflow', icon: Workflow },
     { value: 'orchestrator', label: 'Orchestrator', icon: Network },
+    { value: 'browser', label: 'Browser', icon: Globe },
   ];
 
   const dataTabs = [
@@ -51,6 +53,7 @@ const IndexContent = () => {
     { value: 'connections', label: 'System Connections', icon: Zap },
     { value: 'url-scrap', label: 'URL Scrap', icon: Search },
     { value: 'meta-decisions', label: 'Meta Decisions', icon: Layers },
+    { value: 'full-armor', label: 'Full Armor', icon: Layers },
   ];
 
   return (
@@ -104,8 +107,8 @@ const IndexContent = () => {
       <FloatingActionKey
         onExtractLinks={handleExtractLinks}
         onOpenBrowser={() => {
-            setActiveDataTab('url-scrap');
-            setActiveGroup('data');
+            setActiveOpenAITab('browser');
+            setActiveGroup('openai');
         }}
         onOpenMiniAI={() => {
             setActiveDataTab('mini-ai');

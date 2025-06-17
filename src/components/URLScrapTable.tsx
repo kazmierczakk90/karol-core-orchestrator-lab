@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Trash2, ExternalLink, RefreshCw, Edit, Save, X } from 'lucide-react';
+import { Search, Plus, Trash2, ExternalLink, RefreshCw, Edit, Save, X, Database, Settings } from 'lucide-react';
 
 interface ScrapVariable {
   id: string;
@@ -48,6 +47,7 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
   const [scrapEntries, setScrapEntries] = useState<URLScrapEntry[]>([]);
   const [editingVariable, setEditingVariable] = useState<string | null>(null);
   const [newVariableValue, setNewVariableValue] = useState<string>('');
+  const [showLinkManagement, setShowLinkManagement] = useState(false);
 
   // Initialize with extracted links
   useEffect(() => {
@@ -219,6 +219,16 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
           <div className="flex space-x-2">
             <Button 
               size="sm" 
+              variant="outline"
+              className="border-purple-500/50 text-purple-400 hover:bg-purple-500/20"
+              onClick={() => setShowLinkManagement(!showLinkManagement)}
+            >
+              <Database className="h-4 w-4 mr-2" />
+              Manage Links
+            </Button>
+            
+            <Button 
+              size="sm" 
               className="bg-gradient-secondary hover:bg-gradient-primary"
               onClick={simulateAutoUpdate}
             >
@@ -235,6 +245,40 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {showLinkManagement && (
+          <Card className="bg-slate-700/50 border-purple-600/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-purple-400 font-semibold">Link Management Interface</h3>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setShowLinkManagement(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="text-sm text-slate-400 mb-4">
+                Zarządzaj regułami kolumn, typami danych i strukturą tabeli podobnie do interfejsu bazy danych.
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-slate-800/50 p-3 rounded border border-slate-600">
+                  <h4 className="text-cyan-400 text-sm font-medium mb-2">Column Rules</h4>
+                  <p className="text-xs text-slate-400">Configure data types and validation</p>
+                </div>
+                <div className="bg-slate-800/50 p-3 rounded border border-slate-600">
+                  <h4 className="text-green-400 text-sm font-medium mb-2">Auto Scraping</h4>
+                  <p className="text-xs text-slate-400">Schedule systematic data extraction</p>
+                </div>
+                <div className="bg-slate-800/50 p-3 rounded border border-slate-600">
+                  <h4 className="text-blue-400 text-sm font-medium mb-2">Export/Import</h4>
+                  <p className="text-xs text-slate-400">Backup and restore configurations</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {scrapEntries.map((entry) => (
           <Card key={entry.id} className="bg-slate-700/50 border-slate-600/50">
             <CardContent className="p-4">

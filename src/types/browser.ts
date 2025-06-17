@@ -23,3 +23,28 @@ export interface NavigationHistory {
   title: string;
   timestamp: number;
 }
+
+export interface LinkRule {
+  id: string;
+  columnName: string;
+  columnType: 'string' | 'number' | 'boolean' | 'url' | 'date' | 'tags';
+  nullable: boolean;
+  defaultValue?: any;
+  validation?: string;
+  isVisible: boolean;
+}
+
+export interface LinkEntry {
+  id: string;
+  url: string;
+  title: string;
+  domain: string;
+  category: string;
+  tags: string[];
+  dateAdded: Date;
+  lastVisited?: Date;
+  description?: string;
+  priority: number;
+  isActive: boolean;
+  metadata: Record<string, any>;
+}

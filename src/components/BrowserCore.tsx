@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBrowser } from '@/hooks/useBrowser';
 import { useTranslation } from '@/hooks/useTranslation';
+import { SearchEngine } from '@/types/browser';
 import { 
   Search, Globe, History, Bookmark, ChevronLeft, ChevronRight, 
   RefreshCw, Plus, Star, Link, Menu, X, ZoomIn, ZoomOut, 
-  ExternalLink, AlertTriangle 
+  ExternalLink, AlertTriangle, Settings, Table
 } from 'lucide-react';
 
 interface ExtractedLink {
@@ -22,14 +24,16 @@ interface ExtractedLink {
 
 interface BrowserCoreProps {
   onLinksExtracted?: (links: ExtractedLink[]) => void;
+  onOpenURLScrap?: () => void;
 }
 
-const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
+const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => {
   const { t, tArray } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
+  const [selectedSearchEngine, setSelectedSearchEngine] = useState<string>('google');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   const {
@@ -45,6 +49,38 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
     validateAndFormatUrl
   } = useBrowser();
 
+  const searchEngines: SearchEngine[] = [
+    { 
+      id: 'google', 
+      name: 'Google', 
+      url: 'https://www.google.com/search?q=',
+      icon: '🔍',
+      isDefault: true,
+      category: 'web'
+    },
+    { 
+      id: 'bing', 
+      name: 'Bing', 
+      url: 'https://www.bing.com/search?q=',
+      icon: '🌐',
+      category: 'web'
+    },
+    { 
+      id: 'duckduckgo', 
+      name: 'DuckDuckGo', 
+      url: 'https://duckduckgo.com/?q=',
+      icon: '🦆',
+      category: 'web'
+    },
+    { 
+      id: 'api-search', 
+      name: 'API Search', 
+      url: 'api://search?q=',
+      icon: '🔧',
+      category: 'web'
+    }
+  ];
+
   const [bookmarks, setBookmarks] = useState([
     { title: 'Karol Core Docs', url: 'https://karol-core.docs' },
     { title: 'AGI Research', url: 'https://agi-research.com' },
@@ -55,7 +91,20 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
     if (!searchQuery.trim()) return;
     
     setMobileMenuOpen(false);
-    navigate(searchQuery);
+    
+    const selectedEngine = searchEngines.find(engine => engine.id === selectedSearchEngine);
+    
+    if (selectedEngine?.id === 'api-search') {
+      // Handle API search differently
+      console.log('Using API search for:', searchQuery);
+      // Here you would integrate with your API search functionality
+      navigate(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&source=api`);
+    } else if (selectedEngine) {
+      const searchUrl = selectedEngine.url + encodeURIComponent(searchQuery);
+      navigate(searchUrl);
+    } else {
+      navigate(searchQuery);
+    }
     
     setTimeout(() => {
       extractLinksFromCurrentPage(browserState.currentUrl);
@@ -65,7 +114,7 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
   const extractLinksFromCurrentPage = async (url: string) => {
     const mockLinks: ExtractedLink[] = [];
     
-    if (url.includes('google.com/search')) {
+    if (url.includes('google.com/search') || url.includes('bing.com/search') || url.includes('duckduckgo.com')) {
       mockLinks.push(
         {
           url: 'https://github.com/karol-core/project',
@@ -81,6 +130,16 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
           url: 'https://lovable.dev',
           title: 'Lovable Platform',
           domain: 'lovable.dev'
+        },
+        {
+          url: 'https://supabase.com/docs',
+          title: 'Supabase Documentation',
+          domain: 'supabase.com'
+        },
+        {
+          url: 'https://react.dev',
+          title: 'React Documentation',
+          domain: 'react.dev'
         }
       );
     } else if (url) {
@@ -176,6 +235,26 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
 
         {!sidebarCollapsed && (
           <>
+            {/* Search Engine Selection */}
+            <div className="px-4 pb-4">
+              <h3 className="text-sm font-medium text-slate-300 mb-2">Search Engine</h3>
+              <Select value={selectedSearchEngine} onValueChange={setSelectedSearchEngine}>
+                <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {searchEngines.map((engine) => (
+                    <SelectItem key={engine.id} value={engine.id} className="text-white hover:bg-slate-700">
+                      <div className="flex items-center space-x-2">
+                        <span>{engine.icon}</span>
+                        <span>{engine.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="px-4 pb-4">
               <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.history')}</h3>
               <div className="space-y-1">
@@ -294,6 +373,16 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
               >
                 <Link className="h-4 w-4" />
               </Button>
+              {onOpenURLScrap && (
+                <Button 
+                  onClick={onOpenURLScrap} 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-blue-500/50 text-blue-400 hover:bg-gradient-primary/20 px-2 md:px-3 hover-gradient-scale"
+                >
+                  <Table className="h-4 w-4" />
+                </Button>
+              )}
             </div>
 
             {/* Zoom Controls */}
@@ -351,6 +440,9 @@ const BrowserCore = ({ onLinksExtracted }: BrowserCoreProps) => {
                   <span className="truncate">{browserState.currentUrl || t('browser.title')}</span>
                 </CardTitle>
                 <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
+                    {searchEngines.find(e => e.id === selectedSearchEngine)?.name}
+                  </Badge>
                   <Badge variant="outline" className={`border-green-500/50 text-green-400 text-xs ${browserState.isLoading ? 'animate-pulse' : ''}`}>
                     {browserState.isLoading ? t('common.loading') : t('status.ready')}
                   </Badge>
