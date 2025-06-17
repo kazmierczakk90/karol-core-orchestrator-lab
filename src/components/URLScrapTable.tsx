@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Plus, Trash2, ExternalLink, RefreshCw, Edit, Save, X, Database, Settings } from 'lucide-react';
+import { Search, Plus, Trash2, ExternalLink, RefreshCw, Edit, Save, X, Database, Settings, Link2 } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 interface ScrapVariable {
   id: string;
@@ -33,6 +34,7 @@ interface URLScrapEntry {
   arguments: ScrapArgument[];
   lastScraped?: Date;
   extractedData?: any;
+  method?: 'iframe' | 'manual' | 'api';
 }
 
 interface URLScrapTableProps {
@@ -48,6 +50,8 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
   const [editingVariable, setEditingVariable] = useState<string | null>(null);
   const [newVariableValue, setNewVariableValue] = useState<string>('');
   const [showLinkManagement, setShowLinkManagement] = useState(false);
+  const [manualUrl, setManualUrl] = useState('');
+  const [manualTitle, setManualTitle] = useState('');
 
   // Initialize with extracted links
   useEffect(() => {
@@ -57,6 +61,7 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
       title: link.title,
       domain: link.domain,
       status: 'pending' as const,
+      method: 'iframe',
       arguments: [
         {
           id: `arg_${Date.now()}_${index}_1`,
@@ -99,6 +104,56 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
     boolean: 'bg-purple-500/20 text-purple-400',
     url: 'bg-cyan-500/20 text-cyan-400',
     date: 'bg-orange-500/20 text-orange-400'
+  };
+
+  const addManualUrl = () => {
+    if (!manualUrl.trim()) {
+      toast.error('URL jest wymagany');
+      return;
+    }
+
+    try {
+      const url = new URL(manualUrl);
+      const domain = url.hostname;
+      const title = manualTitle.trim() || `Manual entry - ${domain}`;
+
+      const newEntry: URLScrapEntry = {
+        id: `manual_${Date.now()}`,
+        url: url.href,
+        title,
+        domain,
+        status: 'pending',
+        method: 'manual',
+        arguments: [
+          {
+            id: `arg_manual_${Date.now()}_1`,
+            name: 'Basic Info',
+            description: 'Manually added URL information',
+            createdAt: new Date(),
+            variables: [
+              { id: `var_manual_${Date.now()}_1`, name: 'Page Title', value: title, type: 'string', updatedAt: new Date(), autoUpdate: false },
+              { id: `var_manual_${Date.now()}_2`, name: 'Domain', value: domain, type: 'string', updatedAt: new Date(), autoUpdate: false },
+              { id: `var_manual_${Date.now()}_3`, name: 'URL Length', value: url.href.length, type: 'number', updatedAt: new Date(), autoUpdate: false },
+              { id: `var_manual_${Date.now()}_4`, name: 'Is HTTPS', value: url.protocol === 'https:', type: 'boolean', updatedAt: new Date(), autoUpdate: false }
+            ]
+          }
+        ]
+      };
+
+      setScrapEntries(prev => [newEntry, ...prev]);
+      setManualUrl('');
+      setManualTitle('');
+      
+      toast.success('URL dodany pomyślnie!', {
+        description: `Dodano: ${title}`,
+        duration: 3000
+      });
+    } catch (error) {
+      toast.error('Nieprawidłowy URL', {
+        description: 'Proszę wprowadzić prawidłowy adres URL',
+        duration: 3000
+      });
+    }
   };
 
   const simulateAutoUpdate = () => {
@@ -212,7 +267,7 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
               <span>URL Scrap Table</span>
             </CardTitle>
             <CardDescription className="text-slate-300">
-              Dynamic table z argumentami i zmiennymi (X/Y struktura)
+              Advanced URL scraping with Linkup API integration
             </CardDescription>
           </div>
           
@@ -235,21 +290,47 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
               <RefreshCw className="h-4 w-4 mr-2" />
               Auto Update
             </Button>
-            
-            <Button className="bg-gradient-primary hover:bg-gradient-secondary">
-              <Plus className="h-4 w-4 mr-2" />
-              Add URL
-            </Button>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Manual URL Addition */}
+        <Card className="bg-slate-700/30 border-slate-600/50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 mb-3">
+              <Link2 className="h-5 w-5 text-cyan-400" />
+              <h3 className="text-cyan-400 font-semibold">Add Manual URL</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Input
+                placeholder="Enter URL..."
+                value={manualUrl}
+                onChange={(e) => setManualUrl(e.target.value)}
+                className="bg-slate-900/50 border-slate-600 text-white"
+              />
+              <Input
+                placeholder="Optional title..."
+                value={manualTitle}
+                onChange={(e) => setManualTitle(e.target.value)}
+                className="bg-slate-900/50 border-slate-600 text-white"
+              />
+              <Button 
+                onClick={addManualUrl}
+                className="bg-gradient-primary hover:bg-gradient-secondary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add URL
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {showLinkManagement && (
           <Card className="bg-slate-700/50 border-purple-600/50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-purple-400 font-semibold">Link Management Interface</h3>
+                <h3 className="text-purple-400 font-semibold">Advanced Link Management</h3>
                 <Button 
                   size="sm" 
                   variant="ghost"
@@ -259,20 +340,20 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
                 </Button>
               </div>
               <div className="text-sm text-slate-400 mb-4">
-                Zarządzaj regułami kolumn, typami danych i strukturą tabeli podobnie do interfejsu bazy danych.
+                Manage scraping rules, data types, and automated extraction with Linkup API integration.
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-slate-800/50 p-3 rounded border border-slate-600">
-                  <h4 className="text-cyan-400 text-sm font-medium mb-2">Column Rules</h4>
-                  <p className="text-xs text-slate-400">Configure data types and validation</p>
+                  <h4 className="text-cyan-400 text-sm font-medium mb-2">Linkup API Rules</h4>
+                  <p className="text-xs text-slate-400">Configure API-based data extraction and validation</p>
                 </div>
                 <div className="bg-slate-800/50 p-3 rounded border border-slate-600">
                   <h4 className="text-green-400 text-sm font-medium mb-2">Auto Scraping</h4>
-                  <p className="text-xs text-slate-400">Schedule systematic data extraction</p>
+                  <p className="text-xs text-slate-400">Schedule systematic data extraction with intelligent parsing</p>
                 </div>
                 <div className="bg-slate-800/50 p-3 rounded border border-slate-600">
                   <h4 className="text-blue-400 text-sm font-medium mb-2">Export/Import</h4>
-                  <p className="text-xs text-slate-400">Backup and restore configurations</p>
+                  <p className="text-xs text-slate-400">Backup configurations and share scraping templates</p>
                 </div>
               </div>
             </CardContent>
@@ -290,6 +371,11 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
                     <Badge className={statusColors[entry.status]}>
                       {entry.status}
                     </Badge>
+                    {entry.method && (
+                      <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+                        {entry.method}
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-slate-400">
                     <span>{entry.domain}</span>
@@ -440,8 +526,8 @@ const URLScrapTable = ({ extractedLinks }: URLScrapTableProps) => {
         {scrapEntries.length === 0 && (
           <div className="text-center py-16 text-slate-400">
             <Search className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <p className="text-lg">No URLs to scrap</p>
-            <p>Extract links from Browser Core or add URLs manually</p>
+            <p className="text-lg">No URLs to scrape</p>
+            <p>Extract links from Browser Core or add URLs manually above</p>
           </div>
         )}
       </CardContent>

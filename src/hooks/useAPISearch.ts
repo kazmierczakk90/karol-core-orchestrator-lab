@@ -25,58 +25,78 @@ export const useAPISearch = () => {
     setError(null);
     
     try {
-      // Tutaj używamy stałego klucza API jak podałeś
       const API_KEY = '1e626888-ad21-47ad-be71-7c869f139a57';
       const startTime = Date.now();
       
-      // Symulacja API wyszukiwania - w rzeczywistości połączyłbyś się z prawdziwym API
-      // Dla demo wykorzystuję mockowane dane
-      const mockResults: SearchResult[] = [
-        {
-          title: `Results for "${query}"`,
-          url: `https://example.com/search?q=${encodeURIComponent(query)}`,
-          snippet: `This is a search result for "${query}" from API search engine.`,
-          domain: 'example.com'
+      // Prawdziwe wywołanie API Linkup.so
+      const response = await fetch('https://api.linkup.so/v1/search', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_KEY}`,
+          'Content-Type': 'application/json',
         },
-        {
-          title: `Advanced ${query} Information`,
-          url: `https://docs.example.com/${query.toLowerCase()}`,
-          snippet: `Detailed documentation and information about ${query}.`,
-          domain: 'docs.example.com'
-        },
-        {
-          title: `${query} - Wikipedia`,
-          url: `https://en.wikipedia.org/wiki/${query.replace(/\s+/g, '_')}`,
-          snippet: `Wikipedia article about ${query} with comprehensive information.`,
-          domain: 'en.wikipedia.org'
-        }
-      ];
+        body: JSON.stringify({
+          q: query,
+          depth: 'standard',
+          outputFormat: 'structured'
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
       const searchTime = Date.now() - startTime;
-      const result: APISearchResponse = {
-        results: mockResults,
-        totalResults: mockResults.length,
+
+      // Przetwórz wyniki z API Linkup.so na nasz format
+      const processedResults: SearchResult[] = data.results?.map((result: any) => ({
+        title: result.name || result.title || 'No title',
+        url: result.url,
+        snippet: result.content || result.snippet || 'No description available',
+        domain: new URL(result.url).hostname
+      })) || [];
+
+      const apiResponse: APISearchResponse = {
+        results: processedResults,
+        totalResults: processedResults.length,
         searchTime
       };
 
-      // Zapisz wyniki w bazie danych - rzutowanie na Json
+      // Zapisz wyniki w bazie danych
       await supabase
         .from('api_search_results')
         .insert({
           query,
-          results: mockResults as any, // Jawne rzutowanie na Json
+          results: processedResults as any,
           api_key_ref: API_KEY,
-          result_count: mockResults.length
+          result_count: processedResults.length
         });
 
-      setSearchResults(mockResults);
-      return result;
+      setSearchResults(processedResults);
+      return apiResponse;
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
       console.error('API Search error:', err);
-      return null;
+      
+      // Fallback do mockowanych danych jeśli API nie działa
+      const mockResults: SearchResult[] = [
+        {
+          title: `Results for "${query}" (Offline Mode)`,
+          url: `https://example.com/search?q=${encodeURIComponent(query)}`,
+          snippet: `This is a fallback result for "${query}" - API connection failed.`,
+          domain: 'example.com'
+        }
+      ];
+      
+      setSearchResults(mockResults);
+      return {
+        results: mockResults,
+        totalResults: mockResults.length,
+        searchTime: Date.now() - Date.now()
+      };
     } finally {
       setIsSearching(false);
     }

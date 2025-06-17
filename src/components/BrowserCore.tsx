@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft, ArrowRight, RotateCcw, Home, Plus, Minus, 
   Search, Globe, History, Trash2, Clock, ExternalLink,
-  Database
+  Database, Link2, AlertCircle
 } from 'lucide-react';
 import { useBrowser } from '@/hooks/useBrowser';
 import { SearchEngine } from '@/types/browser';
@@ -43,6 +43,7 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
 
   const [urlInput, setUrlInput] = useState('');
   const [showHistory, setShowHistory] = useState(false);
+  const [showAPIResults, setShowAPIResults] = useState(false);
 
   const searchEngines: SearchEngine[] = [
     { 
@@ -66,7 +67,7 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
     },
     { 
       id: 'api', 
-      name: 'API Search', 
+      name: 'Linkup API', 
       url: '', 
       category: 'api' 
     }
@@ -75,6 +76,13 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
   useEffect(() => {
     setUrlInput(browserState.currentUrl);
   }, [browserState.currentUrl]);
+
+  useEffect(() => {
+    // Automatycznie pokaż wyniki API gdy są dostępne
+    if (searchResults.length > 0 && selectedSearchEngine.id === 'api') {
+      setShowAPIResults(true);
+    }
+  }, [searchResults, selectedSearchEngine.id]);
 
   const handleNavigate = () => {
     if (urlInput.trim()) {
@@ -90,12 +98,15 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
   };
 
   const extractLinksFromCurrentPage = () => {
-    // Symulacja ekstrakcji linków z aktualnej strony
+    // Przekaż aktualny URL do ekstrakcji
+    const currentUrl = browserState.currentUrl;
+    
+    // Symulacja ekstrakcji linków z aktualnej strony iframe
     const mockLinks = [
       {
-        url: browserState.currentUrl,
-        title: `Link from ${new URL(browserState.currentUrl || 'https://example.com').hostname}`,
-        domain: new URL(browserState.currentUrl || 'https://example.com').hostname
+        url: currentUrl || 'https://example.com',
+        title: `Extracted from ${new URL(currentUrl || 'https://example.com').hostname}`,
+        domain: new URL(currentUrl || 'https://example.com').hostname
       }
     ];
     
@@ -112,6 +123,12 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleString('pl-PL');
+  };
+
+  const navigateToResult = (url: string) => {
+    setUrlInput(url);
+    navigate(url);
+    setShowAPIResults(false);
   };
 
   return (
@@ -193,12 +210,24 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
             >
               <History className="h-4 w-4" />
             </Button>
+            {selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAPIResults(!showAPIResults)}
+                className="border-cyan-500/50 text-cyan-400"
+              >
+                <Database className="h-4 w-4 mr-1" />
+                Results ({searchResults.length})
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
               onClick={extractLinksFromCurrentPage}
               className="border-slate-600"
             >
+              <Link2 className="h-4 w-4 mr-1" />
               Extract Links
             </Button>
             {onOpenURLScrap && (
@@ -214,7 +243,7 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
           </div>
         </div>
 
-        {/* Zoom Controls */}
+        {/* Zoom Controls & Status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-slate-400">Zoom:</span>
@@ -239,18 +268,27 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
             </Button>
           </div>
 
-          {selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
-            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
-              API Results: {searchResults.length}
-            </Badge>
-          )}
+          <div className="flex items-center space-x-4">
+            {selectedSearchEngine.id === 'api' && (
+              <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
+                Linkup API Connected
+              </Badge>
+            )}
+            
+            {isSearching && (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
+                <span className="text-sm text-cyan-400">Searching...</span>
+              </div>
+            )}
 
-          {browserState.isLoading && (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-slate-400">Loading...</span>
-              <Progress value={browserState.loadingProgress} className="w-20" />
-            </div>
-          )}
+            {browserState.isLoading && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-slate-400">Loading...</span>
+                <Progress value={browserState.loadingProgress} className="w-20" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Loading Progress */}
@@ -266,45 +304,13 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
           {browserState.error && (
             <div className="p-4 bg-red-500/20 border-b border-red-500/50">
               <div className="flex items-center justify-between">
-                <span className="text-red-400">{browserState.error}</span>
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className="h-4 w-4 text-red-400" />
+                  <span className="text-red-400">{browserState.error}</span>
+                </div>
                 <Button variant="ghost" size="sm" onClick={clearError}>
                   ×
                 </Button>
-              </div>
-            </div>
-          )}
-
-          {/* API Search Results */}
-          {selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
-            <div className="p-4 bg-slate-800/30 border-b border-slate-700">
-              <h3 className="text-cyan-400 font-semibold mb-2">API Search Results:</h3>
-              <div className="space-y-2">
-                {searchResults.map((result, index) => (
-                  <Card key={index} className="bg-slate-800/50 border-slate-700">
-                    <CardContent className="p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="text-white font-medium mb-1">{result.title}</h4>
-                          <p className="text-slate-400 text-sm mb-2">{result.snippet}</p>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className="border-blue-500/50 text-blue-400">
-                              {result.domain}
-                            </Badge>
-                            <a 
-                              href={result.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center space-x-1"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                              <span>Visit</span>
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
             </div>
           )}
@@ -330,11 +336,68 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
                 <div className="text-center">
                   <Globe className="h-16 w-16 mx-auto mb-4 text-slate-600" />
                   <p>Wpisz URL lub wyszukaj coś, aby rozpocząć przeglądanie</p>
+                  {selectedSearchEngine.id === 'api' && (
+                    <p className="text-sm mt-2 text-cyan-400">
+                      Używasz Linkup API do zaawansowanego wyszukiwania
+                    </p>
+                  )}
                 </div>
               </div>
             )}
           </div>
         </div>
+
+        {/* API Results Sidebar */}
+        {showAPIResults && selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
+          <div className="w-96 border-l border-slate-700 bg-slate-800/50">
+            <div className="p-4 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h3 className="text-cyan-400 font-semibold flex items-center space-x-2">
+                  <Database className="h-5 w-5" />
+                  <span>Linkup API Results</span>
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAPIResults(false)}
+                  className="text-slate-400 hover:text-white"
+                >
+                  ×
+                </Button>
+              </div>
+            </div>
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-3">
+                {searchResults.map((result, index) => (
+                  <Card 
+                    key={index} 
+                    className="bg-slate-700/50 border-slate-600 cursor-pointer hover:bg-slate-700/70 transition-colors"
+                    onClick={() => navigateToResult(result.url)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-medium mb-2 line-clamp-2">
+                            {result.title}
+                          </h4>
+                          <p className="text-slate-400 text-sm mb-3 line-clamp-3">
+                            {result.snippet}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
+                              {result.domain}
+                            </Badge>
+                            <ExternalLink className="h-4 w-4 text-slate-500" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
 
         {/* History Sidebar */}
         {showHistory && (
