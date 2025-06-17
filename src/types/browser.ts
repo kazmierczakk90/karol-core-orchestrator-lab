@@ -5,7 +5,7 @@ export interface SearchEngine {
   url: string;
   icon?: string;
   isDefault?: boolean;
-  category?: 'web' | 'academic' | 'shopping' | 'images' | 'video' | 'code';
+  category?: 'web' | 'academic' | 'shopping' | 'images' | 'video' | 'code' | 'api';
 }
 
 export interface BrowserState {
@@ -22,6 +22,9 @@ export interface NavigationHistory {
   url: string;
   title: string;
   timestamp: number;
+  domain?: string;
+  searchQuery?: string;
+  searchEngine?: string;
 }
 
 export interface LinkRule {
@@ -47,4 +50,15 @@ export interface LinkEntry {
   priority: number;
   isActive: boolean;
   metadata: Record<string, any>;
+}
+
+export interface BrowserHistoryEntry {
+  id: string;
+  url: string;
+  title: string;
+  domain: string;
+  visitedAt: Date;
+  searchQuery?: string;
+  searchEngine?: string;
+  sessionId?: string;
 }

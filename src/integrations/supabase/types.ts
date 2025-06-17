@@ -132,6 +132,39 @@ export type Database = {
         }
         Relationships: []
       }
+      api_search_results: {
+        Row: {
+          api_key_ref: string
+          created_at: string
+          id: string
+          query: string
+          result_count: number | null
+          results: Json
+          search_timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          api_key_ref: string
+          created_at?: string
+          id?: string
+          query: string
+          result_count?: number | null
+          results: Json
+          search_timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          api_key_ref?: string
+          created_at?: string
+          id?: string
+          query?: string
+          result_count?: number | null
+          results?: Json
+          search_timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           audit_type: string
@@ -168,6 +201,45 @@ export type Database = {
           severity_level?: string | null
           target_entity?: string
           target_id?: string
+        }
+        Relationships: []
+      }
+      browser_history: {
+        Row: {
+          created_at: string
+          domain: string | null
+          id: string
+          search_engine: string | null
+          search_query: string | null
+          session_id: string | null
+          title: string | null
+          url: string
+          user_id: string | null
+          visited_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          search_engine?: string | null
+          search_query?: string | null
+          session_id?: string | null
+          title?: string | null
+          url: string
+          user_id?: string | null
+          visited_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string | null
+          id?: string
+          search_engine?: string | null
+          search_query?: string | null
+          session_id?: string | null
+          title?: string | null
+          url?: string
+          user_id?: string | null
+          visited_at?: string
         }
         Relationships: []
       }

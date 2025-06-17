@@ -1,44 +1,31 @@
 
-import { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useBrowser } from '@/hooks/useBrowser';
-import { useTranslation } from '@/hooks/useTranslation';
-import { SearchEngine } from '@/types/browser';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { 
-  Search, Globe, History, Bookmark, ChevronLeft, ChevronRight, 
-  RefreshCw, Plus, Star, Link, Menu, X, ZoomIn, ZoomOut, 
-  ExternalLink, AlertTriangle, Settings, Table
+  ArrowLeft, ArrowRight, RotateCcw, Home, Plus, Minus, 
+  Search, Globe, History, Trash2, Clock, ExternalLink,
+  Database
 } from 'lucide-react';
-
-interface ExtractedLink {
-  url: string;
-  title: string;
-  domain: string;
-}
+import { useBrowser } from '@/hooks/useBrowser';
+import { SearchEngine } from '@/types/browser';
 
 interface BrowserCoreProps {
-  onLinksExtracted?: (links: ExtractedLink[]) => void;
+  onLinksExtracted?: (links: Array<{url: string, title: string, domain: string}>) => void;
   onOpenURLScrap?: () => void;
 }
 
 const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => {
-  const { t, tArray } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [extractedLinks, setExtractedLinks] = useState<ExtractedLink[]>([]);
-  const [selectedSearchEngine, setSelectedSearchEngine] = useState<string>('google');
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  
   const {
     browserState,
     history,
+    localHistory,
     navigate,
     goBack,
     goForward,
@@ -46,485 +33,377 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
     setZoom,
     handleIframeError,
     clearError,
-    validateAndFormatUrl
+    selectedSearchEngine,
+    setSelectedSearchEngine,
+    clearHistory,
+    deleteHistoryItem,
+    searchResults,
+    isSearching
   } = useBrowser();
+
+  const [urlInput, setUrlInput] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
 
   const searchEngines: SearchEngine[] = [
     { 
       id: 'google', 
       name: 'Google', 
-      url: 'https://www.google.com/search?q=',
-      icon: '🔍',
-      isDefault: true,
-      category: 'web'
+      url: 'https://www.google.com/search?q={query}&igu=1', 
+      category: 'web',
+      isDefault: true 
     },
     { 
       id: 'bing', 
       name: 'Bing', 
-      url: 'https://www.bing.com/search?q=',
-      icon: '🌐',
-      category: 'web'
+      url: 'https://www.bing.com/search?q={query}', 
+      category: 'web' 
     },
     { 
       id: 'duckduckgo', 
       name: 'DuckDuckGo', 
-      url: 'https://duckduckgo.com/?q=',
-      icon: '🦆',
-      category: 'web'
+      url: 'https://duckduckgo.com/?q={query}', 
+      category: 'web' 
     },
     { 
-      id: 'api-search', 
+      id: 'api', 
       name: 'API Search', 
-      url: 'api://search?q=',
-      icon: '🔧',
-      category: 'web'
+      url: '', 
+      category: 'api' 
     }
   ];
 
-  const [bookmarks, setBookmarks] = useState([
-    { title: 'Karol Core Docs', url: 'https://karol-core.docs' },
-    { title: 'AGI Research', url: 'https://agi-research.com' },
-    { title: 'FUKO System', url: 'https://fuko.system' }
-  ]);
+  useEffect(() => {
+    setUrlInput(browserState.currentUrl);
+  }, [browserState.currentUrl]);
 
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    
-    setMobileMenuOpen(false);
-    
-    const selectedEngine = searchEngines.find(engine => engine.id === selectedSearchEngine);
-    
-    if (selectedEngine?.id === 'api-search') {
-      // Handle API search differently
-      console.log('Using API search for:', searchQuery);
-      // Here you would integrate with your API search functionality
-      navigate(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&source=api`);
-    } else if (selectedEngine) {
-      const searchUrl = selectedEngine.url + encodeURIComponent(searchQuery);
-      navigate(searchUrl);
-    } else {
-      navigate(searchQuery);
+  const handleNavigate = () => {
+    if (urlInput.trim()) {
+      navigate(urlInput.trim());
+      clearError();
     }
-    
-    setTimeout(() => {
-      extractLinksFromCurrentPage(browserState.currentUrl);
-    }, 2000);
   };
 
-  const extractLinksFromCurrentPage = async (url: string) => {
-    const mockLinks: ExtractedLink[] = [];
-    
-    if (url.includes('google.com/search') || url.includes('bing.com/search') || url.includes('duckduckgo.com')) {
-      mockLinks.push(
-        {
-          url: 'https://github.com/karol-core/project',
-          title: 'Karol Core Project Repository',
-          domain: 'github.com'
-        },
-        {
-          url: 'https://docs.openai.com/api',
-          title: 'OpenAI API Documentation',
-          domain: 'docs.openai.com'
-        },
-        {
-          url: 'https://lovable.dev',
-          title: 'Lovable Platform',
-          domain: 'lovable.dev'
-        },
-        {
-          url: 'https://supabase.com/docs',
-          title: 'Supabase Documentation',
-          domain: 'supabase.com'
-        },
-        {
-          url: 'https://react.dev',
-          title: 'React Documentation',
-          domain: 'react.dev'
-        }
-      );
-    } else if (url) {
-      try {
-        const urlObj = new URL(url);
-        mockLinks.push({
-          url: url,
-          title: `Current Page - ${urlObj.hostname}`,
-          domain: urlObj.hostname
-        });
-      } catch (error) {
-        console.error('Invalid URL for link extraction:', url);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleNavigate();
+    }
+  };
+
+  const extractLinksFromCurrentPage = () => {
+    // Symulacja ekstrakcji linków z aktualnej strony
+    const mockLinks = [
+      {
+        url: browserState.currentUrl,
+        title: `Link from ${new URL(browserState.currentUrl || 'https://example.com').hostname}`,
+        domain: new URL(browserState.currentUrl || 'https://example.com').hostname
       }
-    }
-
-    setExtractedLinks(mockLinks);
+    ];
     
-    if (onLinksExtracted && mockLinks.length > 0) {
+    if (onLinksExtracted) {
       onLinksExtracted(mockLinks);
-      
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-gradient-success text-white p-3 rounded-lg shadow-lg z-50 max-w-sm animate-fade-in';
-      notification.innerHTML = `
-        <div class="font-bold text-sm">Linki wyekstraktowane!</div>
-        <div class="text-xs">Znaleziono ${mockLinks.length} linków z bieżącej strony</div>
-      `;
-      document.body.appendChild(notification);
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 3000);
     }
   };
 
-  const handleNavigation = (url: string) => {
-    setSearchQuery(url);
-    navigate(url);
+  const handleHistoryItemClick = (historyItem: any) => {
+    setUrlInput(historyItem.url);
+    navigate(historyItem.url);
+    setShowHistory(false);
   };
 
-  const handleExtractLinks = () => {
-    if (browserState.currentUrl) {
-      extractLinksFromCurrentPage(browserState.currentUrl);
-    }
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleString('pl-PL');
   };
-
-  const openInNewTab = () => {
-    if (browserState.currentUrl) {
-      window.open(browserState.currentUrl, '_blank');
-    }
-  };
-
-  const browserFeatures = tArray('browser.features');
 
   return (
-    <div className="h-full flex bg-gradient-dark">
-      {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
+    <div className="h-full flex flex-col bg-gradient-dark">
+      {/* Browser Controls */}
+      <div className="p-4 border-b border-slate-700 bg-slate-800/50">
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goBack}
+              disabled={!browserState.canGoBack}
+              className="border-slate-600"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goForward}
+              disabled={!browserState.canGoForward}
+              className="border-slate-600"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={reload}
+              disabled={browserState.isLoading}
+              className="border-slate-600"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          </div>
 
-      {/* Sidebar */}
-      <div className={`${
-        sidebarCollapsed ? 'w-16' : 'w-64'
-      } ${
-        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-      } md:translate-x-0 transition-all duration-300 bg-gradient-dark border-r border-slate-700 flex flex-col fixed md:relative z-50 h-full`}>
-        
-        <div className="p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex-1 flex items-center space-x-2">
+            <div className="relative flex-1">
+              <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Wpisz URL lub wyszukaj..."
+                className="pl-10 bg-slate-900/50 border-slate-600 text-white"
+              />
+            </div>
+            <Select value={selectedSearchEngine.id} onValueChange={(value) => {
+              const engine = searchEngines.find(e => e.id === value);
+              if (engine) setSelectedSearchEngine(engine);
+            }}>
+              <SelectTrigger className="w-40 bg-slate-900/50 border-slate-600 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {searchEngines.map((engine) => (
+                  <SelectItem key={engine.id} value={engine.id} className="text-white hover:bg-slate-700">
+                    <div className="flex items-center space-x-2">
+                      {engine.category === 'api' && <Database className="h-4 w-4" />}
+                      {engine.category === 'web' && <Globe className="h-4 w-4" />}
+                      <span>{engine.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handleNavigate} className="bg-gradient-primary hover:bg-gradient-secondary">
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex items-center space-x-1">
             <Button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="flex items-center hover:bg-gradient-secondary/20"
+              onClick={() => setShowHistory(!showHistory)}
+              className="border-slate-600"
             >
-              <Globe className="h-4 w-4" />
-              {!sidebarCollapsed && <span className="ml-2">{t('browser.title')}</span>}
+              <History className="h-4 w-4" />
             </Button>
             <Button
-              onClick={() => setMobileMenuOpen(false)}
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="md:hidden"
+              onClick={extractLinksFromCurrentPage}
+              className="border-slate-600"
             >
-              <X className="h-4 w-4" />
+              Extract Links
             </Button>
+            {onOpenURLScrap && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onOpenURLScrap}
+                className="border-slate-600"
+              >
+                URL Scrap
+              </Button>
+            )}
           </div>
         </div>
 
-        {!sidebarCollapsed && (
-          <>
-            {/* Search Engine Selection */}
-            <div className="px-4 pb-4">
-              <h3 className="text-sm font-medium text-slate-300 mb-2">Search Engine</h3>
-              <Select value={selectedSearchEngine} onValueChange={setSelectedSearchEngine}>
-                <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  {searchEngines.map((engine) => (
-                    <SelectItem key={engine.id} value={engine.id} className="text-white hover:bg-slate-700">
-                      <div className="flex items-center space-x-2">
-                        <span>{engine.icon}</span>
-                        <span>{engine.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="px-4 pb-4">
-              <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.history')}</h3>
-              <div className="space-y-1">
-                {history.slice(-5).map((item, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleNavigation(item.url)}
-                    className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-gradient-secondary/20 rounded truncate transition-all duration-200"
-                  >
-                    {item.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="px-4 pb-4">
-              <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.bookmarks')}</h3>
-              <div className="space-y-1">
-                {bookmarks.map((bookmark, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleNavigation(bookmark.url)}
-                    className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-gradient-secondary/20 rounded transition-all duration-200"
-                  >
-                    <Star className="h-3 w-3 inline mr-1" />
-                    {bookmark.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {extractedLinks.length > 0 && (
-              <div className="px-4 pb-4">
-                <h3 className="text-sm font-medium text-slate-300 mb-2">{t('browser.extractedLinks')}</h3>
-                <div className="space-y-1">
-                  {extractedLinks.slice(0, 5).map((link, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleNavigation(link.url)}
-                      className="w-full text-left p-2 text-xs text-slate-400 hover:text-white hover:bg-gradient-secondary/20 rounded transition-all duration-200"
-                    >
-                      <Link className="h-3 w-3 inline mr-1" />
-                      {link.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Main Browser Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Navigation Bar */}
-        <div className="bg-gradient-dark border-b border-slate-700 p-3 md:p-4">
-          <div className="flex items-center space-x-2 md:space-x-4">
+        {/* Zoom Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-slate-400">Zoom:</span>
             <Button
-              onClick={() => setMobileMenuOpen(true)}
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="md:hidden"
+              onClick={() => setZoom(browserState.zoomLevel - 10)}
+              className="border-slate-600"
             >
-              <Menu className="h-4 w-4" />
+              <Minus className="h-3 w-3" />
             </Button>
-
-            <div className="hidden md:flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={goBack}
-                disabled={!browserState.canGoBack}
-                className="hover:bg-gradient-secondary/20"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={goForward}
-                disabled={!browserState.canGoForward}
-                className="hover:bg-gradient-secondary/20"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={reload}
-                className="hover:bg-gradient-secondary/20"
-              >
-                <RefreshCw className={`h-4 w-4 ${browserState.isLoading ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
-
-            <div className="flex-1 flex items-center space-x-2">
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder={t('browser.urlPlaceholder')}
-                className="bg-slate-900 border-slate-600 text-white text-sm focus:border-cyan-400 transition-colors"
-              />
-              <Button 
-                onClick={handleSearch} 
-                size="sm" 
-                className="bg-gradient-primary hover:bg-gradient-secondary px-2 md:px-3 hover-gradient-scale"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-              <Button 
-                onClick={handleExtractLinks} 
-                variant="outline" 
-                size="sm" 
-                className="border-green-500/50 text-green-400 hover:bg-gradient-success/20 px-2 md:px-3 hover-gradient-scale"
-              >
-                <Link className="h-4 w-4" />
-              </Button>
-              {onOpenURLScrap && (
-                <Button 
-                  onClick={onOpenURLScrap} 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-blue-500/50 text-blue-400 hover:bg-gradient-primary/20 px-2 md:px-3 hover-gradient-scale"
-                >
-                  <Table className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-
-            {/* Zoom Controls */}
-            {browserState.currentUrl && (
-              <div className="hidden md:flex items-center space-x-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setZoom(browserState.zoomLevel - 10)}
-                  disabled={browserState.zoomLevel <= 50}
-                  className="hover:bg-gradient-secondary/20"
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-                <span className="text-xs text-slate-400 w-12 text-center">
-                  {browserState.zoomLevel}%
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setZoom(browserState.zoomLevel + 10)}
-                  disabled={browserState.zoomLevel >= 200}
-                  className="hover:bg-gradient-secondary/20"
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={openInNewTab}
-                  title={t('browser.openInNewTab')}
-                  className="hover:bg-gradient-secondary/20"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+            <span className="text-sm text-white min-w-12 text-center">
+              {browserState.zoomLevel}%
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setZoom(browserState.zoomLevel + 10)}
+              className="border-slate-600"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
           </div>
 
-          {/* Loading Progress */}
+          {selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
+            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
+              API Results: {searchResults.length}
+            </Badge>
+          )}
+
           {browserState.isLoading && (
-            <div className="mt-2">
-              <Progress value={browserState.loadingProgress} className="h-1" />
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-slate-400">Loading...</span>
+              <Progress value={browserState.loadingProgress} className="w-20" />
             </div>
           )}
         </div>
 
-        {/* Content Display Area */}
-        <div className="flex-1 bg-gradient-dark p-3 md:p-6">
-          <Card className="h-full bg-gradient-dark border-slate-700 hover-gradient-scale">
-            <CardHeader className="pb-3">
+        {/* Loading Progress */}
+        {browserState.isLoading && (
+          <Progress value={browserState.loadingProgress} className="mt-2" />
+        )}
+      </div>
+
+      <div className="flex-1 flex">
+        {/* Main Browser Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Error Display */}
+          {browserState.error && (
+            <div className="p-4 bg-red-500/20 border-b border-red-500/50">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-gradient-primary flex items-center space-x-2 text-sm md:text-base">
-                  <Globe className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="truncate">{browserState.currentUrl || t('browser.title')}</span>
-                </CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 text-xs">
-                    {searchEngines.find(e => e.id === selectedSearchEngine)?.name}
-                  </Badge>
-                  <Badge variant="outline" className={`border-green-500/50 text-green-400 text-xs ${browserState.isLoading ? 'animate-pulse' : ''}`}>
-                    {browserState.isLoading ? t('common.loading') : t('status.ready')}
-                  </Badge>
-                  {extractedLinks.length > 0 && (
-                    <Badge variant="outline" className="border-blue-500/50 text-blue-400 text-xs">
-                      {extractedLinks.length} linków
-                    </Badge>
-                  )}
+                <span className="text-red-400">{browserState.error}</span>
+                <Button variant="ghost" size="sm" onClick={clearError}>
+                  ×
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* API Search Results */}
+          {selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
+            <div className="p-4 bg-slate-800/30 border-b border-slate-700">
+              <h3 className="text-cyan-400 font-semibold mb-2">API Search Results:</h3>
+              <div className="space-y-2">
+                {searchResults.map((result, index) => (
+                  <Card key={index} className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium mb-1">{result.title}</h4>
+                          <p className="text-slate-400 text-sm mb-2">{result.snippet}</p>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="border-blue-500/50 text-blue-400">
+                              {result.domain}
+                            </Badge>
+                            <a 
+                              href={result.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center space-x-1"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              <span>Visit</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Browser Content */}
+          <div className="flex-1 bg-white">
+            {browserState.currentUrl && !browserState.error ? (
+              <iframe
+                src={browserState.currentUrl}
+                className="w-full h-full border-none"
+                style={{ 
+                  zoom: `${browserState.zoomLevel}%`,
+                  transform: `scale(${browserState.zoomLevel / 100})`,
+                  transformOrigin: 'top left',
+                  width: `${10000 / browserState.zoomLevel}%`,
+                  height: `${10000 / browserState.zoomLevel}%`
+                }}
+                onError={handleIframeError}
+                title="Browser content"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-slate-900 text-slate-400">
+                <div className="text-center">
+                  <Globe className="h-16 w-16 mx-auto mb-4 text-slate-600" />
+                  <p>Wpisz URL lub wyszukaj coś, aby rozpocząć przeglądanie</p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="h-full pb-6">
-              {browserState.error && (
-                <Alert className="mb-4 border-red-500/50 bg-gradient-error/10">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription className="text-red-400">
-                    {t('browser.errorLoading')}
-                    <Button
-                      onClick={openInNewTab}
-                      variant="link"
-                      size="sm"
-                      className="ml-2 text-red-300 hover:text-red-100"
-                    >
-                      {t('browser.openInNewTab')}
-                    </Button>
-                    <Button
-                      onClick={clearError}
-                      variant="link"
-                      size="sm"
-                      className="ml-2 text-red-300 hover:text-red-100"
-                    >
-                      {t('common.close')}
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {browserState.isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <RefreshCw className="h-6 w-6 md:h-8 md:w-8 animate-spin mx-auto mb-4 text-cyan-400" />
-                    <p className="text-slate-400 text-sm">{t('browser.loadingContent')}</p>
-                    <p className="text-slate-500 text-xs mt-2">{browserState.loadingProgress}%</p>
-                  </div>
-                </div>
-              ) : browserState.currentUrl ? (
-                <div className="h-full bg-white rounded border border-slate-600 overflow-hidden">
-                  <iframe
-                    ref={iframeRef}
-                    src={browserState.currentUrl}
-                    className="w-full h-full"
-                    title="Browser Content"
-                    style={{ 
-                      transform: `scale(${browserState.zoomLevel / 100})`,
-                      transformOrigin: 'top left',
-                      width: `${10000 / browserState.zoomLevel}%`,
-                      height: `${10000 / browserState.zoomLevel}%`
-                    }}
-                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
-                    onError={handleIframeError}
-                    onLoad={() => {
-                      console.log('Iframe loaded successfully');
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="h-full bg-gradient-dark rounded border border-slate-600 p-4 md:p-6">
-                  <div className="text-center text-slate-400 space-y-4">
-                    <Globe className="h-12 w-12 md:h-16 md:w-16 mx-auto opacity-50 animate-pulse-glow" />
-                    <h3 className="text-base md:text-lg font-medium text-gradient-primary">Browser Core Ready</h3>
-                    <p className="text-sm">Wpisz URL lub hasło wyszukiwania, aby rozpocząć przeglądanie</p>
-                    <div className="text-xs md:text-sm text-slate-500 space-y-2">
-                      {browserFeatures.map((feature, index) => (
-                        <p key={index}>• {feature}</p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
+
+        {/* History Sidebar */}
+        {showHistory && (
+          <div className="w-80 border-l border-slate-700 bg-slate-800/50">
+            <div className="p-4 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h3 className="text-cyan-400 font-semibold">Historia przeglądarki</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearHistory}
+                  className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-2">
+                {history.length === 0 ? (
+                  <p className="text-slate-400 text-center py-8">Brak historii</p>
+                ) : (
+                  history.map((item, index) => (
+                    <Card 
+                      key={index} 
+                      className="bg-slate-700/50 border-slate-600 cursor-pointer hover:bg-slate-700/70 transition-colors"
+                      onClick={() => handleHistoryItemClick(item)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white text-sm font-medium truncate">
+                              {item.title}
+                            </h4>
+                            <p className="text-slate-400 text-xs truncate mt-1">
+                              {item.url}
+                            </p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Clock className="h-3 w-3 text-slate-500" />
+                              <span className="text-slate-500 text-xs">
+                                {formatDate(item.timestamp)}
+                              </span>
+                            </div>
+                            {item.searchQuery && (
+                              <Badge variant="outline" className="border-purple-500/50 text-purple-400 mt-1">
+                                Search: {item.searchQuery}
+                              </Badge>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteHistoryItem(item.url, item.timestamp);
+                            }}
+                            className="text-slate-500 hover:text-red-400 p-1"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
       </div>
     </div>
   );

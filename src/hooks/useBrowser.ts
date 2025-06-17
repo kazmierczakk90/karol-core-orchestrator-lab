@@ -1,6 +1,8 @@
 
 import { useState, useCallback } from 'react';
-import { BrowserState, NavigationHistory } from '@/types/browser';
+import { BrowserState, NavigationHistory, SearchEngine } from '@/types/browser';
+import { useBrowserHistory } from './useBrowserHistory';
+import { useAPISearch } from './useAPISearch';
 
 export const useBrowser = () => {
   const [browserState, setBrowserState] = useState<BrowserState>({
@@ -13,18 +15,26 @@ export const useBrowser = () => {
     canGoForward: false
   });
 
-  const [history, setHistory] = useState<NavigationHistory[]>([]);
+  const [localHistory, setLocalHistory] = useState<NavigationHistory[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [selectedSearchEngine, setSelectedSearchEngine] = useState<SearchEngine>({
+    id: 'google',
+    name: 'Google',
+    url: 'https://www.google.com/search?q={query}&igu=1',
+    category: 'web',
+    isDefault: true
+  });
+
+  const { history: dbHistory, addToHistory, clearHistory, deleteHistoryItem } = useBrowserHistory();
+  const { searchWithAPI, isSearching, searchResults } = useAPISearch();
 
   const validateAndFormatUrl = useCallback((input: string): string => {
     if (!input.trim()) return '';
     
-    // Jeśli to jest search query (nie URL), zwróć query
     if (!input.includes('.') && !input.startsWith('http')) {
       return input;
     }
 
-    // Dodaj protokół jeśli brakuje
     if (!input.startsWith('http://') && !input.startsWith('https://')) {
       return `https://${input}`;
     }
@@ -41,7 +51,7 @@ export const useBrowser = () => {
     }
   }, []);
 
-  const navigate = useCallback((input: string) => {
+  const navigate = useCallback(async (input: string) => {
     const formattedInput = validateAndFormatUrl(input);
     
     setBrowserState(prev => ({
@@ -51,17 +61,41 @@ export const useBrowser = () => {
       error: null
     }));
 
-    // Jeśli to nie jest valid URL, traktuj jako search query
+    let finalUrl = '';
+    let title = '';
+
     if (!isValidUrl(formattedInput)) {
-      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(formattedInput)}&igu=1`;
-      setBrowserState(prev => ({ ...prev, currentUrl: searchUrl }));
-      addToHistory(searchUrl, `Search: ${formattedInput}`);
+      // To jest query wyszukiwania
+      if (selectedSearchEngine.id === 'api') {
+        // Użyj API wyszukiwania
+        const results = await searchWithAPI(formattedInput);
+        if (results && results.results.length > 0) {
+          finalUrl = results.results[0].url;
+          title = `API Search: ${formattedInput}`;
+        } else {
+          finalUrl = `https://www.google.com/search?q=${encodeURIComponent(formattedInput)}&igu=1`;
+          title = `Search: ${formattedInput}`;
+        }
+      } else {
+        // Użyj wybranego search engine
+        finalUrl = selectedSearchEngine.url.replace('{query}', encodeURIComponent(formattedInput));
+        title = `Search: ${formattedInput}`;
+      }
+      
+      // Dodaj do historii jako wyszukiwanie
+      await addToHistory(finalUrl, title, formattedInput, selectedSearchEngine.name);
     } else {
-      setBrowserState(prev => ({ ...prev, currentUrl: formattedInput }));
-      addToHistory(formattedInput, formattedInput);
+      finalUrl = formattedInput;
+      title = formattedInput;
+      
+      // Dodaj do historii jako normalna nawigacja
+      await addToHistory(finalUrl, title);
     }
 
-    // Symulacja progress loading
+    setBrowserState(prev => ({ ...prev, currentUrl: finalUrl }));
+    addToLocalHistory(finalUrl, title);
+
+    // Symulacja ładowania
     const progressInterval = setInterval(() => {
       setBrowserState(prev => {
         const newProgress = prev.loadingProgress + 10;
@@ -77,20 +111,19 @@ export const useBrowser = () => {
       });
     }, 150);
 
-  }, [validateAndFormatUrl, isValidUrl]);
+  }, [validateAndFormatUrl, isValidUrl, selectedSearchEngine, addToHistory, searchWithAPI]);
 
-  const addToHistory = useCallback((url: string, title: string) => {
+  const addToLocalHistory = useCallback((url: string, title: string) => {
     const newEntry: NavigationHistory = {
       url,
       title,
       timestamp: Date.now()
     };
 
-    setHistory(prev => {
-      // Usuń wszystkie wpisy po current index (dla nowego branching)
+    setLocalHistory(prev => {
       const newHistory = prev.slice(0, historyIndex + 1);
       newHistory.push(newEntry);
-      return newHistory.slice(-20); // Keep only last 20 entries
+      return newHistory.slice(-20);
     });
 
     setHistoryIndex(prev => prev + 1);
@@ -101,9 +134,9 @@ export const useBrowser = () => {
     setBrowserState(prev => ({
       ...prev,
       canGoBack: historyIndex > 0,
-      canGoForward: historyIndex < history.length - 1
+      canGoForward: historyIndex < localHistory.length - 1
     }));
-  }, [historyIndex, history.length]);
+  }, [historyIndex, localHistory.length]);
 
   const goBack = useCallback(() => {
     if (historyIndex > 0) {
@@ -111,25 +144,25 @@ export const useBrowser = () => {
       setHistoryIndex(newIndex);
       setBrowserState(prev => ({ 
         ...prev, 
-        currentUrl: history[newIndex].url,
+        currentUrl: localHistory[newIndex].url,
         canGoBack: newIndex > 0,
         canGoForward: true
       }));
     }
-  }, [historyIndex, history]);
+  }, [historyIndex, localHistory]);
 
   const goForward = useCallback(() => {
-    if (historyIndex < history.length - 1) {
+    if (historyIndex < localHistory.length - 1) {
       const newIndex = historyIndex + 1;
       setHistoryIndex(newIndex);
       setBrowserState(prev => ({ 
         ...prev, 
-        currentUrl: history[newIndex].url,
+        currentUrl: localHistory[newIndex].url,
         canGoBack: true,
-        canGoForward: newIndex < history.length - 1
+        canGoForward: newIndex < localHistory.length - 1
       }));
     }
-  }, [historyIndex, history]);
+  }, [historyIndex, localHistory]);
 
   const reload = useCallback(() => {
     if (browserState.currentUrl) {
@@ -171,7 +204,8 @@ export const useBrowser = () => {
 
   return {
     browserState,
-    history: history.slice(0, historyIndex + 1),
+    history: dbHistory,
+    localHistory: localHistory.slice(0, historyIndex + 1),
     navigate,
     goBack,
     goForward,
@@ -180,6 +214,12 @@ export const useBrowser = () => {
     handleIframeError,
     clearError,
     validateAndFormatUrl,
-    isValidUrl
+    isValidUrl,
+    selectedSearchEngine,
+    setSelectedSearchEngine,
+    clearHistory,
+    deleteHistoryItem,
+    searchResults,
+    isSearching
   };
 };
