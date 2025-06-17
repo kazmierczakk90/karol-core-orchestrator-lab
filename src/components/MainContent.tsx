@@ -2,6 +2,7 @@
 import React, { Suspense } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useLinkExtractor } from '@/hooks/useLinkExtractor';
 
 const OpenAIChat = React.lazy(() => import('./OpenAIChat'));
 const AgentCommander = React.lazy(() => import('./AgentCommander'));
@@ -14,6 +15,7 @@ const SystemConnectionsTable = React.lazy(() => import('./SystemConnectionsTable
 const URLScrapTable = React.lazy(() => import('./URLScrapTable'));
 const MetaDecisionLayer = React.lazy(() => import('./MetaDecisionLayer'));
 const FullArmorDashboard = React.lazy(() => import('./FullArmorDashboard'));
+const BrowserCore = React.lazy(() => import('./BrowserCore'));
 
 interface MainContentProps {
   activeOpenAITab: string;
@@ -38,6 +40,10 @@ export const MainContent = ({
   activeGroup,
   extractedLinks,
 }: MainContentProps) => {
+  const { extractedLinks: hookExtractedLinks, handleExtractLinks } = useLinkExtractor(setActiveDataTab);
+
+  // Combine extracted links from props and hook
+  const allExtractedLinks = [...extractedLinks, ...hookExtractedLinks];
 
   if (activeGroup === 'openai') {
     return (
@@ -55,6 +61,9 @@ export const MainContent = ({
             </TabsContent>
             <TabsContent value="orchestrator" className="h-full m-0">
               <FUKOConsole />
+            </TabsContent>
+            <TabsContent value="browser" className="h-full m-0">
+              <BrowserCore onLinksExtracted={handleExtractLinks} />
             </TabsContent>
           </Suspense>
         </div>
@@ -80,7 +89,7 @@ export const MainContent = ({
               <SystemConnectionsTable />
             </TabsContent>
             <TabsContent value="url-scrap" className="h-full m-0">
-              <URLScrapTable extractedLinks={extractedLinks} />
+              <URLScrapTable extractedLinks={allExtractedLinks} />
             </TabsContent>
             <TabsContent value="meta-decisions" className="h-full m-0">
               <MetaDecisionLayer />

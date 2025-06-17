@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MetaDecision, AgentState, RoutingRule, PriorityQueueItem, AuditLog, FukoMemory, FukoIdentity } from '@/types/metaDecision';
@@ -196,12 +195,23 @@ export const useMetaDecision = () => {
     }
   };
 
-  // Update FUKO identity
+  // Update FUKO identity with proper required fields
   const updateFukoIdentity = async (agentId: string, identity: Partial<FukoIdentity>) => {
     try {
+      // Ensure required fields are present
+      const identityData = {
+        agent_id: agentId,
+        core_identity: identity.core_identity || {},
+        style_signature: identity.style_signature || `default-${agentId}`,
+        behavioral_patterns: identity.behavioral_patterns,
+        identity_evolution: identity.identity_evolution,
+        consistency_metrics: identity.consistency_metrics,
+        last_verification: identity.last_verification
+      };
+
       const { data, error } = await supabase
         .from('fuko_identity')
-        .upsert([{ agent_id: agentId, ...identity }])
+        .upsert([identityData])
         .select()
         .single();
 
