@@ -59,12 +59,12 @@ export const useAPISearch = () => {
         searchTime
       };
 
-      // Zapisz wyniki w bazie danych
+      // Zapisz wyniki w bazie danych - rzutowanie na Json
       await supabase
         .from('api_search_results')
         .insert({
           query,
-          results: mockResults,
+          results: mockResults as any, // Jawne rzutowanie na Json
           api_key_ref: API_KEY,
           result_count: mockResults.length
         });
