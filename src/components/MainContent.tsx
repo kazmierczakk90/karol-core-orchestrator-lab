@@ -40,13 +40,21 @@ export const MainContent = ({
   activeGroup,
   extractedLinks,
 }: MainContentProps) => {
-  const { extractedLinks: hookExtractedLinks, handleExtractLinks } = useLinkExtractor(setActiveDataTab);
+  const { extractedLinks: hookExtractedLinks, handleExtractLinks, addManualLink } = useLinkExtractor(setActiveDataTab);
 
   // Combine extracted links from props and hook
   const allExtractedLinks = [...extractedLinks, ...hookExtractedLinks];
 
   const handleOpenURLScrap = () => {
     setActiveDataTab('url-scrap');
+  };
+
+  // Create adapter function for BrowserCore onLinksExtracted prop
+  const handleBrowserLinksExtracted = (links: Array<{url: string, title: string, domain: string}>) => {
+    // Add each extracted link manually to the link extractor
+    links.forEach(link => {
+      addManualLink(link.url, link.title);
+    });
   };
 
   if (activeGroup === 'openai') {
@@ -67,7 +75,7 @@ export const MainContent = ({
               <FUKOConsole />
             </TabsContent>
             <TabsContent value="browser" className="h-full m-0">
-              <BrowserCore onLinksExtracted={handleExtractLinks} onOpenURLScrap={handleOpenURLScrap} />
+              <BrowserCore onLinksExtracted={handleBrowserLinksExtracted} onOpenURLScrap={handleOpenURLScrap} />
             </TabsContent>
           </Suspense>
         </div>
