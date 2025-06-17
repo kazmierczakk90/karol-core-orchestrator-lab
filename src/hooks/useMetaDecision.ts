@@ -3,6 +3,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MetaDecision, AgentState, RoutingRule, PriorityQueueItem, AuditLog, FukoMemory, FukoIdentity } from '@/types/metaDecision';
 import { errorHandlingService } from '@/services/errorHandlingService';
+import { 
+  convertToMetaDecision, 
+  convertToAgentState, 
+  convertToAuditLog, 
+  convertToFukoMemory, 
+  convertToFukoIdentity 
+} from '@/utils/typeUtils';
 
 export const useMetaDecision = () => {
   const [metaDecisions, setMetaDecisions] = useState<MetaDecision[]>([]);
@@ -45,13 +52,13 @@ export const useMetaDecision = () => {
       if (fukoMemoriesResult.error) throw fukoMemoriesResult.error;
       if (fukoIdentitiesResult.error) throw fukoIdentitiesResult.error;
 
-      setMetaDecisions(decisionsResult.data || []);
-      setAgentStates(agentStatesResult.data || []);
+      setMetaDecisions((decisionsResult.data || []).map(convertToMetaDecision));
+      setAgentStates((agentStatesResult.data || []).map(convertToAgentState));
       setRoutingRules(routingRulesResult.data || []);
       setPriorityQueue(priorityQueueResult.data || []);
-      setAuditLogs(auditLogsResult.data || []);
-      setFukoMemories(fukoMemoriesResult.data || []);
-      setFukoIdentities(fukoIdentitiesResult.data || []);
+      setAuditLogs((auditLogsResult.data || []).map(convertToAuditLog));
+      setFukoMemories((fukoMemoriesResult.data || []).map(convertToFukoMemory));
+      setFukoIdentities((fukoIdentitiesResult.data || []).map(convertToFukoIdentity));
 
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Fetching meta-decision data');
@@ -71,8 +78,9 @@ export const useMetaDecision = () => {
 
       if (error) throw error;
       
-      setMetaDecisions(prev => [data, ...prev]);
-      return data;
+      const convertedData = convertToMetaDecision(data);
+      setMetaDecisions(prev => [convertedData, ...prev]);
+      return convertedData;
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Creating meta decision');
       throw error;
@@ -90,17 +98,18 @@ export const useMetaDecision = () => {
 
       if (error) throw error;
       
+      const convertedData = convertToAgentState(data);
       setAgentStates(prev => {
         const index = prev.findIndex(state => state.agent_id === agentId);
         if (index >= 0) {
           const newStates = [...prev];
-          newStates[index] = data;
+          newStates[index] = convertedData;
           return newStates;
         }
-        return [data, ...prev];
+        return [convertedData, ...prev];
       });
       
-      return data;
+      return convertedData;
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Updating agent state');
       throw error;
@@ -133,13 +142,14 @@ export const useMetaDecision = () => {
 
       if (error) throw error;
 
+      const convertedData = convertToMetaDecision(data);
       setMetaDecisions(prev => 
         prev.map(decision => 
-          decision.id === decisionId ? data : decision
+          decision.id === decisionId ? convertedData : decision
         )
       );
 
-      return data;
+      return convertedData;
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Processing decision');
       throw error;
@@ -157,8 +167,9 @@ export const useMetaDecision = () => {
 
       if (error) throw error;
       
-      setAuditLogs(prev => [data, ...prev.slice(0, 99)]);
-      return data;
+      const convertedData = convertToAuditLog(data);
+      setAuditLogs(prev => [convertedData, ...prev.slice(0, 99)]);
+      return convertedData;
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Creating audit log');
       throw error;
@@ -176,8 +187,9 @@ export const useMetaDecision = () => {
 
       if (error) throw error;
       
-      setFukoMemories(prev => [data, ...prev]);
-      return data;
+      const convertedData = convertToFukoMemory(data);
+      setFukoMemories(prev => [convertedData, ...prev]);
+      return convertedData;
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Creating FUKO memory');
       throw error;
@@ -195,17 +207,18 @@ export const useMetaDecision = () => {
 
       if (error) throw error;
       
+      const convertedData = convertToFukoIdentity(data);
       setFukoIdentities(prev => {
         const index = prev.findIndex(id => id.agent_id === agentId);
         if (index >= 0) {
           const newIdentities = [...prev];
-          newIdentities[index] = data;
+          newIdentities[index] = convertedData;
           return newIdentities;
         }
-        return [data, ...prev];
+        return [convertedData, ...prev];
       });
       
-      return data;
+      return convertedData;
     } catch (error) {
       errorHandlingService.handleSupabaseError(error, 'Updating FUKO identity');
       throw error;
