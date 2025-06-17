@@ -1,4 +1,3 @@
-
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -26,7 +25,7 @@ const IndexContent = () => {
   } = useAppMenu();
   
   const { 
-    extractedLinks, handleExtractLinks
+    extractedLinks, handleExtractLinks, addManualLink
   } = useLinkExtractor(setActiveDataTab);
 
   const {
@@ -37,6 +36,12 @@ const IndexContent = () => {
   const handleLogoClick = useCallback(() => {
     setShowAnalyticsDashboard(true);
   }, [setShowAnalyticsDashboard]);
+
+  // Create adapter function for FloatingActionKey onExtractLinks prop
+  const handleFloatingActionExtractLinks = useCallback(() => {
+    // Call handleExtractLinks without parameters to extract from current page
+    handleExtractLinks();
+  }, [handleExtractLinks]);
 
   const openAITabs = [
     { value: 'chat', label: 'Chat', icon: MessageSquare },
@@ -105,7 +110,7 @@ const IndexContent = () => {
       />
 
       <FloatingActionKey
-        onExtractLinks={handleExtractLinks}
+        onExtractLinks={handleFloatingActionExtractLinks}
         onOpenBrowser={() => {
             setActiveOpenAITab('browser');
             setActiveGroup('openai');
