@@ -1,4 +1,3 @@
-
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -9,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner"
 import Header from '@/components/Header';
 import FloatingActionKey from '@/components/FloatingActionKey';
 
-import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader, Layers, Globe } from 'lucide-react';
+import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader, Layers, Globe, Monitor, Shield, FileText } from 'lucide-react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { MainContent } from '@/components/MainContent';
@@ -60,6 +59,9 @@ const IndexContent = () => {
     { value: 'url-scrap', label: 'URL Scrap', icon: Search },
     { value: 'meta-decisions', label: 'Meta Decisions', icon: Layers },
     { value: 'full-armor', label: 'Full Armor', icon: Layers },
+    { value: 'adaptive-ui', label: 'Adaptive UI', icon: Monitor },
+    { value: 'platform-audit', label: 'Platform Audit', icon: Shield },
+    { value: 'error-report', label: 'Error Report', icon: FileText },
   ];
 
   return (

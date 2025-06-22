@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,6 +14,7 @@ const URLScrapTable = React.lazy(() => import('./URLScrapTable'));
 const MetaDecisionLayer = React.lazy(() => import('./MetaDecisionLayer'));
 const FullArmorDashboard = React.lazy(() => import('./FullArmorDashboard'));
 const BrowserCore = React.lazy(() => import('./BrowserCore'));
+const ErrorReportGenerator = React.lazy(() => import('./ErrorReportGenerator'));
 
 interface MainContentProps {
   activeOpenAITab: string;
@@ -105,6 +105,12 @@ export const MainContent = ({
             </TabsContent>
             <TabsContent value="full-armor" className="h-full m-0">
               <FullArmorDashboard />
+            </TabsContent>
+            <TabsContent value="platform-audit" className="h-full m-0">
+              <PlatformAuditReport />
+            </TabsContent>
+            <TabsContent value="error-report" className="h-full m-0">
+              <ErrorReportGenerator />
             </TabsContent>
           </Suspense>
         </div>
