@@ -1,3 +1,4 @@
+
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -82,27 +83,28 @@ const IndexContent = () => {
             setActiveGroup={setActiveGroup}
           />
         <SidebarInset className="flex-1 flex flex-col bg-transparent">
-          <header className="p-2 md:p-4 flex items-center border-b border-slate-700/50">
-            <SidebarTrigger className="text-slate-400 hover:text-white" />
+          <header className="p-2 md:p-4 flex items-center border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
+            <SidebarTrigger className="text-slate-300 hover:text-white hover:bg-slate-800/50 border border-slate-600/50" />
             <h1 className="ml-4 text-lg font-semibold text-white">
               {activeGroup === 'openai' 
                 ? openAITabs.find(t => t.value === activeOpenAITab)?.label 
                 : dataTabs.find(t => t.value === activeDataTab)?.label}
             </h1>
           </header>
-          <main className="flex-1 overflow-y-auto p-4">
-            <MainContent
-              activeOpenAITab={activeOpenAITab}
-              setActiveOpenAITab={setActiveOpenAITab}
-              activeDataTab={activeDataTab}
-              setActiveDataTab={setActiveDataTab}
-              activeGroup={activeGroup}
-              extractedLinks={extractedLinks}
-            />
+          <main className="flex-1 overflow-y-auto p-2 md:p-4 max-w-full">
+            <div className="h-full max-w-full">
+              <MainContent
+                activeOpenAITab={activeOpenAITab}
+                setActiveOpenAITab={setActiveOpenAITab}
+                activeDataTab={activeDataTab}
+                setActiveDataTab={setActiveDataTab}
+                activeGroup={activeGroup}
+                extractedLinks={extractedLinks}
+              />
+            </div>
           </main>
         </SidebarInset>
       </div>
-
 
       <TrainingCallModal 
         isOpen={showTrainingCallModal} 
@@ -134,7 +136,7 @@ const LoadingFallback = () => (
   <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
     <div className="flex flex-col items-center space-y-4">
       <Loader className="h-12 w-12 text-cyan-400 animate-spin" />
-      <p className="text-slate-300">Loading Karol Core Interface...</p>
+      <p className="text-slate-200 font-medium">Loading Karol Core Interface...</p>
     </div>
   </div>
 );

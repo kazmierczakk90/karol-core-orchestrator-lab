@@ -7,14 +7,29 @@ export const useAppMenu = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeGroup, setActiveGroup] = useState<'openai' | 'data'>('openai');
 
+  const setActiveOpenAITabWithClose = (tab: string) => {
+    setActiveOpenAITab(tab);
+    setMobileMenuOpen(false); // Auto-hide menu on selection
+  };
+
+  const setActiveDataTabWithClose = (tab: string) => {
+    setActiveDataTab(tab);
+    setMobileMenuOpen(false); // Auto-hide menu on selection
+  };
+
+  const setActiveGroupWithClose = (group: 'openai' | 'data') => {
+    setActiveGroup(group);
+    setMobileMenuOpen(false); // Auto-hide menu on selection
+  };
+
   return {
     activeOpenAITab,
-    setActiveOpenAITab,
+    setActiveOpenAITab: setActiveOpenAITabWithClose,
     activeDataTab,
-    setActiveDataTab,
+    setActiveDataTab: setActiveDataTabWithClose,
     mobileMenuOpen,
     setMobileMenuOpen,
     activeGroup,
-    setActiveGroup,
+    setActiveGroup: setActiveGroupWithClose,
   };
 };
