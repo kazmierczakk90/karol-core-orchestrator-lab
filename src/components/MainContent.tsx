@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,6 +17,11 @@ const FullArmorDashboard = React.lazy(() => import('./FullArmorDashboard'));
 const BrowserCore = React.lazy(() => import('./BrowserCore'));
 const ErrorReportGenerator = React.lazy(() => import('./ErrorReportGenerator'));
 const PlatformAuditReport = React.lazy(() => import('./PlatformAuditReport'));
+
+// New unified components
+const UnifiedIntelligenceCore = React.lazy(() => import('./unified/UnifiedIntelligenceCore'));
+const CognitiveResearchHub = React.lazy(() => import('./research/CognitiveResearchHub'));
+const SystemDiagnostics = React.lazy(() => import('./diagnostics/SystemDiagnostics'));
 
 interface MainContentProps {
   activeOpenAITab: string;
@@ -106,6 +112,15 @@ export const MainContent = ({
             </TabsContent>
             <TabsContent value="full-armor" className="h-full m-0">
               <FullArmorDashboard />
+            </TabsContent>
+            <TabsContent value="unified-intelligence" className="h-full m-0">
+              <UnifiedIntelligenceCore />
+            </TabsContent>
+            <TabsContent value="cognitive-research" className="h-full m-0">
+              <CognitiveResearchHub />
+            </TabsContent>
+            <TabsContent value="system-diagnostics" className="h-full m-0">
+              <SystemDiagnostics />
             </TabsContent>
             <TabsContent value="platform-audit" className="h-full m-0">
               <PlatformAuditReport />
