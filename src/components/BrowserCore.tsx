@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,11 +9,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   ArrowLeft, ArrowRight, RotateCcw, Home, Plus, Minus, 
   Search, Globe, History, Trash2, Clock, ExternalLink,
-  Database, Link2, AlertCircle, Download, Zap, CheckCircle
+  Database, Link2, AlertCircle, Download, Zap, CheckCircle, Settings
 } from 'lucide-react';
 import { useBrowser } from '@/hooks/useBrowser';
 import { useBrowserScraper } from '@/hooks/useBrowserScraper';
 import { SearchEngine } from '@/types/browser';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
 
 interface BrowserCoreProps {
   onLinksExtracted?: (links: Array<{url: string, title: string, domain: string}>) => void;
@@ -53,6 +56,15 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
   const [showHistory, setShowHistory] = useState(false);
   const [showAPIResults, setShowAPIResults] = useState(false);
   const [showScrapedData, setShowScrapedData] = useState(false);
+  const [settings, setSettings] = useState({
+    autoExtractLinks: true,
+    maxLinksPerPage: 50,
+    enableDeepScan: false,
+    ignoreInternalLinks: true,
+    followRedirects: true,
+    timeout: 10000,
+    userAgent: 'Karol-Core Browser v1.0'
+  });
 
   const searchEngines: SearchEngine[] = [
     { 
@@ -141,8 +153,102 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
     return new Date(timestamp).toLocaleString('pl-PL');
   };
 
+  const SettingsDialog = () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Settings className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogHeader>
+          <DialogTitle className="text-cyan-400">Browser Core Settings</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-white text-sm font-medium">Max Links Per Page: {settings.maxLinksPerPage}</label>
+            <Slider
+              value={[settings.maxLinksPerPage]}
+              onValueChange={([value]) => setSettings(prev => ({ ...prev, maxLinksPerPage: value }))}
+              min={10}
+              max={200}
+              step={10}
+              className="mt-2"
+            />
+          </div>
+          
+          <div>
+            <label className="text-white text-sm font-medium">Timeout (ms): {settings.timeout}</label>
+            <Slider
+              value={[settings.timeout]}
+              onValueChange={([value]) => setSettings(prev => ({ ...prev, timeout: value }))}
+              min={5000}
+              max={30000}
+              step={1000}
+              className="mt-2"
+            />
+          </div>
+
+          <div>
+            <label className="text-white text-sm font-medium">User Agent</label>
+            <Input
+              value={settings.userAgent}
+              onChange={(e) => setSettings(prev => ({ ...prev, userAgent: e.target.value }))}
+              className="bg-slate-900/50 border-slate-600 text-white mt-2"
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-white text-sm">Auto Extract Links</span>
+            <Switch
+              checked={settings.autoExtractLinks}
+              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoExtractLinks: checked }))}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-white text-sm">Enable Deep Scan</span>
+            <Switch
+              checked={settings.enableDeepScan}
+              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, enableDeepScan: checked }))}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-white text-sm">Ignore Internal Links</span>
+            <Switch
+              checked={settings.ignoreInternalLinks}
+              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, ignoreInternalLinks: checked }))}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-white text-sm">Follow Redirects</span>
+            <Switch
+              checked={settings.followRedirects}
+              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, followRedirects: checked }))}
+            />
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
-    <div className="h-full flex flex-col bg-gradient-dark">
+    <Card className="bg-slate-800/50 border-cyan-800/30 h-full">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-cyan-400 flex items-center space-x-2">
+            <Globe className="h-6 w-6" />
+            <span>Browser Core</span>
+          </CardTitle>
+          <SettingsDialog />
+        </div>
+        <CardDescription className="text-slate-300">
+          Wbudowana przeglądarka z funkcjami scrapingu i analizy
+        </CardDescription>
+      </CardHeader>
+
       {/* Browser Controls */}
       <div className="p-4 border-b border-slate-700 bg-slate-800/50">
         <div className="flex items-center space-x-2 mb-3">
@@ -590,7 +696,7 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 };
 

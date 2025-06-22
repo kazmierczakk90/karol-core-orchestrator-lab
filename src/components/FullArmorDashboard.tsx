@@ -1,12 +1,21 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Crown, Layers, Brain, Zap, Shield, Activity } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Crown, Layers, Brain, Zap, Shield, Activity, Settings } from 'lucide-react';
 import MetaDecisionLayer from './MetaDecisionLayer';
 import StyleCore from './advanced-core/StyleCore';
 import TranscendenceEngine from './advanced-core/TranscendenceEngine';
+import RecursiveLogic from './advanced-logic/RecursiveLogic';
+import QuantumDecisions from './advanced-logic/QuantumDecisions';
+import TemporalAwareness from './advanced-logic/TemporalAwareness';
+import EmergenceDetector from './advanced-logic/EmergenceDetector';
+import MetaMetaDecision from './advanced-core/MetaMetaDecision';
+import ConsciousnessEmergence from './advanced-core/ConsciousnessEmergence';
 
 const FullArmorDashboard = () => {
   const [activeLevel, setActiveLevel] = useState('overview');
@@ -21,12 +30,13 @@ const FullArmorDashboard = () => {
   const systemStats = {
     totalLevels: 20,
     activeLevels: 20,
-    transcendenceLevel: 94,
-    systemIntegrity: 98
+    transcendenceLevel: 98,
+    systemIntegrity: 99
   };
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 to-slate-800">
+      {/* Header with Settings */}
       <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -43,11 +53,42 @@ const FullArmorDashboard = () => {
             <Badge className="bg-green-500/20 text-green-400">
               {systemStats.systemIntegrity}% Integrity
             </Badge>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-slate-800 border-slate-700">
+                <DialogHeader>
+                  <DialogTitle className="text-yellow-400">Full Armor Settings</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm">Auto Level Progression</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm">Transcendence Mode</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm">Real-time Analytics</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div>
+                    <label className="text-white text-sm font-medium">System Integrity Threshold</label>
+                    <Slider defaultValue={[95]} min={80} max={100} step={1} className="mt-2" />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar */}
         <div className="w-80 border-r border-slate-700/50 p-4 overflow-y-auto">
           <div className="space-y-4">
             <Card className="bg-slate-800/50 border-slate-700/50">
@@ -107,6 +148,7 @@ const FullArmorDashboard = () => {
           </div>
         </div>
 
+        {/* Main Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs value={activeLevel} onValueChange={setActiveLevel} className="h-full flex flex-col">
             <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 mx-4 mt-4">
@@ -203,29 +245,45 @@ const FullArmorDashboard = () => {
               </TabsContent>
               
               <TabsContent value="14-17" className="m-0 h-full">
-                <Card className="bg-slate-800/50 border-green-800/30 h-full">
-                  <CardHeader>
-                    <CardTitle className="text-green-400 flex items-center space-x-2">
-                      <Brain className="h-6 w-6" />
-                      <span>Advanced Logic Systems</span>
-                      <Badge className="bg-green-500/20 text-green-400 ml-2">Level 14-17 - Active</Badge>
-                    </CardTitle>
-                    <CardDescription className="text-slate-300">
-                      Recursive Logic | Quantum Decisions | Temporal Awareness | Emergence Detection
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <Activity className="h-16 w-16 mx-auto mb-4 text-green-400 animate-pulse" />
-                      <h3 className="text-green-400 text-xl font-bold mb-2">Advanced Logic Active</h3>
-                      <p className="text-slate-400">Deep reasoning engines operational</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Tabs defaultValue="recursive" className="w-full h-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="recursive">Level 14</TabsTrigger>
+                    <TabsTrigger value="quantum">Level 15</TabsTrigger>
+                    <TabsTrigger value="temporal">Level 16</TabsTrigger>
+                    <TabsTrigger value="emergence">Level 17</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="recursive" className="mt-4">
+                    <RecursiveLogic />
+                  </TabsContent>
+                  <TabsContent value="quantum" className="mt-4">
+                    <QuantumDecisions />
+                  </TabsContent>
+                  <TabsContent value="temporal" className="mt-4">
+                    <TemporalAwareness />
+                  </TabsContent>
+                  <TabsContent value="emergence" className="mt-4">
+                    <EmergenceDetector />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
               
               <TabsContent value="18-20" className="m-0 h-full">
-                <TranscendenceEngine />
+                <Tabs defaultValue="transcendence" className="w-full h-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="transcendence">Level 18</TabsTrigger>
+                    <TabsTrigger value="meta-meta">Level 19</TabsTrigger>
+                    <TabsTrigger value="consciousness">Level 20</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="transcendence" className="mt-4">
+                    <TranscendenceEngine />
+                  </TabsContent>
+                  <TabsContent value="meta-meta" className="mt-4">
+                    <MetaMetaDecision />
+                  </TabsContent>
+                  <TabsContent value="consciousness" className="mt-4">
+                    <ConsciousnessEmergence />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
             </div>
           </Tabs>
