@@ -1,4 +1,3 @@
-
 import React, { Suspense, useCallback } from 'react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useAppMenu } from '@/hooks/useAppMenu';
@@ -13,6 +12,7 @@ import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, 
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { MainContent } from '@/components/MainContent';
+import RealTimeMonitor from '@/components/RealTimeMonitor';
 
 const AnalyticsDashboard = React.lazy(() => import('@/components/AnalyticsDashboard'));
 const TrainingCallModal = React.lazy(() => import('@/components/TrainingCallModal'));
@@ -87,13 +87,18 @@ const IndexContent = () => {
             setActiveGroup={setActiveGroup}
           />
         <SidebarInset className="flex-1 flex flex-col bg-transparent">
-          <header className="p-2 md:p-4 flex items-center border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
-            <SidebarTrigger className="text-slate-300 hover:text-white hover:bg-slate-800/50 border border-slate-600/50" />
-            <h1 className="ml-4 text-lg font-semibold text-white">
-              {activeGroup === 'openai' 
-                ? openAITabs.find(t => t.value === activeOpenAITab)?.label 
-                : dataTabs.find(t => t.value === activeDataTab)?.label}
-            </h1>
+          <header className="p-2 md:p-4 flex items-center justify-between border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
+            <div className="flex items-center">
+              <SidebarTrigger className="text-slate-300 hover:text-white hover:bg-slate-800/50 border border-slate-600/50" />
+              <h1 className="ml-4 text-lg font-semibold text-white">
+                {activeGroup === 'openai' 
+                  ? openAITabs.find(t => t.value === activeOpenAITab)?.label 
+                  : dataTabs.find(t => t.value === activeDataTab)?.label}
+              </h1>
+            </div>
+            <div className="hidden md:block">
+              <RealTimeMonitor />
+            </div>
           </header>
           <main className="flex-1 overflow-y-auto p-2 md:p-4 max-w-full">
             <div className="h-full max-w-full">
