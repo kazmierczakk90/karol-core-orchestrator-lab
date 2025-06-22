@@ -7,13 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft, ArrowRight, RotateCcw, Home, Plus, Minus, 
   Search, Globe, History, Trash2, Clock, ExternalLink,
-  Database, Link2, AlertCircle
+  Database, Link2, AlertCircle, Download, Zap, CheckCircle
 } from 'lucide-react';
 import { useBrowser } from '@/hooks/useBrowser';
+import { useBrowserScraper } from '@/hooks/useBrowserScraper';
 import { SearchEngine } from '@/types/browser';
 
 interface BrowserCoreProps {
@@ -25,7 +25,6 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
   const {
     browserState,
     history,
-    localHistory,
     navigate,
     goBack,
     goForward,
@@ -41,9 +40,19 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
     isSearching
   } = useBrowser();
 
+  const {
+    scrapedData,
+    isProcessing: isScraping,
+    scrapeCurrentPage,
+    scrapeUrlWithAPI,
+    clearScrapedData,
+    removeScrapedItem
+  } = useBrowserScraper();
+
   const [urlInput, setUrlInput] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [showAPIResults, setShowAPIResults] = useState(false);
+  const [showScrapedData, setShowScrapedData] = useState(false);
 
   const searchEngines: SearchEngine[] = [
     { 
@@ -78,7 +87,6 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
   }, [browserState.currentUrl]);
 
   useEffect(() => {
-    // Automatycznie pokaż wyniki API gdy są dostępne
     if (searchResults.length > 0 && selectedSearchEngine.id === 'api') {
       setShowAPIResults(true);
     }
@@ -97,21 +105,23 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
     }
   };
 
-  const extractLinksFromCurrentPage = () => {
-    // Przekaż aktualny URL do ekstrakcji
-    const currentUrl = browserState.currentUrl;
-    
-    // Symulacja ekstrakcji linków z aktualnej strony iframe
-    const mockLinks = [
-      {
-        url: currentUrl || 'https://example.com',
-        title: `Extracted from ${new URL(currentUrl || 'https://example.com').hostname}`,
-        domain: new URL(currentUrl || 'https://example.com').hostname
-      }
-    ];
-    
-    if (onLinksExtracted) {
-      onLinksExtracted(mockLinks);
+  const handleScrapeCurrentPage = async () => {
+    const results = await scrapeCurrentPage();
+    if (results.length > 0 && onLinksExtracted) {
+      const links = results.map(item => ({
+        url: item.url,
+        title: item.title,
+        domain: item.domain
+      }));
+      onLinksExtracted(links);
+    }
+    setShowScrapedData(true);
+  };
+
+  const handleScrapeCurrentUrl = async () => {
+    if (browserState.currentUrl) {
+      await scrapeUrlWithAPI(browserState.currentUrl);
+      setShowScrapedData(true);
     }
   };
 
@@ -121,14 +131,14 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
     setShowHistory(false);
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('pl-PL');
-  };
-
   const navigateToResult = (url: string) => {
     setUrlInput(url);
     navigate(url);
     setShowAPIResults(false);
+  };
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleString('pl-PL');
   };
 
   return (
@@ -210,6 +220,46 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
             >
               <History className="h-4 w-4" />
             </Button>
+            
+            {/* Advanced Scraping Controls */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleScrapeCurrentPage}
+              disabled={isScraping}
+              className="border-green-500/50 text-green-400"
+            >
+              {isScraping ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-400"></div>
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              <span className="ml-1">DOM Scrape</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleScrapeCurrentUrl}
+              disabled={isScraping || !browserState.currentUrl}
+              className="border-purple-500/50 text-purple-400"
+            >
+              <Zap className="h-4 w-4 mr-1" />
+              API Scrape
+            </Button>
+
+            {scrapedData.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowScrapedData(!showScrapedData)}
+                className="border-cyan-500/50 text-cyan-400"
+              >
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Scraped ({scrapedData.length})
+              </Button>
+            )}
+
             {selectedSearchEngine.id === 'api' && searchResults.length > 0 && (
               <Button
                 variant="outline"
@@ -221,15 +271,7 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
                 Results ({searchResults.length})
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={extractLinksFromCurrentPage}
-              className="border-slate-600"
-            >
-              <Link2 className="h-4 w-4 mr-1" />
-              Extract Links
-            </Button>
+
             {onOpenURLScrap && (
               <Button
                 variant="outline"
@@ -237,13 +279,13 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
                 onClick={onOpenURLScrap}
                 className="border-slate-600"
               >
-                URL Scrap
+                URL Table
               </Button>
             )}
           </div>
         </div>
 
-        {/* Zoom Controls & Status */}
+        {/* Status & Zoom Controls */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-slate-400">Zoom:</span>
@@ -282,6 +324,13 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
               </div>
             )}
 
+            {isScraping && (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-400"></div>
+                <span className="text-sm text-green-400">Scraping...</span>
+              </div>
+            )}
+
             {browserState.isLoading && (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-slate-400">Loading...</span>
@@ -291,7 +340,6 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
           </div>
         </div>
 
-        {/* Loading Progress */}
         {browserState.isLoading && (
           <Progress value={browserState.loadingProgress} className="mt-2" />
         )}
@@ -300,7 +348,6 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
       <div className="flex-1 flex">
         {/* Main Browser Area */}
         <div className="flex-1 flex flex-col">
-          {/* Error Display */}
           {browserState.error && (
             <div className="p-4 bg-red-500/20 border-b border-red-500/50">
               <div className="flex items-center justify-between">
@@ -315,7 +362,6 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
             </div>
           )}
 
-          {/* Browser Content */}
           <div className="flex-1 bg-white">
             {browserState.currentUrl && !browserState.error ? (
               <iframe
@@ -346,6 +392,82 @@ const BrowserCore = ({ onLinksExtracted, onOpenURLScrap }: BrowserCoreProps) => 
             )}
           </div>
         </div>
+
+        {/* Scraped Data Sidebar */}
+        {showScrapedData && scrapedData.length > 0 && (
+          <div className="w-96 border-l border-slate-700 bg-slate-800/50">
+            <div className="p-4 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h3 className="text-green-400 font-semibold flex items-center space-x-2">
+                  <CheckCircle className="h-5 w-5" />
+                  <span>Scraped Data</span>
+                </h3>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearScrapedData}
+                    className="border-red-500/50 text-red-400"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowScrapedData(false)}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    ×
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-3">
+                {scrapedData.map((item, index) => (
+                  <Card 
+                    key={index} 
+                    className="bg-slate-700/50 border-slate-600"
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-medium mb-2 line-clamp-2">
+                            {item.title}
+                          </h4>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Badge variant="outline" className="border-green-500/50 text-green-400">
+                              {item.method}
+                            </Badge>
+                            <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
+                              {item.domain}
+                            </Badge>
+                          </div>
+                          <p className="text-slate-400 text-xs mb-2">
+                            {item.extractedAt.toLocaleString()}
+                          </p>
+                          {item.metadata?.description && (
+                            <p className="text-slate-300 text-sm line-clamp-2">
+                              {item.metadata.description}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeScrapedItem(item.url)}
+                          className="text-slate-500 hover:text-red-400 p-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
 
         {/* API Results Sidebar */}
         {showAPIResults && selectedSearchEngine.id === 'api' && searchResults.length > 0 && (

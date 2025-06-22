@@ -2,7 +2,6 @@
 import React, { Suspense } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useLinkExtractor } from '@/hooks/useLinkExtractor';
 
 const OpenAIChat = React.lazy(() => import('./OpenAIChat'));
 const AgentCommander = React.lazy(() => import('./AgentCommander'));
@@ -40,21 +39,16 @@ export const MainContent = ({
   activeGroup,
   extractedLinks,
 }: MainContentProps) => {
-  const { extractedLinks: hookExtractedLinks, handleExtractLinks, addManualLink } = useLinkExtractor(setActiveDataTab);
-
-  // Combine extracted links from props and hook
-  const allExtractedLinks = [...extractedLinks, ...hookExtractedLinks];
-
   const handleOpenURLScrap = () => {
     setActiveDataTab('url-scrap');
   };
 
-  // Create adapter function for BrowserCore onLinksExtracted prop
+  // Funkcja adapter dla BrowserCore
   const handleBrowserLinksExtracted = (links: Array<{url: string, title: string, domain: string}>) => {
-    // Add each extracted link manually to the link extractor
-    links.forEach(link => {
-      addManualLink(link.url, link.title);
-    });
+    // Ta funkcja zostanie wywołana przez BrowserCore z wynikami scrapingu
+    console.log('Links extracted from browser:', links);
+    // Przekieruj do URL Scrap tab
+    setActiveDataTab('url-scrap');
   };
 
   if (activeGroup === 'openai') {
@@ -75,7 +69,10 @@ export const MainContent = ({
               <FUKOConsole />
             </TabsContent>
             <TabsContent value="browser" className="h-full m-0">
-              <BrowserCore onLinksExtracted={handleBrowserLinksExtracted} onOpenURLScrap={handleOpenURLScrap} />
+              <BrowserCore 
+                onLinksExtracted={handleBrowserLinksExtracted} 
+                onOpenURLScrap={handleOpenURLScrap} 
+              />
             </TabsContent>
           </Suspense>
         </div>
@@ -101,7 +98,7 @@ export const MainContent = ({
               <SystemConnectionsTable />
             </TabsContent>
             <TabsContent value="url-scrap" className="h-full m-0">
-              <URLScrapTable extractedLinks={allExtractedLinks} />
+              <URLScrapTable extractedLinks={extractedLinks} />
             </TabsContent>
             <TabsContent value="meta-decisions" className="h-full m-0">
               <MetaDecisionLayer />
