@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -166,8 +165,8 @@ const PlatformOrchestrator = () => {
         id: 'cognitive-agent-1',
         name: 'Cognitive Core Agent',
         capabilities: [
-          { name: 'memory_management', level: 5, domain: 'cognitive', prerequisites: [], performance: 95 },
-          { name: 'belief_processing', level: 4, domain: 'cognitive', prerequisites: [], performance: 88 }
+          { name: 'memory_management', level: 5 as const, domain: 'cognitive', prerequisites: [], performance: 95 },
+          { name: 'belief_processing', level: 4 as const, domain: 'cognitive', prerequisites: [], performance: 88 }
         ],
         status: 'online' as const,
         performance: 95,
@@ -178,8 +177,8 @@ const PlatformOrchestrator = () => {
         id: 'decision-agent-1',
         name: 'Decision Engine Agent',
         capabilities: [
-          { name: 'multi_criteria_decision', level: 5, domain: 'decision', prerequisites: [], performance: 92 },
-          { name: 'risk_analysis', level: 4, domain: 'decision', prerequisites: [], performance: 89 }
+          { name: 'multi_criteria_decision', level: 5 as const, domain: 'decision', prerequisites: [], performance: 92 },
+          { name: 'risk_analysis', level: 4 as const, domain: 'decision', prerequisites: [], performance: 89 }
         ],
         status: 'online' as const,
         performance: 92,
@@ -190,8 +189,8 @@ const PlatformOrchestrator = () => {
         id: 'orchestration-agent-1',
         name: 'Orchestration Agent',
         capabilities: [
-          { name: 'load_balancing', level: 4, domain: 'orchestration', prerequisites: [], performance: 87 },
-          { name: 'service_discovery', level: 5, domain: 'orchestration', prerequisites: [], performance: 94 }
+          { name: 'load_balancing', level: 4 as const, domain: 'orchestration', prerequisites: [], performance: 87 },
+          { name: 'service_discovery', level: 5 as const, domain: 'orchestration', prerequisites: [], performance: 94 }
         ],
         status: 'online' as const,
         performance: 90,

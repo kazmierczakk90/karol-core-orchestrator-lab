@@ -15,6 +15,7 @@ const MetaDecisionLayer = React.lazy(() => import('./MetaDecisionLayer'));
 const FullArmorDashboard = React.lazy(() => import('./FullArmorDashboard'));
 const BrowserCore = React.lazy(() => import('./BrowserCore'));
 const ErrorReportGenerator = React.lazy(() => import('./ErrorReportGenerator'));
+const PlatformAuditReport = React.lazy(() => import('./PlatformAuditReport'));
 
 interface MainContentProps {
   activeOpenAITab: string;
