@@ -1,6 +1,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type TableName = keyof Database['public']['Tables'];
 
 interface PerformanceMetrics {
   memoryUsage: number;
@@ -93,9 +96,9 @@ export const usePerformanceMonitor = () => {
 
   // Optimized Supabase queries with caching
   const optimizedQuery = useCallback(async (
-    table: string,
+    table: TableName,
     select: string = '*',
-    filters: any = {},
+    filters: Record<string, any> = {},
     cacheKey?: string,
     cacheTtl?: number
   ) => {

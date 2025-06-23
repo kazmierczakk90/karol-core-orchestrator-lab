@@ -42,6 +42,7 @@ export const useOptimizedRealTime = (config: RealTimeConfig = {}) => {
   const heartbeatRef = useRef<NodeJS.Timeout>();
   const messageQueueRef = useRef<any[]>([]);
   const batchTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectAttemptsRef = useRef<number>(0);
 
   const processMessageBatch = useCallback(() => {
     if (messageQueueRef.current.length === 0) return;
@@ -133,15 +134,17 @@ export const useOptimizedRealTime = (config: RealTimeConfig = {}) => {
               activeChannels: [...prev.activeChannels, channelName],
               reconnectAttempts: 0
             }));
+            reconnectAttemptsRef.current = 0;
             startHeartbeat();
           } else if (status === 'CHANNEL_ERROR') {
+            reconnectAttemptsRef.current += 1;
             setStatus(prev => ({
               ...prev,
               errors: prev.errors + 1,
-              reconnectAttempts: prev.reconnectAttempts + 1
+              reconnectAttempts: reconnectAttemptsRef.current
             }));
             
-            if (status.reconnectAttempts < maxRetries) {
+            if (reconnectAttemptsRef.current < maxRetries) {
               setTimeout(() => {
                 console.log(`Retrying connection for ${channelName}...`);
                 subscribe(channelName, table, eventType, handler, options);
