@@ -24,7 +24,9 @@ serve(async (req) => {
   }
 
   try {
-    const openaiKey = Deno.env.get('OPENAI_API_KEY');
+    // Use the provided OpenAI API key
+    const openaiKey = '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';
+    
     if (!openaiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -45,7 +47,7 @@ serve(async (req) => {
       agent_id = 'system'
     }: OpenAIRequest = await req.json();
 
-    console.log(`OpenAI Integration: Processing ${action} request`);
+    console.log(`OpenAI Integration: Processing ${action} request for agent ${agent_id}`);
 
     let result;
 
@@ -74,9 +76,14 @@ serve(async (req) => {
     await supabase.from('analytics').insert({
       event_type: 'openai_api_call',
       agent_id,
-      description: `${action} request`,
+      description: `${action} request processed successfully`,
       value: 1,
-      context: JSON.stringify({ model, action, tokens_used: result.usage?.total_tokens })
+      context: JSON.stringify({ 
+        model, 
+        action, 
+        tokens_used: result.usage?.total_tokens || 0,
+        timestamp: new Date().toISOString()
+      })
     });
 
     if (stream && action === 'chat') {

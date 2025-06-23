@@ -48,18 +48,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchProfile = async (userId: string) => {
     try {
+      // Use direct query since profiles table might not be in types yet
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+        .rpc('get_user_profile', { user_id: userId });
 
       if (error) {
         console.error('Error fetching profile:', error);
         return;
       }
 
-      setProfile(data);
+      if (data && data.length > 0) {
+        setProfile(data[0] as Profile);
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -172,9 +172,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     try {
       const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id);
+        .rpc('update_user_profile', { 
+          user_id: user.id, 
+          profile_updates: updates 
+        });
 
       if (error) {
         toast.error(error.message);

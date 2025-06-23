@@ -1,164 +1,135 @@
-import React, { Suspense, useCallback } from 'react';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { useAppMenu } from '@/hooks/useAppMenu';
-import { useLinkExtractor } from '@/hooks/useLinkExtractor';
-import { useModals } from '@/hooks/useModals';
-import { Toaster } from "@/components/ui/sonner"
 
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
-import FloatingActionKey from '@/components/FloatingActionKey';
-
-import { Brain, Bot, Users, MessageSquare, Workflow, Network, Database, Search, Zap, Loader, Layers, Globe, Monitor, Shield, FileText, Crown, Microscope } from 'lucide-react';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/AppSidebar';
-import { MainContent } from '@/components/MainContent';
+import AGIDashboard from '@/components/AGIDashboard';
+import AdminDashboard from '@/components/AdminDashboard';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import RealTimeMonitor from '@/components/RealTimeMonitor';
-
-const AnalyticsDashboard = React.lazy(() => import('@/components/AnalyticsDashboard'));
-const TrainingCallModal = React.lazy(() => import('@/components/TrainingCallModal'));
-
-const IndexContent = () => {
-  const { 
-    activeOpenAITab, setActiveOpenAITab,
-    activeDataTab, setActiveDataTab,
-    activeGroup, setActiveGroup
-  } = useAppMenu();
-  
-  const { 
-    extractedLinks, handleExtractLinks, addManualLink
-  } = useLinkExtractor(setActiveDataTab);
-
-  const {
-    showTrainingCallModal, setShowTrainingCallModal,
-    showAnalyticsDashboard, setShowAnalyticsDashboard
-  } = useModals();
-
-  const handleLogoClick = useCallback(() => {
-    setShowAnalyticsDashboard(true);
-  }, [setShowAnalyticsDashboard]);
-
-  // Create adapter function for FloatingActionKey onExtractLinks prop
-  const handleFloatingActionExtractLinks = useCallback(() => {
-    // Call handleExtractLinks without parameters to extract from current page
-    handleExtractLinks();
-  }, [handleExtractLinks]);
-
-  const openAITabs = [
-    { value: 'chat', label: 'Chat', icon: MessageSquare },
-    { value: 'commander', label: 'Commander', icon: Users },
-    { value: 'workflow', label: 'Workflow', icon: Workflow },
-    { value: 'orchestrator', label: 'Orchestrator', icon: Network },
-    { value: 'browser', label: 'Browser', icon: Globe },
-  ];
-
-  const dataTabs = [
-    { value: 'system-agents', label: 'System Agents', icon: Bot },
-    { value: 'mini-ai', label: 'Mini AI Instances', icon: Brain },
-    { value: 'memory', label: 'Memory Entries', icon: Database },
-    { value: 'connections', label: 'System Connections', icon: Zap },
-    { value: 'url-scrap', label: 'URL Scrap', icon: Search },
-    { value: 'meta-decisions', label: 'Meta Decisions', icon: Layers },
-    { value: 'full-armor', label: 'Full Armor', icon: Layers },
-    { value: 'unified-intelligence', label: 'Unified Intelligence', icon: Crown },
-    { value: 'cognitive-research', label: 'Cognitive Research', icon: Microscope },
-    { value: 'system-diagnostics', label: 'System Diagnostics', icon: Shield },
-    { value: 'platform-audit', label: 'Platform Audit', icon: Shield },
-    { value: 'error-report', label: 'Error Report', icon: FileText },
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      <Header onLogoClick={handleLogoClick} />
-
-      <AnalyticsDashboard 
-        isOpen={showAnalyticsDashboard} 
-        onClose={() => setShowAnalyticsDashboard(false)} 
-      />
-
-      <div className="flex-1 flex w-full">
-         <AppSidebar
-            activeOpenAITab={activeOpenAITab}
-            setActiveOpenAITab={setActiveOpenAITab}
-            activeDataTab={activeDataTab}
-            setActiveDataTab={setActiveDataTab}
-            openAITabs={openAITabs}
-            dataTabs={dataTabs}
-            activeGroup={activeGroup}
-            setActiveGroup={setActiveGroup}
-          />
-        <SidebarInset className="flex-1 flex flex-col bg-transparent">
-          <header className="p-2 md:p-4 flex items-center justify-between border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
-            <div className="flex items-center">
-              <SidebarTrigger className="text-slate-300 hover:text-white hover:bg-slate-800/50 border border-slate-600/50" />
-              <h1 className="ml-4 text-lg font-semibold text-white">
-                {activeGroup === 'openai' 
-                  ? openAITabs.find(t => t.value === activeOpenAITab)?.label 
-                  : dataTabs.find(t => t.value === activeDataTab)?.label}
-              </h1>
-            </div>
-            <div className="hidden md:block">
-              <RealTimeMonitor />
-            </div>
-          </header>
-          <main className="flex-1 overflow-y-auto p-2 md:p-4 max-w-full">
-            <div className="h-full max-w-full">
-              <MainContent
-                activeOpenAITab={activeOpenAITab}
-                setActiveOpenAITab={setActiveOpenAITab}
-                activeDataTab={activeDataTab}
-                setActiveDataTab={setActiveDataTab}
-                activeGroup={activeGroup}
-                extractedLinks={extractedLinks}
-              />
-            </div>
-          </main>
-        </SidebarInset>
-      </div>
-
-      <TrainingCallModal 
-        isOpen={showTrainingCallModal} 
-        onClose={() => setShowTrainingCallModal(false)} 
-      />
-
-      <FloatingActionKey
-        onExtractLinks={handleFloatingActionExtractLinks}
-        onOpenBrowser={() => {
-            setActiveOpenAITab('browser');
-            setActiveGroup('openai');
-        }}
-        onOpenMiniAI={() => {
-            setActiveDataTab('mini-ai');
-            setActiveGroup('data');
-        }}
-        onOpenCommander={() => {
-            setActiveOpenAITab('commander');
-            setActiveGroup('openai');
-        }}
-        onOpenTrainingCall={() => setShowTrainingCallModal(true)}
-      />
-      <Toaster richColors theme="dark" position="bottom-right" />
-    </div>
-  );
-};
-
-const LoadingFallback = () => (
-  <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-    <div className="flex flex-col items-center space-y-4">
-      <Loader className="h-12 w-12 text-cyan-400 animate-spin" />
-      <p className="text-slate-200 font-medium">Loading Karol Core Interface...</p>
-    </div>
-  </div>
-);
+import { 
+  Brain, 
+  Settings, 
+  Activity, 
+  Zap,
+  Shield,
+  BarChart3
+} from 'lucide-react';
 
 const Index = () => {
+  const { user, profile } = useAuth();
+  const [activeView, setActiveView] = useState<'dashboard' | 'admin'>('dashboard');
+
+  const handleLogoClick = () => {
+    setActiveView('dashboard');
+  };
+
   return (
-    <LanguageProvider>
-      <Suspense fallback={<LoadingFallback />}>
-        <SidebarProvider>
-          <IndexContent />
-        </SidebarProvider>
-      </Suspense>
-    </LanguageProvider>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <Header onLogoClick={handleLogoClick} />
+      
+      <div className="container mx-auto px-4 py-6">
+        {/* Welcome Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Welcome to Karol Core AGI Platform
+              </h1>
+              <p className="text-slate-300">
+                Advanced Artificial General Intelligence Platform
+                {profile && (
+                  <span className="ml-2">
+                    - Logged in as{' '}
+                    <span className="text-cyan-400 font-medium">
+                      {profile.first_name || user?.email?.split('@')[0]}
+                    </span>
+                  </span>
+                )}
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {profile?.role === 'admin' && (
+                <Button
+                  onClick={() => setActiveView(activeView === 'admin' ? 'dashboard' : 'admin')}
+                  variant="outline"
+                  className="border-cyan-500/50 text-cyan-400"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  {activeView === 'admin' ? 'Dashboard' : 'Admin Panel'}
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          {/* Status Indicators */}
+          <div className="flex items-center space-x-4 mt-4">
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+              <Activity className="h-3 w-3 mr-1" />
+              System Online
+            </Badge>
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+              <Brain className="h-3 w-3 mr-1" />
+              AI Ready
+            </Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+              <Zap className="h-3 w-3 mr-1" />
+              Real-time Active
+            </Badge>
+            {profile?.role === 'admin' && (
+              <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+                <Shield className="h-3 w-3 mr-1" />
+                Admin Access
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            {activeView === 'dashboard' ? (
+              <AGIDashboard />
+            ) : (
+              <AdminDashboard />
+            )}
+          </div>
+          
+          <div className="space-y-6">
+            <RealTimeMonitor />
+            
+            {/* Quick Stats */}
+            <div className="bg-slate-800/50 border border-cyan-800/30 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-cyan-400 mb-3 flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2" />
+                Quick Stats
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-slate-300">Platform Status</span>
+                  <span className="text-green-400 font-medium">Operational</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-300">AI Integration</span>
+                  <span className="text-green-400 font-medium">Connected</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-300">User Role</span>
+                  <span className="text-cyan-400 font-medium capitalize">
+                    {profile?.role || 'User'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-300">Session</span>
+                  <span className="text-blue-400 font-medium">Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

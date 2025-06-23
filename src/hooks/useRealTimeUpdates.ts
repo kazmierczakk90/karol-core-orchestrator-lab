@@ -22,7 +22,8 @@ export const useRealTimeUpdates = () => {
         },
         (payload) => {
           console.log('Agents update:', payload);
-          toast.info(`Agent ${payload.eventType}: ${payload.new?.name || payload.old?.name}`);
+          const agentName = payload.new?.name || payload.old?.name || 'Unknown Agent';
+          toast.info(`Agent ${payload.eventType}: ${agentName}`);
         }
       )
       .subscribe((status) => {
@@ -45,9 +46,11 @@ export const useRealTimeUpdates = () => {
         (payload) => {
           console.log('Decision update:', payload);
           if (payload.eventType === 'INSERT') {
-            toast.info(`New decision: ${payload.new?.decision_type}`);
+            const decisionType = payload.new?.decision_type || 'Unknown';
+            toast.info(`New decision: ${decisionType}`);
           } else if (payload.eventType === 'UPDATE') {
-            toast.info(`Decision updated: ${payload.new?.status}`);
+            const status = payload.new?.status || 'Unknown';
+            toast.info(`Decision updated: ${status}`);
           }
         }
       )
@@ -66,7 +69,8 @@ export const useRealTimeUpdates = () => {
         (payload) => {
           console.log('Analytics update:', payload);
           if (payload.new?.event_type === 'system_alert') {
-            toast.warning(`System Alert: ${payload.new?.description}`);
+            const description = payload.new?.description || 'System Alert';
+            toast.warning(`System Alert: ${description}`);
           }
         }
       )
@@ -85,7 +89,8 @@ export const useRealTimeUpdates = () => {
         (payload) => {
           console.log('Log update:', payload);
           if (payload.new?.log_type === 'error') {
-            toast.error(`System Error: ${payload.new?.message}`);
+            const message = payload.new?.message || 'System Error';
+            toast.error(`System Error: ${message}`);
           }
         }
       )
