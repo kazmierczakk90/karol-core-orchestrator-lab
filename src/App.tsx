@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalLoadingProvider } from "@/contexts/GlobalLoadingContext";
 import { useAutoImprovement } from "@/hooks/useAutoImprovement";
+import { useAdminSetup } from "@/hooks/useAdminSetup";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -19,6 +20,9 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   // Inicjalizacja Auto-Improvement System
   useAutoImprovement();
+  
+  // Inicjalizacja domyślnych kont administratora
+  useAdminSetup();
 
   return (
     <BrowserRouter>

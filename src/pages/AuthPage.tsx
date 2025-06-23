@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Brain, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import LoginHelper from '@/components/LoginHelper';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-2xl">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Brain className="h-10 w-10 text-cyan-400" />
@@ -88,6 +89,9 @@ const AuthPage = () => {
           <h1 className="text-3xl font-bold text-white mb-2">Karol Core AGI</h1>
           <p className="text-slate-300">Advanced AGI Platform Authentication</p>
         </div>
+
+        {/* Login Helper - shows default credentials */}
+        <LoginHelper />
 
         <Card className="bg-slate-800/50 border-cyan-800/30 backdrop-blur-sm">
           <CardHeader>
