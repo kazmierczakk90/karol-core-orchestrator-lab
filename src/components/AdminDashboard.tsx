@@ -14,7 +14,8 @@ import {
   Settings,
   UserPlus,
   Key,
-  Activity
+  Activity,
+  RefreshCw
 } from 'lucide-react';
 import PlatformAudit from './PlatformAudit';
 
@@ -23,6 +24,8 @@ interface UserInfo {
   email: string;
   role: string;
   created_at: string;
+  first_name?: string;
+  last_name?: string;
   last_sign_in_at?: string;
 }
 
@@ -43,13 +46,21 @@ const AdminDashboard = () => {
   const loadUsers = async () => {
     setIsLoading(true);
     try {
-      // Get user profiles from our profiles table
+      console.log('Loading users...');
+      
+      // Bezpośrednie zapytanie SQL zamiast RPC
       const { data: profiles, error } = await supabase
-        .rpc('get_all_user_profiles');
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading users:', error);
+        throw error;
+      }
 
-      setUsers(profiles || []);
+      console.log('Users loaded successfully:', profiles?.length);
+      setUsers(profiles as UserInfo[] || []);
     } catch (error) {
       console.error('Error loading users:', error);
       toast.error('Failed to load users');
@@ -61,6 +72,8 @@ const AdminDashboard = () => {
   const createTestAccounts = async () => {
     setIsLoading(true);
     try {
+      console.log('Creating test accounts...');
+      
       // Create admin account
       const { error: adminError } = await supabase.auth.signUp({
         email: 'karolkazmierczak90@gmail.com',
@@ -75,6 +88,7 @@ const AdminDashboard = () => {
       });
 
       if (adminError && !adminError.message.includes('already registered')) {
+        console.error('Admin account creation error:', adminError);
         throw adminError;
       }
 
@@ -92,22 +106,26 @@ const AdminDashboard = () => {
       });
 
       if (testError && !testError.message.includes('already registered')) {
+        console.error('Test account creation error:', testError);
         throw testError;
       }
 
-      // Update roles in profiles table
-      await supabase.rpc('update_user_role', {
-        user_email: 'karolkazmierczak90@gmail.com',
-        new_role: 'admin'
-      });
+      // Wait a bit for the accounts to be created
+      setTimeout(async () => {
+        // Update roles in profiles table
+        await supabase
+          .from('profiles')
+          .update({ role: 'admin' })
+          .eq('email', 'karolkazmierczak90@gmail.com');
 
-      await supabase.rpc('update_user_role', {
-        user_email: 'test@test',
-        new_role: 'user'
-      });
+        await supabase
+          .from('profiles')
+          .update({ role: 'user' })
+          .eq('email', 'test@test');
 
-      toast.success('Test accounts created successfully!');
-      loadUsers();
+        toast.success('Test accounts created successfully!');
+        loadUsers();
+      }, 2000);
 
     } catch (error) {
       console.error('Error creating test accounts:', error);
@@ -125,6 +143,8 @@ const AdminDashboard = () => {
 
     setIsLoading(true);
     try {
+      console.log('Creating new user:', newUserEmail);
+      
       const { error } = await supabase.auth.signUp({
         email: newUserEmail,
         password: newUserPassword,
@@ -137,17 +157,19 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Update role in profiles table
-      await supabase.rpc('update_user_role', {
-        user_email: newUserEmail,
-        new_role: newUserRole
-      });
+      // Update role in profiles table after a delay
+      setTimeout(async () => {
+        await supabase
+          .from('profiles')
+          .update({ role: newUserRole })
+          .eq('email', newUserEmail);
 
-      toast.success('User created successfully!');
-      setNewUserEmail('');
-      setNewUserPassword('');
-      setNewUserRole('user');
-      loadUsers();
+        toast.success('User created successfully!');
+        setNewUserEmail('');
+        setNewUserPassword('');
+        setNewUserRole('user');
+        loadUsers();
+      }, 1000);
 
     } catch (error) {
       console.error('Error creating user:', error);
@@ -159,10 +181,15 @@ const AdminDashboard = () => {
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
-      const { error } = await supabase.rpc('update_user_role_by_id', {
-        user_id: userId,
-        new_role: newRole
-      });
+      console.log('Updating user role:', userId, newRole);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          role: newRole,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
 
       if (error) throw error;
 
@@ -202,7 +229,7 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button 
               onClick={createTestAccounts}
               disabled={isLoading}
@@ -218,7 +245,7 @@ const AdminDashboard = () => {
               variant="outline"
               className="border-cyan-500/50 text-cyan-400"
             >
-              <Users className="h-4 w-4 mr-2" />
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh Users
             </Button>
             
@@ -229,6 +256,15 @@ const AdminDashboard = () => {
             >
               <Database className="h-4 w-4 mr-2" />
               Supabase Auth
+            </Button>
+
+            <Button 
+              onClick={() => window.open('https://supabase.com/dashboard/project/xhhgaysawtaeimxeodfd/editor', '_blank')}
+              variant="outline"
+              className="border-purple-500/50 text-purple-400"
+            >
+              <Key className="h-4 w-4 mr-2" />
+              SQL Editor
             </Button>
           </div>
 
@@ -266,7 +302,7 @@ const AdminDashboard = () => {
                   disabled={isLoading}
                   className="bg-cyan-600 hover:bg-cyan-700"
                 >
-                  Create User
+                  {isLoading ? 'Creating...' : 'Create User'}
                 </Button>
               </div>
             </CardContent>
@@ -277,12 +313,15 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle className="text-white text-lg flex items-center space-x-2">
                 <Users className="h-5 w-5" />
-                <span>System Users</span>
+                <span>System Users ({users.length})</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="text-center text-slate-400">Loading users...</div>
+                <div className="text-center text-slate-400 py-8">
+                  <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
+                  Loading users...
+                </div>
               ) : (
                 <div className="space-y-3">
                   {users.map((user) => (
@@ -296,9 +335,9 @@ const AdminDashboard = () => {
                         </div>
                         <div className="text-sm text-slate-400">
                           Created: {new Date(user.created_at).toLocaleDateString()}
-                          {user.last_sign_in_at && (
+                          {user.first_name && (
                             <span className="ml-4">
-                              Last login: {new Date(user.last_sign_in_at).toLocaleDateString()}
+                              Name: {user.first_name} {user.last_name}
                             </span>
                           )}
                         </div>

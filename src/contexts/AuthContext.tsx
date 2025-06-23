@@ -48,17 +48,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      // Use direct query since profiles table might not be in types yet
+      console.log('Fetching profile for user:', userId);
+      
+      // Bezpośrednie zapytanie SQL zamiast wywołania RPC
       const { data, error } = await supabase
-        .rpc('get_user_profile', { user_id: userId });
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
       if (error) {
         console.error('Error fetching profile:', error);
         return;
       }
 
-      if (data && data.length > 0) {
-        setProfile(data[0] as Profile);
+      if (data) {
+        console.log('Profile fetched successfully:', data);
+        setProfile(data as Profile);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -66,17 +72,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
+    console.log('Setting up auth state listener');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile
+          // Defer profile fetching to avoid blocking auth flow
           setTimeout(() => {
             fetchProfile(session.user.id);
-          }, 0);
+          }, 100);
         } else {
           setProfile(null);
         }
@@ -87,6 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Existing session:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -97,24 +107,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Attempting sign in for:', email);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Sign in error:', error);
         toast.error(error.message);
       } else {
+        console.log('Sign in successful');
         toast.success('Successfully signed in!');
       }
 
       return { error };
     } catch (error) {
+      console.error('Unexpected sign in error:', error);
       toast.error('An unexpected error occurred');
       return { error };
     }
@@ -122,6 +139,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
     try {
+      console.log('Attempting sign up for:', email);
       const redirectUrl = `${window.location.origin}/`;
       
       const { error } = await supabase.auth.signUp({
@@ -137,13 +155,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) {
+        console.error('Sign up error:', error);
         toast.error(error.message);
       } else {
+        console.log('Sign up successful');
         toast.success('Check your email for verification link!');
       }
 
       return { error };
     } catch (error) {
+      console.error('Unexpected sign up error:', error);
       toast.error('An unexpected error occurred');
       return { error };
     }
@@ -151,17 +172,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     try {
+      console.log('Attempting sign out');
       const { error } = await supabase.auth.signOut();
       
       if (error) {
+        console.error('Sign out error:', error);
         toast.error(error.message);
       } else {
+        console.log('Sign out successful');
         toast.success('Successfully signed out!');
         setProfile(null);
       }
 
       return { error };
     } catch (error) {
+      console.error('Unexpected sign out error:', error);
       toast.error('An unexpected error occurred');
       return { error };
     }
@@ -171,15 +196,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!user) return { error: new Error('No user logged in') };
 
     try {
+      console.log('Updating profile:', updates);
+      
+      // Bezpośrednie zapytanie SQL zamiast RPC
       const { error } = await supabase
-        .rpc('update_user_profile', { 
-          user_id: user.id, 
-          profile_updates: updates 
-        });
+        .from('profiles')
+        .update({
+          first_name: updates.first_name,
+          last_name: updates.last_name,
+          avatar_url: updates.avatar_url,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
       if (error) {
+        console.error('Profile update error:', error);
         toast.error(error.message);
       } else {
+        console.log('Profile updated successfully');
         toast.success('Profile updated successfully!');
         // Refresh profile data
         fetchProfile(user.id);
@@ -187,6 +221,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       return { error };
     } catch (error) {
+      console.error('Unexpected profile update error:', error);
       toast.error('An unexpected error occurred');
       return { error };
     }

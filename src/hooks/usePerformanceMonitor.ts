@@ -1,0 +1,179 @@
+
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface PerformanceMetrics {
+  memoryUsage: number;
+  renderTime: number;
+  apiLatency: number;
+  errorRate: number;
+  cacheHitRate: number;
+}
+
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+  ttl: number;
+}
+
+export const usePerformanceMonitor = () => {
+  const [metrics, setMetrics] = useState<PerformanceMetrics>({
+    memoryUsage: 0,
+    renderTime: 0,
+    apiLatency: 0,
+    errorRate: 0,
+    cacheHitRate: 0
+  });
+
+  const [cache] = useState<Map<string, CacheEntry>>(new Map());
+
+  // Memory usage monitoring
+  const measureMemoryUsage = useCallback(() => {
+    if ('performance' in window && 'memory' in (performance as any)) {
+      const memory = (performance as any).memory;
+      const usedMB = memory.usedJSHeapSize / (1024 * 1024);
+      return Math.round(usedMB);
+    }
+    return 0;
+  }, []);
+
+  // API latency measurement
+  const measureApiLatency = useCallback(async (operation: () => Promise<any>) => {
+    const startTime = performance.now();
+    try {
+      const result = await operation();
+      const endTime = performance.now();
+      const latency = endTime - startTime;
+      
+      setMetrics(prev => ({
+        ...prev,
+        apiLatency: Math.round((prev.apiLatency + latency) / 2)
+      }));
+      
+      return result;
+    } catch (error) {
+      const endTime = performance.now();
+      const latency = endTime - startTime;
+      
+      setMetrics(prev => ({
+        ...prev,
+        apiLatency: Math.round((prev.apiLatency + latency) / 2),
+        errorRate: prev.errorRate + 1
+      }));
+      
+      throw error;
+    }
+  }, []);
+
+  // Cache management
+  const getCached = useCallback((key: string): any | null => {
+    const entry = cache.get(key);
+    if (!entry) return null;
+    
+    if (Date.now() - entry.timestamp > entry.ttl) {
+      cache.delete(key);
+      return null;
+    }
+    
+    setMetrics(prev => ({
+      ...prev,
+      cacheHitRate: prev.cacheHitRate + 1
+    }));
+    
+    return entry.data;
+  }, [cache]);
+
+  const setCached = useCallback((key: string, data: any, ttl: number = 300000) => {
+    cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }, [cache]);
+
+  // Optimized Supabase queries with caching
+  const optimizedQuery = useCallback(async (
+    table: string,
+    select: string = '*',
+    filters: any = {},
+    cacheKey?: string,
+    cacheTtl?: number
+  ) => {
+    // Check cache first
+    if (cacheKey) {
+      const cached = getCached(cacheKey);
+      if (cached) {
+        console.log(`Cache hit for ${cacheKey}`);
+        return cached;
+      }
+    }
+
+    return measureApiLatency(async () => {
+      let query = supabase.from(table).select(select);
+      
+      // Apply filters
+      Object.entries(filters).forEach(([key, value]) => {
+        if (key === 'limit') {
+          query = query.limit(value as number);
+        } else if (key === 'order') {
+          const [column, ascending] = (value as string).split(':');
+          query = query.order(column, { ascending: ascending === 'asc' });
+        } else {
+          query = query.eq(key, value);
+        }
+      });
+
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      // Cache the result
+      if (cacheKey && data) {
+        setCached(cacheKey, data, cacheTtl);
+        console.log(`Cached data for ${cacheKey}`);
+      }
+      
+      return data;
+    });
+  }, [measureApiLatency, getCached, setCached]);
+
+  // Performance monitoring loop
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const memUsage = measureMemoryUsage();
+      
+      setMetrics(prev => ({
+        ...prev,
+        memoryUsage: memUsage
+      }));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [measureMemoryUsage]);
+
+  // Render time measurement
+  const measureRenderTime = useCallback((componentName: string) => {
+    const startTime = performance.now();
+    
+    return () => {
+      const endTime = performance.now();
+      const renderTime = endTime - startTime;
+      
+      console.log(`${componentName} render time: ${renderTime.toFixed(2)}ms`);
+      
+      setMetrics(prev => ({
+        ...prev,
+        renderTime: Math.round((prev.renderTime + renderTime) / 2)
+      }));
+    };
+  }, []);
+
+  return {
+    metrics,
+    optimizedQuery,
+    measureRenderTime,
+    getCached,
+    setCached,
+    cache
+  };
+};

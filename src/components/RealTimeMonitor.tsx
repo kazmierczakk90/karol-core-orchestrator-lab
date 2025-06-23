@@ -3,10 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
-import { Activity, Wifi, WifiOff } from 'lucide-react';
+import { Activity, Wifi, WifiOff, BarChart3, AlertTriangle } from 'lucide-react';
 
 const RealTimeMonitor = () => {
-  const { isConnected, activeConnections } = useRealTimeUpdates();
+  const { isConnected, activeConnections, stats } = useRealTimeUpdates();
 
   return (
     <Card className="bg-slate-800/50 border-cyan-800/30">
@@ -16,7 +16,7 @@ const RealTimeMonitor = () => {
           <span>Real-Time Monitor</span>
         </CardTitle>
         <CardDescription className="text-slate-300">
-          Live system updates and notifications
+          Live system updates and performance metrics
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -42,16 +42,34 @@ const RealTimeMonitor = () => {
             </Badge>
           </div>
 
+          {/* Performance Stats */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-900/50 p-2 rounded">
+              <div className="flex items-center space-x-1">
+                <BarChart3 className="h-3 w-3 text-blue-400" />
+                <span className="text-xs text-slate-400">Messages</span>
+              </div>
+              <p className="text-sm font-semibold text-white">{stats.totalMessages}</p>
+            </div>
+            <div className="bg-slate-900/50 p-2 rounded">
+              <div className="flex items-center space-x-1">
+                <AlertTriangle className="h-3 w-3 text-red-400" />
+                <span className="text-xs text-slate-400">Errors</span>
+              </div>
+              <p className="text-sm font-semibold text-white">{stats.errors}</p>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <span className="text-slate-300 text-sm">Active Channels:</span>
-            <div className="flex flex-wrap gap-2">
+            <span className="text-slate-300 text-sm">Active Channels ({activeConnections.length}):</span>
+            <div className="flex flex-wrap gap-1">
               {activeConnections.map(connection => (
                 <Badge
                   key={connection}
                   variant="outline"
                   className="text-xs text-cyan-400 border-cyan-500/30"
                 >
-                  {connection}
+                  {connection.replace('-updates', '')}
                 </Badge>
               ))}
               {activeConnections.length === 0 && (
@@ -67,11 +85,16 @@ const RealTimeMonitor = () => {
               }`}></div>
               <span className="text-sm text-slate-400">
                 {isConnected 
-                  ? 'Receiving live updates' 
+                  ? `Live updates active • ${stats.reconnectAttempts} reconnects`
                   : 'Connection lost - attempting to reconnect'
                 }
               </span>
             </div>
+            {stats.lastHeartbeat && (
+              <div className="text-xs text-slate-500 mt-1">
+                Last heartbeat: {stats.lastHeartbeat.toLocaleTimeString()}
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

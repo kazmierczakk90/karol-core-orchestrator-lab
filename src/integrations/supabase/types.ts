@@ -790,6 +790,39 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       project_files: {
         Row: {
           id: string
@@ -953,6 +986,18 @@ export type Database = {
         Args: { event: Json }
         Returns: Json
       }
+      get_all_user_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          role: string
+          created_at: string
+          last_sign_in_at: string
+        }[]
+      }
       get_employee_by_id: {
         Args: { emp_id: number }
         Returns: {
@@ -962,6 +1007,30 @@ export type Database = {
           created_at: string
           department: string
         }[]
+      }
+      get_user_profile: {
+        Args: { user_id: string }
+        Returns: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          role: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      update_user_profile: {
+        Args: { user_id: string; profile_updates: Json }
+        Returns: undefined
+      }
+      update_user_role: {
+        Args: { user_email: string; new_role: string }
+        Returns: undefined
+      }
+      update_user_role_by_id: {
+        Args: { user_id: string; new_role: string }
+        Returns: undefined
       }
     }
     Enums: {
