@@ -1,9 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
-
-type TableName = keyof Database['public']['Tables'];
 
 interface PerformanceMetrics {
   memoryUsage: number;
@@ -17,6 +14,12 @@ interface CacheEntry {
   data: any;
   timestamp: number;
   ttl: number;
+}
+
+interface QueryFilters {
+  limit?: number;
+  order?: string;
+  [key: string]: any;
 }
 
 export const usePerformanceMonitor = () => {
@@ -94,11 +97,11 @@ export const usePerformanceMonitor = () => {
     });
   }, [cache]);
 
-  // Optimized Supabase queries with caching
+  // Simplified optimized query function
   const optimizedQuery = useCallback(async (
-    table: TableName,
+    table: string,
     select: string = '*',
-    filters: Record<string, any> = {},
+    filters: QueryFilters = {},
     cacheKey?: string,
     cacheTtl?: number
   ) => {
@@ -112,7 +115,8 @@ export const usePerformanceMonitor = () => {
     }
 
     return measureApiLatency(async () => {
-      let query = supabase.from(table).select(select);
+      // Use any type to avoid deep type instantiation
+      let query = (supabase as any).from(table).select(select);
       
       // Apply filters
       Object.entries(filters).forEach(([key, value]) => {
