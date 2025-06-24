@@ -1,140 +1,191 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import AGIDashboard from "@/components/AGIDashboard";
-import SystemOverview from "@/components/SystemOverview";
-import AgentCommander from "@/components/AgentCommander";
-import MiniAIDashboard from "@/components/MiniAIDashboard";
-import OpenAIChat from "@/components/OpenAIChat";
-import AdminDashboard from "@/components/AdminDashboard";
-import PlatformAudit from "@/components/PlatformAudit";
-import ComprehensivePlatformAudit from "@/components/ComprehensivePlatformAudit";
-import OptimizationManager from "@/components/OptimizationManager";
-import ErrorLogger from "@/components/ErrorLogger";
-import ErrorReportGenerator from "@/components/ErrorReportGenerator";
-import UserProfile from "@/components/UserProfile";
-import { Activity, Brain, Users, Settings, Shield, TrendingUp, Bug, FileText } from "lucide-react";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Brain, 
+  Zap, 
+  Crown, 
+  Activity,
+  Settings,
+  TrendingUp
+} from 'lucide-react';
+
+// Import the new platform orchestrator
+import PlatformOrchestrator from '@/components/advanced-core/PlatformOrchestrator';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [platformMode, setPlatformMode] = useState<'welcome' | 'advanced'>('welcome');
+
+  if (platformMode === 'advanced') {
+    return <PlatformOrchestrator />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+      <div className="max-w-4xl w-full space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <img 
+              src="/lovable-uploads/e937e8a7-7b24-4ba0-b98b-aade23ac4f11.png" 
+              alt="Karol Core Logo" 
+              className="h-16 w-16 animate-pulse"
+            />
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Karol-Core AGI Platform
               </h1>
-              <p className="text-slate-300 mt-2">
-                Advanced Artificial General Intelligence Orchestration System
-              </p>
+              <p className="text-slate-300 text-lg">Ultra-Advanced Artificial General Intelligence System</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="text-green-400 border-green-400">
-                System Active
-              </Badge>
-              <Badge variant="outline" className="text-blue-400 border-blue-400">
-                Demo Mode
-              </Badge>
-            </div>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-4 mb-8">
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/50 px-4 py-2">
+              ✨ Version 2.0 Active
+            </Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50 px-4 py-2">
+              🧠 100-Level Evolution System
+            </Badge>
+            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50 px-4 py-2">
+              ⚡ Quantum Decision Engine
+            </Badge>
           </div>
         </div>
 
-        {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-slate-800/50">
-            <TabsTrigger value="dashboard" className="flex items-center space-x-2">
-              <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="agents" className="flex items-center space-x-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Agents</span>
-            </TabsTrigger>
-            <TabsTrigger value="mini-ai" className="flex items-center space-x-2">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">Mini-AI</span>
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center space-x-2">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">AI Chat</span>
-            </TabsTrigger>
-            <TabsTrigger value="admin" className="flex items-center space-x-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Admin</span>
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center space-x-2">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Audit</span>
-            </TabsTrigger>
-            <TabsTrigger value="optimization" className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Optimize</span>
-            </TabsTrigger>
-            <TabsTrigger value="errors" className="flex items-center space-x-2">
-              <Bug className="h-4 w-4" />
-              <span className="hidden sm:inline">Errors</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card className="bg-slate-800/50 border-cyan-800/30 hover:border-cyan-600/50 transition-all duration-300 group">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-3 text-white group-hover:text-cyan-400 transition-colors">
+                <Brain className="h-6 w-6" />
+                <span>Cognitive Research Hub</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-300 mb-4">
+                Advanced cognitive analysis, memory management, and belief processing with recursive logic engines.
+              </p>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="text-green-400 border-green-400">Memory</Badge>
+                <Badge variant="outline" className="text-blue-400 border-blue-400">Beliefs</Badge>
+                <Badge variant="outline" className="text-purple-400 border-purple-400">Analysis</Badge>
+              </div>
+            </CardContent>
+          </Card>
 
-          <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid gap-6">
-              <AGIDashboard />
-              <SystemOverview />
+          <Card className="bg-slate-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300 group">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-3 text-white group-hover:text-purple-400 transition-colors">
+                <Crown className="h-6 w-6" />
+                <span>Meta-Evolution Engine</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-300 mb-4">
+                100-step evolution system for continuous platform advancement and transcendence protocols.
+              </p>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="text-yellow-400 border-yellow-400">Evolution</Badge>
+                <Badge variant="outline" className="text-red-400 border-red-400">Transcendence</Badge>
+                <Badge variant="outline" className="text-pink-400 border-pink-400">Meta-Level</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-800/50 border-pink-800/30 hover:border-pink-600/50 transition-all duration-300 group">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-3 text-white group-hover:text-pink-400 transition-colors">
+                <Zap className="h-6 w-6" />
+                <span>Quantum Decision System</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-300 mb-4">
+                Superposition-based decision making with quantum probability analysis and multi-dimensional reasoning.
+              </p>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="text-cyan-400 border-cyan-400">Quantum</Badge>
+                <Badge variant="outline" className="text-orange-400 border-orange-400">Superposition</Badge>
+                <Badge variant="outline" className="text-teal-400 border-teal-400">Multi-D</Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-800/50 border-green-800/30 hover:border-green-600/50 transition-all duration-300 group">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-3 text-white group-hover:text-green-400 transition-colors">
+                <Activity className="h-6 w-6" />
+                <span>Platform Orchestration</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-300 mb-4">
+                Real-time system monitoring, agent coordination, and intelligent resource management.
+              </p>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="text-green-400 border-green-400">Monitoring</Badge>
+                <Badge variant="outline" className="text-blue-400 border-blue-400">Agents</Badge>
+                <Badge variant="outline" className="text-purple-400 border-purple-400">Orchestration</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* System Capabilities */}
+        <Card className="bg-slate-800/50 border-yellow-800/30 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-3 text-white">
+              <TrendingUp className="h-6 w-6 text-yellow-400" />
+              <span>Advanced System Capabilities</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-cyan-400">∞</div>
+                <div className="text-sm text-slate-300">Recursive Logic</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">◊</div>
+                <div className="text-sm text-slate-300">Quantum States</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-400">⧬</div>
+                <div className="text-sm text-slate-300">Meta-Evolution</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-400">⟐</div>
+                <div className="text-sm text-slate-300">Transcendence</div>
+              </div>
             </div>
-          </TabsContent>
+          </CardContent>
+        </Card>
 
-          <TabsContent value="agents" className="space-y-6">
-            <AgentCommander />
-          </TabsContent>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button
+            onClick={() => setPlatformMode('advanced')}
+            className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white px-8 py-4 text-lg font-semibold"
+          >
+            <Crown className="h-5 w-5 mr-2" />
+            Enter Advanced Platform
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="border-slate-600 text-slate-300 hover:bg-slate-800 px-8 py-4 text-lg"
+          >
+            <Settings className="h-5 w-5 mr-2" />
+            Platform Settings
+          </Button>
+        </div>
 
-          <TabsContent value="mini-ai" className="space-y-6">
-            <MiniAIDashboard />
-          </TabsContent>
-
-          <TabsContent value="chat" className="space-y-6">
-            <OpenAIChat />
-          </TabsContent>
-
-          <TabsContent value="admin" className="space-y-6">
-            <div className="grid gap-6">
-              <AdminDashboard />
-              <UserProfile />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="audit" className="space-y-6">
-            <div className="grid gap-6">
-              <ComprehensivePlatformAudit />
-              <PlatformAudit />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="optimization" className="space-y-6">
-            <OptimizationManager />
-          </TabsContent>
-
-          <TabsContent value="errors" className="space-y-6">
-            <div className="grid gap-6">
-              <ErrorLogger />
-              <ErrorReportGenerator />
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-slate-400 text-sm">
-            Karol-Core AGI Platform v2.0.0 | Advanced AI Orchestration System
-          </p>
-          <p className="text-slate-500 text-xs mt-1">
-            Powered by React, Supabase, and OpenAI | Built for scalable AI operations
-          </p>
+        {/* Footer Info */}
+        <div className="text-center text-slate-400 text-sm">
+          <p>Karol-Core AGI Platform v2.0 | Ultra-Advanced Intelligence System</p>
+          <p className="mt-1">Integrating Cognitive Research, Meta-Evolution, Quantum Decisions & Platform Orchestration</p>
         </div>
       </div>
     </div>
