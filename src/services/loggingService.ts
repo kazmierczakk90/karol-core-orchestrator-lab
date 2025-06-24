@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { CreateLogSchema, validateDataSafe } from '@/lib/validation';
 import { errorHandlingService } from './errorHandlingService';
@@ -19,12 +20,26 @@ export interface CreateLogData {
   agent_id?: string;
 }
 
+interface LoggingMetrics {
+  totalLogs: number;
+  errorLogs: number;
+  successfulFlushes: number;
+  failedFlushes: number;
+}
+
 class LoggingService {
   private static instance: LoggingService;
   private logQueue: CreateLogData[] = [];
   private isProcessing = false;
   private batchSize = 10;
-  private flushInterval = 5000; // 5 seconds
+  private flushInterval = 5000;
+  private maxQueueSize = 1000;
+  private metrics: LoggingMetrics = {
+    totalLogs: 0,
+    errorLogs: 0,
+    successfulFlushes: 0,
+    failedFlushes: 0
+  };
 
   public static getInstance(): LoggingService {
     if (!LoggingService.instance) {
@@ -34,35 +49,37 @@ class LoggingService {
   }
 
   constructor() {
-    // Start periodic flush
-    setInterval(() => {
-      this.flushLogs();
-    }, this.flushInterval);
-
-    // Flush logs before page unload
-    window.addEventListener('beforeunload', () => {
-      this.flushLogs();
-    });
+    this.startPeriodicFlush();
+    this.setupPageUnloadHandler();
   }
 
   public async log(data: CreateLogData): Promise<void> {
-    // Validate data
     const validation = validateDataSafe(CreateLogSchema, data);
     if (!validation.success) {
       console.error('Invalid log data:', validation.error);
       return;
     }
 
-    // Add to queue
-    this.logQueue.push(data);
+    // Prevent queue overflow
+    if (this.logQueue.length >= this.maxQueueSize) {
+      this.logQueue.shift(); // Remove oldest log
+    }
 
-    // Flush if queue is full
+    this.logQueue.push(data);
+    this.metrics.totalLogs++;
+
+    if (data.log_type === 'error') {
+      this.metrics.errorLogs++;
+    }
+
     if (this.logQueue.length >= this.batchSize) {
       await this.flushLogs();
     }
   }
 
-  public async logAgentAction(agentId: string, action: string, details?: Record<string, any>): Promise<void> {
+  public async logAgentAction(agentId: string, action: string,
+
+details?: Record<string, any>): Promise<void> {
     await this.log({
       log_type: 'agent_action',
       message: `Agent ${agentId} performed: ${action}`,
@@ -137,52 +154,16 @@ class LoggingService {
     }
   }
 
-  public async getLogsByAgent(agentId: string, limit: number = 50): Promise<LogEntry[]> {
-    try {
-      const { data, error } = await supabase
-        .from('logs')
-        .select('*')
-        .eq('agent_id', agentId)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (error) {
-        errorHandlingService.handleSupabaseError(error, 'Fetching agent logs');
-        return [];
-      }
-
-      return (data || []).map(log => ({
-        ...log,
-        details: log.details as Record<string, any> || {}
-      }));
-    } catch (error) {
-      errorHandlingService.handleError(error, 'Getting logs by agent');
-      return [];
-    }
+  public getMetrics(): LoggingMetrics {
+    return { ...this.metrics };
   }
 
-  public async getLogsByType(logType: string, limit: number = 50): Promise<LogEntry[]> {
-    try {
-      const { data, error } = await supabase
-        .from('logs')
-        .select('*')
-        .eq('log_type', logType)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (error) {
-        errorHandlingService.handleSupabaseError(error, 'Fetching logs by type');
-        return [];
-      }
-
-      return (data || []).map(log => ({
-        ...log,
-        details: log.details as Record<string, any> || {}
-      }));
-    } catch (error) {
-      errorHandlingService.handleError(error, 'Getting logs by type');
-      return [];
-    }
+  public getQueueStatus(): { queueSize: number; isProcessing: boolean; maxQueueSize: number } {
+    return {
+      queueSize: this.logQueue.length,
+      isProcessing: this.isProcessing,
+      maxQueueSize: this.maxQueueSize
+    };
   }
 
   private async flushLogs(): Promise<void> {
@@ -200,18 +181,47 @@ class LoggingService {
         .insert(logsToProcess);
 
       if (error) {
-        // If insert fails, put logs back in queue
         this.logQueue.unshift(...logsToProcess);
+        this.metrics.failedFlushes++;
         throw error;
       }
 
+      this.metrics.successfulFlushes++;
       console.log(`✅ Flushed ${logsToProcess.length} logs to database`);
     } catch (error) {
       console.error('Failed to flush logs:', error);
-      // Store failed logs in localStorage as backup
       this.storeLogsLocally(logsToProcess);
     } finally {
       this.isProcessing = false;
+    }
+  }
+
+  private startPeriodicFlush(): void {
+    setInterval(() => {
+      this.flushLogs();
+    }, this.flushInterval);
+  }
+
+  private setupPageUnloadHandler(): void {
+    window.addEventListener('beforeunload', () => {
+      if (this.logQueue.length > 0) {
+        // Try to send logs immediately (limited by browser constraints)
+        navigator.sendBeacon && this.sendBeaconLogs();
+      }
+    });
+  }
+
+  private sendBeaconLogs(): void {
+    if (this.logQueue.length === 0) return;
+    
+    try {
+      const logsData = JSON.stringify(this.logQueue);
+      const blob = new Blob([logsData], { type: 'application/json' });
+      
+      // This is a simplified approach - in production you'd need a dedicated endpoint
+      navigator.sendBeacon('/api/logs', blob);
+    } catch (error) {
+      console.error('Failed to send beacon logs:', error);
     }
   }
 
@@ -220,7 +230,6 @@ class LoggingService {
       const existingLogs = JSON.parse(localStorage.getItem('karol-core-failed-logs') || '[]');
       const updatedLogs = [...existingLogs, ...logs];
       
-      // Keep only last 1000 logs
       if (updatedLogs.length > 1000) {
         updatedLogs.splice(0, updatedLogs.length - 1000);
       }

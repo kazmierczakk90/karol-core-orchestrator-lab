@@ -1,3 +1,4 @@
+
 import { toast } from '@/hooks/use-toast';
 
 export interface RetryConfig {
@@ -7,9 +8,22 @@ export interface RetryConfig {
   retryCondition?: (error: any) => boolean;
 }
 
+interface ErrorMetrics {
+  totalErrors: number;
+  criticalErrors: number;
+  resolvedErrors: number;
+  averageResolutionTime: number;
+}
+
 export class ErrorHandlingService {
   private static instance: ErrorHandlingService;
   private retryAttempts = new Map<string, number>();
+  private errorMetrics: ErrorMetrics = {
+    totalErrors: 0,
+    criticalErrors: 0,
+    resolvedErrors: 0,
+    averageResolutionTime: 0
+  };
 
   public static getInstance(): ErrorHandlingService {
     if (!ErrorHandlingService.instance) {
@@ -37,20 +51,17 @@ export class ErrorHandlingService {
         attempt++;
         this.retryAttempts.set(id, attempt);
 
-        // Check if we should retry this error
         if (retryCondition && !retryCondition(error)) {
           this.retryAttempts.delete(id);
           throw error;
         }
 
-        // If this was the last attempt, throw the error
         if (attempt >= maxAttempts) {
           this.retryAttempts.delete(id);
           this.handleError(error, `Operation failed after ${maxAttempts} attempts`);
           throw error;
         }
 
-        // Wait before retrying
         const waitTime = delay * Math.pow(backoffMultiplier, attempt - 1);
         await this.sleep(waitTime);
       }
@@ -61,18 +72,20 @@ export class ErrorHandlingService {
 
   public handleError(error: any, context?: string): void {
     console.error('Error handled by ErrorHandlingService:', error, context);
+    this.errorMetrics.totalErrors++;
 
-    // Determine error type and severity
     const errorInfo = this.analyzeError(error);
     
-    // Show appropriate toast notification
+    if (errorInfo.severity === 'high') {
+      this.errorMetrics.criticalErrors++;
+    }
+    
     toast({
       title: errorInfo.title,
       description: errorInfo.description,
       variant: errorInfo.severity === 'high' ? 'destructive' : 'default',
     });
 
-    // Log to analytics if available
     if (window.gtag) {
       window.gtag('event', 'exception', {
         description: errorInfo.description,
@@ -80,7 +93,6 @@ export class ErrorHandlingService {
       });
     }
 
-    // Store error for debugging in development
     if (process.env.NODE_ENV === 'development') {
       this.storeErrorForDebugging(error, context);
     }
@@ -126,6 +138,14 @@ export class ErrorHandlingService {
       error?.code === 'ETIMEDOUT' ||
       error?.code === 'ECONNRESET'
     );
+  }
+
+  public getMetrics(): ErrorMetrics {
+    return { ...this.errorMetrics };
+  }
+
+  public markErrorResolved(): void {
+    this.errorMetrics.resolvedErrors++;
   }
 
   private analyzeError(error: any): { title: string; description: string; severity: 'low' | 'medium' | 'high' } {
@@ -192,7 +212,6 @@ export class ErrorHandlingService {
     const existingLogs = JSON.parse(localStorage.getItem('karol-core-error-logs') || '[]');
     existingLogs.push(errorLog);
     
-    // Keep only last 100 error logs
     if (existingLogs.length > 100) {
       existingLogs.splice(0, existingLogs.length - 100);
     }

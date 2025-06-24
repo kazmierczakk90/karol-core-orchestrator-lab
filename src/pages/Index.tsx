@@ -1,132 +1,140 @@
 
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import Header from '@/components/Header';
-import AGIDashboard from '@/components/AGIDashboard';
-import AdminDashboard from '@/components/AdminDashboard';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import RealTimeMonitor from '@/components/RealTimeMonitor';
-import { 
-  Brain, 
-  Settings, 
-  Activity, 
-  Zap,
-  Shield,
-  BarChart3
-} from 'lucide-react';
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import AGIDashboard from "@/components/AGIDashboard";
+import SystemOverview from "@/components/SystemOverview";
+import AgentCommander from "@/components/AgentCommander";
+import MiniAIDashboard from "@/components/MiniAIDashboard";
+import OpenAIChat from "@/components/OpenAIChat";
+import AdminDashboard from "@/components/AdminDashboard";
+import PlatformAudit from "@/components/PlatformAudit";
+import ComprehensivePlatformAudit from "@/components/ComprehensivePlatformAudit";
+import OptimizationManager from "@/components/OptimizationManager";
+import ErrorLogger from "@/components/ErrorLogger";
+import ErrorReportGenerator from "@/components/ErrorReportGenerator";
+import UserProfile from "@/components/UserProfile";
+import { Activity, Brain, Users, Settings, Shield, TrendingUp, Bug, FileText } from "lucide-react";
 
 const Index = () => {
-  const { user, profile } = useAuth();
-  const [activeView, setActiveView] = useState<'dashboard' | 'admin'>('dashboard');
-
-  const handleLogoClick = () => {
-    setActiveView('dashboard');
-  };
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <Header onLogoClick={handleLogoClick} />
-      
-      <div className="container mx-auto px-4 py-6">
-        {/* Welcome Section */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="container mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                Welcome to Karol Core AGI Platform
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                Karol-Core AGI Platform
               </h1>
-              <p className="text-slate-300">
-                Advanced Artificial General Intelligence Platform
-                {profile && (
-                  <span className="ml-2">
-                    - Logged in as{' '}
-                    <span className="text-cyan-400 font-medium">
-                      {profile.first_name || user?.email?.split('@')[0]}
-                    </span>
-                  </span>
-                )}
+              <p className="text-slate-300 mt-2">
+                Advanced Artificial General Intelligence Orchestration System
               </p>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              {profile?.role === 'admin' && (
-                <Button
-                  onClick={() => setActiveView(activeView === 'admin' ? 'dashboard' : 'admin')}
-                  variant="outline"
-                  className="border-cyan-500/50 text-cyan-400"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  {activeView === 'admin' ? 'Dashboard' : 'Admin Panel'}
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          {/* Status Indicators */}
-          <div className="flex items-center space-x-4 mt-4">
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-              <Activity className="h-3 w-3 mr-1" />
-              System Online
-            </Badge>
-            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-              <Brain className="h-3 w-3 mr-1" />
-              AI Ready
-            </Badge>
-            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-              <Zap className="h-3 w-3 mr-1" />
-              Real-time Active
-            </Badge>
-            {profile?.role === 'admin' && (
-              <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                <Shield className="h-3 w-3 mr-1" />
-                Admin Access
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-green-400 border-green-400">
+                System Active
               </Badge>
-            )}
+              <Badge variant="outline" className="text-blue-400 border-blue-400">
+                Demo Mode
+              </Badge>
+            </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3">
-            {activeView === 'dashboard' ? (
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-slate-800/50">
+            <TabsTrigger value="dashboard" className="flex items-center space-x-2">
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </TabsTrigger>
+            <TabsTrigger value="agents" className="flex items-center space-x-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Agents</span>
+            </TabsTrigger>
+            <TabsTrigger value="mini-ai" className="flex items-center space-x-2">
+              <Brain className="h-4 w-4" />
+              <span className="hidden sm:inline">Mini-AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center space-x-2">
+              <Brain className="h-4 w-4" />
+              <span className="hidden sm:inline">AI Chat</span>
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Admin</span>
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center space-x-2">
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Audit</span>
+            </TabsTrigger>
+            <TabsTrigger value="optimization" className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Optimize</span>
+            </TabsTrigger>
+            <TabsTrigger value="errors" className="flex items-center space-x-2">
+              <Bug className="h-4 w-4" />
+              <span className="hidden sm:inline">Errors</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid gap-6">
               <AGIDashboard />
-            ) : (
-              <AdminDashboard />
-            )}
-          </div>
-          
-          <div className="space-y-6">
-            <RealTimeMonitor />
-            
-            {/* Quick Stats */}
-            <div className="bg-slate-800/50 border border-cyan-800/30 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-cyan-400 mb-3 flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2" />
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-slate-300">Platform Status</span>
-                  <span className="text-green-400 font-medium">Operational</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-300">AI Integration</span>
-                  <span className="text-green-400 font-medium">Connected</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-300">User Role</span>
-                  <span className="text-cyan-400 font-medium capitalize">
-                    {profile?.role || 'User'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-300">Session</span>
-                  <span className="text-blue-400 font-medium">Active</span>
-                </div>
-              </div>
+              <SystemOverview />
             </div>
-          </div>
+          </TabsContent>
+
+          <TabsContent value="agents" className="space-y-6">
+            <AgentCommander />
+          </TabsContent>
+
+          <TabsContent value="mini-ai" className="space-y-6">
+            <MiniAIDashboard />
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-6">
+            <OpenAIChat />
+          </TabsContent>
+
+          <TabsContent value="admin" className="space-y-6">
+            <div className="grid gap-6">
+              <AdminDashboard />
+              <UserProfile />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <div className="grid gap-6">
+              <ComprehensivePlatformAudit />
+              <PlatformAudit />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="optimization" className="space-y-6">
+            <OptimizationManager />
+          </TabsContent>
+
+          <TabsContent value="errors" className="space-y-6">
+            <div className="grid gap-6">
+              <ErrorLogger />
+              <ErrorReportGenerator />
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Footer */}
+        <div className="mt-12 text-center">
+          <p className="text-slate-400 text-sm">
+            Karol-Core AGI Platform v2.0.0 | Advanced AI Orchestration System
+          </p>
+          <p className="text-slate-500 text-xs mt-1">
+            Powered by React, Supabase, and OpenAI | Built for scalable AI operations
+          </p>
         </div>
       </div>
     </div>
