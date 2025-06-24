@@ -67,26 +67,43 @@ export const useAdminSetup = () => {
         console.log('Test account ready');
       }
 
-      // Update roles in profiles table after a delay
+      // Update roles in profiles table after a delay - fixed the type issue
       setTimeout(async () => {
         try {
-          await supabase
-            .from('profiles')
-            .upsert({
-              email: adminCredentials.email,
-              role: 'admin',
-              first_name: 'Karol',
-              last_name: 'Kazmierczak'
-            }, { onConflict: 'email' });
+          // Get user IDs first
+          const { data: adminUser } = await supabase.auth.signInWithPassword({
+            email: adminCredentials.email,
+            password: adminCredentials.password
+          });
 
-          await supabase
-            .from('profiles')
-            .upsert({
-              email: testCredentials.email,
-              role: 'user',
-              first_name: 'Test',
-              last_name: 'User'
-            }, { onConflict: 'email' });
+          if (adminUser.user) {
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: adminUser.user.id,
+                email: adminCredentials.email,
+                role: 'admin',
+                first_name: 'Karol',
+                last_name: 'Kazmierczak'
+              }, { onConflict: 'id' });
+          }
+
+          const { data: testUser } = await supabase.auth.signInWithPassword({
+            email: testCredentials.email,
+            password: testCredentials.password
+          });
+
+          if (testUser.user) {
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: testUser.user.id,
+                email: testCredentials.email,
+                role: 'user',
+                first_name: 'Test',
+                last_name: 'User'
+              }, { onConflict: 'id' });
+          }
 
           console.log('Default accounts setup completed');
           setIsSetupComplete(true);
@@ -140,7 +157,9 @@ export const useAdminSetup = () => {
       }
     };
 
-    setupAccounts();
+    // Disable automatic setup for now since we're removing auth
+    setIsSetupComplete(true);
+    setIsLoading(false);
   }, []);
 
   return {

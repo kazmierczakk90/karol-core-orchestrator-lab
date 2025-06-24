@@ -97,7 +97,7 @@ export const usePerformanceMonitor = () => {
     });
   }, [cache]);
 
-  // Simplified optimized query function
+  // Simplified optimized query function with explicit any types to avoid deep instantiation
   const optimizedQuery = useCallback(async (
     table: string,
     select: string = '*',
@@ -115,8 +115,9 @@ export const usePerformanceMonitor = () => {
     }
 
     return measureApiLatency(async () => {
-      // Use any type to avoid deep type instantiation
-      let query = (supabase as any).from(table).select(select);
+      // Use explicit any type to avoid deep type instantiation issues
+      const client: any = supabase;
+      let query = client.from(table).select(select);
       
       // Apply filters
       Object.entries(filters).forEach(([key, value]) => {

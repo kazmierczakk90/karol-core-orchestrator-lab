@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
-import { User, LogOut, Settings, Crown } from 'lucide-react';
+import { useSimplifiedAuth } from '@/hooks/useSimplifiedAuth';
+import { User, Settings, Crown } from 'lucide-react';
 
 const UserProfile = () => {
-  const { user, profile, signOut, updateProfile } = useAuth();
+  const { user, profile, updateProfile } = useSimplifiedAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     first_name: profile?.first_name || '',
@@ -20,10 +20,6 @@ const UserProfile = () => {
   const handleSave = async () => {
     await updateProfile(formData);
     setIsEditing(false);
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
   };
 
   const getInitials = () => {
@@ -54,7 +50,7 @@ const UserProfile = () => {
             <div>
               <CardTitle className="text-cyan-400 flex items-center space-x-2">
                 <User className="h-5 w-5" />
-                <span>User Profile</span>
+                <span>User Profile (Demo Mode)</span>
               </CardTitle>
               <CardDescription className="text-slate-300">
                 {user?.email}
@@ -65,7 +61,7 @@ const UserProfile = () => {
                   {profile?.role || 'user'}
                 </Badge>
                 <Badge variant="outline" className="text-slate-400">
-                  Member since {new Date(profile?.created_at || '').toLocaleDateString()}
+                  Demo Mode Active
                 </Badge>
               </div>
             </div>
@@ -79,15 +75,6 @@ const UserProfile = () => {
             >
               <Settings className="h-4 w-4 mr-2" />
               {isEditing ? 'Cancel' : 'Edit'}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleSignOut}
-              className="border-red-500/50 text-red-400"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
             </Button>
           </div>
         </div>
@@ -116,7 +103,7 @@ const UserProfile = () => {
               </div>
             </div>
             <Button onClick={handleSave} className="bg-green-600 hover:bg-green-700">
-              Save Changes
+              Save Changes (Demo)
             </Button>
           </div>
         ) : (
@@ -124,11 +111,11 @@ const UserProfile = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-slate-400">First Name</Label>
-                <p className="text-white font-medium">{profile?.first_name || 'Not set'}</p>
+                <p className="text-white font-medium">{profile?.first_name || 'Demo'}</p>
               </div>
               <div>
                 <Label className="text-slate-400">Last Name</Label>
-                <p className="text-white font-medium">{profile?.last_name || 'Not set'}</p>
+                <p className="text-white font-medium">{profile?.last_name || 'User'}</p>
               </div>
             </div>
             <div>
@@ -138,6 +125,11 @@ const UserProfile = () => {
             <div>
               <Label className="text-slate-400">User ID</Label>
               <p className="text-slate-400 text-sm font-mono">{user?.id}</p>
+            </div>
+            <div className="p-3 bg-blue-500/10 rounded border border-blue-500/20">
+              <p className="text-blue-300 text-sm">
+                Platform running in demo mode - authentication disabled for development.
+              </p>
             </div>
           </div>
         )}

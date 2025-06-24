@@ -4,15 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { SimplifiedAuthProvider } from "@/contexts/SimplifiedAuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalLoadingProvider } from "@/contexts/GlobalLoadingContext";
 import { useAutoImprovement } from "@/hooks/useAutoImprovement";
-import { useAdminSetup } from "@/hooks/useAdminSetup";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,19 +17,11 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   // Inicjalizacja Auto-Improvement System
   useAutoImprovement();
-  
-  // Inicjalizacja domyślnych kont administratora
-  useAdminSetup();
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Index />
-          </ProtectedRoute>
-        } />
+        <Route path="/" element={<Index />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
@@ -42,7 +31,7 @@ const AppContent = () => {
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <SimplifiedAuthProvider>
         <GlobalLoadingProvider>
           <LanguageProvider>
             <TooltipProvider>
@@ -52,7 +41,7 @@ const App = () => (
             </TooltipProvider>
           </LanguageProvider>
         </GlobalLoadingProvider>
-      </AuthProvider>
+      </SimplifiedAuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );
