@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -95,31 +94,31 @@ const ComprehensivePlatformAudit = () => {
         });
       }
 
-      // Step 2: API Endpoints
+      // Step 2: API Endpoints - using specific table names
       setCurrentStep(auditSteps[1]);
       setAuditProgress(20);
       
-      const endpoints = [
-        { name: 'agents', table: 'agents' },
-        { name: 'logs', table: 'logs' },
-        { name: 'analytics', table: 'analytics' },
-        { name: 'meta_decisions', table: 'meta_decisions' }
+      const tableTests = [
+        { name: 'agents', test: () => supabase.from('agents').select('*').limit(1) },
+        { name: 'logs', test: () => supabase.from('logs').select('*').limit(1) },
+        { name: 'analytics', test: () => supabase.from('analytics').select('*').limit(1) },
+        { name: 'meta_decisions', test: () => supabase.from('meta_decisions').select('*').limit(1) }
       ];
 
-      for (const endpoint of endpoints) {
+      for (const table of tableTests) {
         try {
-          const { error } = await supabase.from(endpoint.table).select('*').limit(1);
+          const { error } = await table.test();
           if (error) throw error;
         } catch (error) {
           foundIssues.push({
-            id: `api-${endpoint.name}`,
+            id: `api-${table.name}`,
             category: 'API',
             severity: 'high',
-            title: `${endpoint.name} API Error`,
-            description: `Failed to fetch data from ${endpoint.table}`,
+            title: `${table.name} API Error`,
+            description: `Failed to fetch data from ${table.name}`,
             fix: 'Check table permissions and RLS policies',
             status: 'open',
-            component: endpoint.name
+            component: table.name
           });
         }
       }
@@ -157,11 +156,44 @@ const ComprehensivePlatformAudit = () => {
           category: 'Code Quality',
           severity: 'medium' as const,
           title: 'Large Service File',
-          description: 'errorHandlingService.ts has 205 lines - consider refactoring',
+          description: 'errorHandlingService.ts has 224 lines - consider refactoring',
           fix: 'Split service into smaller modules',
           status: 'open' as const,
           component: 'ErrorHandlingService',
           file: 'src/services/errorHandlingService.ts'
+        },
+        {
+          id: 'service-logging-size',
+          category: 'Code Quality',
+          severity: 'medium' as const,
+          title: 'Large Service File',
+          description: 'loggingService.ts has 263 lines - consider refactoring',
+          fix: 'Split service into smaller modules',
+          status: 'open' as const,
+          component: 'LoggingService',
+          file: 'src/services/loggingService.ts'
+        },
+        {
+          id: 'component-optimization-size',
+          category: 'Code Quality',
+          severity: 'medium' as const,
+          title: 'Large Component File',
+          description: 'OptimizationManager.tsx has 431 lines - consider refactoring',
+          fix: 'Split into smaller, focused components',
+          status: 'open' as const,
+          component: 'OptimizationManager',
+          file: 'src/components/OptimizationManager.tsx'
+        },
+        {
+          id: 'component-audit-size',
+          category: 'Code Quality',
+          severity: 'medium' as const,
+          title: 'Large Component File',
+          description: 'ComprehensivePlatformAudit.tsx has 666 lines - consider refactoring',
+          fix: 'Split into smaller, focused components',
+          status: 'open' as const,
+          component: 'ComprehensivePlatformAudit',
+          file: 'src/components/ComprehensivePlatformAudit.tsx'
         }
       ];
       
