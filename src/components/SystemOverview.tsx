@@ -1,17 +1,56 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Activity, Database, Zap, Clock, Brain } from 'lucide-react';
-import { useFuko } from '@/hooks/useFuko';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const SystemOverview = () => {
-  const { agents, isLoadingAgents, messages, isLoadingMessages, kpiData, isLoadingKpi } = useFuko();
+  const [agents, setAgents] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [kpiData, setKpiData] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  const activeAgents = agents?.filter(a => a.status === 'active').length || 0;
-  const totalMessages = messages?.length || 0;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch agents data
+        const { data: agentsData } = await supabase
+          .from('agents')
+          .select('*')
+          .limit(10);
+        
+        // Fetch messages data
+        const { data: messagesData } = await supabase
+          .from('fuko_messages')
+          .select('*')
+          .limit(10);
+
+        // Mock KPI data since we don't have a specific KPI table
+        const mockKpiData = {
+          system_level: { value: 'AGI-L2' }
+        };
+        
+        setAgents(agentsData || []);
+        setMessages(messagesData || []);
+        setKpiData(mockKpiData);
+      } catch (error) {
+        console.error('Error fetching system overview data:', error);
+        // Set default values on error
+        setAgents([]);
+        setMessages([]);
+        setKpiData({ system_level: { value: 'Demo' } });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const activeAgents = agents.filter(a => a.status === 'active').length;
+  const totalMessages = messages.length;
   const systemLevel = kpiData?.system_level?.value;
-
-  const isLoading = isLoadingAgents || isLoadingMessages || isLoadingKpi;
 
   if (isLoading) {
     return (
@@ -37,7 +76,7 @@ const SystemOverview = () => {
         </div>
         <div>
           <p className="text-sm text-slate-400">System Level</p>
-          <p className="text-lg font-semibold text-white">{systemLevel || 'N/A'}</p>
+          <p className="text-lg font-semibold text-white">{systemLevel || 'Demo'}</p>
         </div>
       </div>
 
