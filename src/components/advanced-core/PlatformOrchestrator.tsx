@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,6 +21,7 @@ import RecursiveLogic from '../advanced-logic/RecursiveLogic';
 import QuantumDecisions from '../advanced-logic/QuantumDecisions';
 import TranscendenceEngine from './TranscendenceEngine';
 import ErrorLogger from '../ErrorLogger';
+import LiveChatInterface from '@/components/chat/LiveChatInterface';
 
 interface PlatformModule {
   id: string;
@@ -54,6 +54,16 @@ const PlatformOrchestrator = () => {
       icon: Activity,
       description: 'Complete platform monitoring and control center',
       dependencies: []
+    },
+    {
+      id: 'live-chat',
+      name: 'Live Chat Interface',
+      level: 2,
+      status: 'active',
+      component: LiveChatInterface,
+      icon: Network,
+      description: 'Real-time AI chat with advanced conversation management',
+      dependencies: ['comprehensive-dashboard']
     },
     {
       id: 'meta-evolution',
@@ -304,10 +314,14 @@ const PlatformOrchestrator = () => {
       {/* Main Platform Interface */}
       <div className="p-6">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-slate-800/50 mb-6">
+          <TabsList className="grid w-full grid-cols-7 bg-slate-800/50 mb-6">
             <TabsTrigger value="dashboard" className="text-white data-[state=active]:bg-cyan-600">
               <Activity className="h-4 w-4 mr-2" />
               Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="text-white data-[state=active]:bg-green-600">
+              <Network className="h-4 w-4 mr-2" />
+              Live Chat
             </TabsTrigger>
             <TabsTrigger value="evolution" className="text-white data-[state=active]:bg-purple-600">
               <Crown className="h-4 w-4 mr-2" />
@@ -333,6 +347,10 @@ const PlatformOrchestrator = () => {
 
           <TabsContent value="dashboard" className="space-y-6">
             {renderModule('comprehensive-dashboard')}
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-6">
+            {renderModule('live-chat')}
           </TabsContent>
 
           <TabsContent value="evolution" className="space-y-6">

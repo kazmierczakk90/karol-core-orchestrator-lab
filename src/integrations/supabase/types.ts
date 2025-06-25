@@ -243,6 +243,86 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          processing_time: number | null
+          role: string
+          session_id: string
+          tokens_used: number | null
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          processing_time?: number | null
+          role: string
+          session_id: string
+          tokens_used?: number | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          processing_time?: number | null
+          role?: string
+          session_id?: string
+          tokens_used?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          agent_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+          metadata: Json | null
+          status: string
+          title: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          metadata?: Json | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          metadata?: Json | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string | null
