@@ -1,0 +1,3002 @@
+[
+  {
+    "module": "dashboard",
+    "command": "&dash",
+    "description": "Otwórz widok główny"
+  },
+  {
+    "module": "dashboard",
+    "command": "&agents",
+    "description": "Lista agentów"
+  },
+  {
+    "module": "dashboard",
+    "command": "&decisions",
+    "description": "Panel analityki decyzji"
+  },
+  {
+    "module": "memory",
+    "command": "&memory",
+    "description": "Widok pamięci systemu"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum",
+    "description": "Wejdź do systemu decyzji kwantowych"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution",
+    "description": "Panel roadmapy rozwoju"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence",
+    "description": "Wejście do panelu transformacji"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cog",
+    "description": "Przegląd procesów poznawczych"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.toggle",
+    "description": "Włącz/wyłącz głos"
+  },
+  {
+    "module": "admin",
+    "command": "&build.exe",
+    "description": "Wygeneruj wersję offline"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd10",
+    "description": "Syntetyczna funkcja admin nr 10"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd11",
+    "description": "Syntetyczna funkcja analytics nr 11"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd12",
+    "description": "Syntetyczna funkcja diagnostics nr 12"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd13",
+    "description": "Syntetyczna funkcja auth nr 13"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd14",
+    "description": "Syntetyczna funkcja storage nr 14"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd15",
+    "description": "Syntetyczna funkcja feedback nr 15"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd16",
+    "description": "Syntetyczna funkcja log nr 16"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd17",
+    "description": "Syntetyczna funkcja planning nr 17"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd18",
+    "description": "Syntetyczna funkcja scenarios nr 18"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd19",
+    "description": "Syntetyczna funkcja inspector nr 19"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd20",
+    "description": "Syntetyczna funkcja dashboard nr 20"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd21",
+    "description": "Syntetyczna funkcja memory nr 21"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd22",
+    "description": "Syntetyczna funkcja quantum nr 22"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd23",
+    "description": "Syntetyczna funkcja evolution nr 23"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd24",
+    "description": "Syntetyczna funkcja transcendence nr 24"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd25",
+    "description": "Syntetyczna funkcja cognitive nr 25"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd26",
+    "description": "Syntetyczna funkcja orchestrator nr 26"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd27",
+    "description": "Syntetyczna funkcja voice nr 27"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd28",
+    "description": "Syntetyczna funkcja chat nr 28"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd29",
+    "description": "Syntetyczna funkcja security nr 29"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd30",
+    "description": "Syntetyczna funkcja admin nr 30"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd31",
+    "description": "Syntetyczna funkcja analytics nr 31"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd32",
+    "description": "Syntetyczna funkcja diagnostics nr 32"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd33",
+    "description": "Syntetyczna funkcja auth nr 33"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd34",
+    "description": "Syntetyczna funkcja storage nr 34"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd35",
+    "description": "Syntetyczna funkcja feedback nr 35"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd36",
+    "description": "Syntetyczna funkcja log nr 36"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd37",
+    "description": "Syntetyczna funkcja planning nr 37"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd38",
+    "description": "Syntetyczna funkcja scenarios nr 38"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd39",
+    "description": "Syntetyczna funkcja inspector nr 39"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd40",
+    "description": "Syntetyczna funkcja dashboard nr 40"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd41",
+    "description": "Syntetyczna funkcja memory nr 41"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd42",
+    "description": "Syntetyczna funkcja quantum nr 42"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd43",
+    "description": "Syntetyczna funkcja evolution nr 43"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd44",
+    "description": "Syntetyczna funkcja transcendence nr 44"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd45",
+    "description": "Syntetyczna funkcja cognitive nr 45"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd46",
+    "description": "Syntetyczna funkcja orchestrator nr 46"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd47",
+    "description": "Syntetyczna funkcja voice nr 47"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd48",
+    "description": "Syntetyczna funkcja chat nr 48"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd49",
+    "description": "Syntetyczna funkcja security nr 49"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd50",
+    "description": "Syntetyczna funkcja admin nr 50"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd51",
+    "description": "Syntetyczna funkcja analytics nr 51"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd52",
+    "description": "Syntetyczna funkcja diagnostics nr 52"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd53",
+    "description": "Syntetyczna funkcja auth nr 53"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd54",
+    "description": "Syntetyczna funkcja storage nr 54"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd55",
+    "description": "Syntetyczna funkcja feedback nr 55"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd56",
+    "description": "Syntetyczna funkcja log nr 56"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd57",
+    "description": "Syntetyczna funkcja planning nr 57"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd58",
+    "description": "Syntetyczna funkcja scenarios nr 58"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd59",
+    "description": "Syntetyczna funkcja inspector nr 59"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd60",
+    "description": "Syntetyczna funkcja dashboard nr 60"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd61",
+    "description": "Syntetyczna funkcja memory nr 61"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd62",
+    "description": "Syntetyczna funkcja quantum nr 62"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd63",
+    "description": "Syntetyczna funkcja evolution nr 63"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd64",
+    "description": "Syntetyczna funkcja transcendence nr 64"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd65",
+    "description": "Syntetyczna funkcja cognitive nr 65"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd66",
+    "description": "Syntetyczna funkcja orchestrator nr 66"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd67",
+    "description": "Syntetyczna funkcja voice nr 67"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd68",
+    "description": "Syntetyczna funkcja chat nr 68"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd69",
+    "description": "Syntetyczna funkcja security nr 69"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd70",
+    "description": "Syntetyczna funkcja admin nr 70"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd71",
+    "description": "Syntetyczna funkcja analytics nr 71"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd72",
+    "description": "Syntetyczna funkcja diagnostics nr 72"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd73",
+    "description": "Syntetyczna funkcja auth nr 73"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd74",
+    "description": "Syntetyczna funkcja storage nr 74"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd75",
+    "description": "Syntetyczna funkcja feedback nr 75"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd76",
+    "description": "Syntetyczna funkcja log nr 76"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd77",
+    "description": "Syntetyczna funkcja planning nr 77"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd78",
+    "description": "Syntetyczna funkcja scenarios nr 78"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd79",
+    "description": "Syntetyczna funkcja inspector nr 79"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd80",
+    "description": "Syntetyczna funkcja dashboard nr 80"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd81",
+    "description": "Syntetyczna funkcja memory nr 81"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd82",
+    "description": "Syntetyczna funkcja quantum nr 82"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd83",
+    "description": "Syntetyczna funkcja evolution nr 83"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd84",
+    "description": "Syntetyczna funkcja transcendence nr 84"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd85",
+    "description": "Syntetyczna funkcja cognitive nr 85"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd86",
+    "description": "Syntetyczna funkcja orchestrator nr 86"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd87",
+    "description": "Syntetyczna funkcja voice nr 87"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd88",
+    "description": "Syntetyczna funkcja chat nr 88"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd89",
+    "description": "Syntetyczna funkcja security nr 89"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd90",
+    "description": "Syntetyczna funkcja admin nr 90"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd91",
+    "description": "Syntetyczna funkcja analytics nr 91"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd92",
+    "description": "Syntetyczna funkcja diagnostics nr 92"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd93",
+    "description": "Syntetyczna funkcja auth nr 93"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd94",
+    "description": "Syntetyczna funkcja storage nr 94"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd95",
+    "description": "Syntetyczna funkcja feedback nr 95"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd96",
+    "description": "Syntetyczna funkcja log nr 96"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd97",
+    "description": "Syntetyczna funkcja planning nr 97"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd98",
+    "description": "Syntetyczna funkcja scenarios nr 98"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd99",
+    "description": "Syntetyczna funkcja inspector nr 99"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd100",
+    "description": "Syntetyczna funkcja dashboard nr 100"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd101",
+    "description": "Syntetyczna funkcja memory nr 101"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd102",
+    "description": "Syntetyczna funkcja quantum nr 102"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd103",
+    "description": "Syntetyczna funkcja evolution nr 103"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd104",
+    "description": "Syntetyczna funkcja transcendence nr 104"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd105",
+    "description": "Syntetyczna funkcja cognitive nr 105"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd106",
+    "description": "Syntetyczna funkcja orchestrator nr 106"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd107",
+    "description": "Syntetyczna funkcja voice nr 107"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd108",
+    "description": "Syntetyczna funkcja chat nr 108"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd109",
+    "description": "Syntetyczna funkcja security nr 109"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd110",
+    "description": "Syntetyczna funkcja admin nr 110"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd111",
+    "description": "Syntetyczna funkcja analytics nr 111"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd112",
+    "description": "Syntetyczna funkcja diagnostics nr 112"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd113",
+    "description": "Syntetyczna funkcja auth nr 113"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd114",
+    "description": "Syntetyczna funkcja storage nr 114"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd115",
+    "description": "Syntetyczna funkcja feedback nr 115"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd116",
+    "description": "Syntetyczna funkcja log nr 116"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd117",
+    "description": "Syntetyczna funkcja planning nr 117"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd118",
+    "description": "Syntetyczna funkcja scenarios nr 118"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd119",
+    "description": "Syntetyczna funkcja inspector nr 119"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd120",
+    "description": "Syntetyczna funkcja dashboard nr 120"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd121",
+    "description": "Syntetyczna funkcja memory nr 121"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd122",
+    "description": "Syntetyczna funkcja quantum nr 122"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd123",
+    "description": "Syntetyczna funkcja evolution nr 123"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd124",
+    "description": "Syntetyczna funkcja transcendence nr 124"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd125",
+    "description": "Syntetyczna funkcja cognitive nr 125"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd126",
+    "description": "Syntetyczna funkcja orchestrator nr 126"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd127",
+    "description": "Syntetyczna funkcja voice nr 127"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd128",
+    "description": "Syntetyczna funkcja chat nr 128"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd129",
+    "description": "Syntetyczna funkcja security nr 129"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd130",
+    "description": "Syntetyczna funkcja admin nr 130"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd131",
+    "description": "Syntetyczna funkcja analytics nr 131"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd132",
+    "description": "Syntetyczna funkcja diagnostics nr 132"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd133",
+    "description": "Syntetyczna funkcja auth nr 133"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd134",
+    "description": "Syntetyczna funkcja storage nr 134"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd135",
+    "description": "Syntetyczna funkcja feedback nr 135"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd136",
+    "description": "Syntetyczna funkcja log nr 136"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd137",
+    "description": "Syntetyczna funkcja planning nr 137"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd138",
+    "description": "Syntetyczna funkcja scenarios nr 138"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd139",
+    "description": "Syntetyczna funkcja inspector nr 139"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd140",
+    "description": "Syntetyczna funkcja dashboard nr 140"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd141",
+    "description": "Syntetyczna funkcja memory nr 141"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd142",
+    "description": "Syntetyczna funkcja quantum nr 142"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd143",
+    "description": "Syntetyczna funkcja evolution nr 143"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd144",
+    "description": "Syntetyczna funkcja transcendence nr 144"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd145",
+    "description": "Syntetyczna funkcja cognitive nr 145"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd146",
+    "description": "Syntetyczna funkcja orchestrator nr 146"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd147",
+    "description": "Syntetyczna funkcja voice nr 147"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd148",
+    "description": "Syntetyczna funkcja chat nr 148"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd149",
+    "description": "Syntetyczna funkcja security nr 149"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd150",
+    "description": "Syntetyczna funkcja admin nr 150"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd151",
+    "description": "Syntetyczna funkcja analytics nr 151"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd152",
+    "description": "Syntetyczna funkcja diagnostics nr 152"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd153",
+    "description": "Syntetyczna funkcja auth nr 153"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd154",
+    "description": "Syntetyczna funkcja storage nr 154"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd155",
+    "description": "Syntetyczna funkcja feedback nr 155"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd156",
+    "description": "Syntetyczna funkcja log nr 156"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd157",
+    "description": "Syntetyczna funkcja planning nr 157"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd158",
+    "description": "Syntetyczna funkcja scenarios nr 158"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd159",
+    "description": "Syntetyczna funkcja inspector nr 159"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd160",
+    "description": "Syntetyczna funkcja dashboard nr 160"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd161",
+    "description": "Syntetyczna funkcja memory nr 161"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd162",
+    "description": "Syntetyczna funkcja quantum nr 162"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd163",
+    "description": "Syntetyczna funkcja evolution nr 163"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd164",
+    "description": "Syntetyczna funkcja transcendence nr 164"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd165",
+    "description": "Syntetyczna funkcja cognitive nr 165"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd166",
+    "description": "Syntetyczna funkcja orchestrator nr 166"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd167",
+    "description": "Syntetyczna funkcja voice nr 167"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd168",
+    "description": "Syntetyczna funkcja chat nr 168"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd169",
+    "description": "Syntetyczna funkcja security nr 169"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd170",
+    "description": "Syntetyczna funkcja admin nr 170"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd171",
+    "description": "Syntetyczna funkcja analytics nr 171"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd172",
+    "description": "Syntetyczna funkcja diagnostics nr 172"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd173",
+    "description": "Syntetyczna funkcja auth nr 173"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd174",
+    "description": "Syntetyczna funkcja storage nr 174"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd175",
+    "description": "Syntetyczna funkcja feedback nr 175"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd176",
+    "description": "Syntetyczna funkcja log nr 176"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd177",
+    "description": "Syntetyczna funkcja planning nr 177"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd178",
+    "description": "Syntetyczna funkcja scenarios nr 178"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd179",
+    "description": "Syntetyczna funkcja inspector nr 179"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd180",
+    "description": "Syntetyczna funkcja dashboard nr 180"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd181",
+    "description": "Syntetyczna funkcja memory nr 181"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd182",
+    "description": "Syntetyczna funkcja quantum nr 182"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd183",
+    "description": "Syntetyczna funkcja evolution nr 183"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd184",
+    "description": "Syntetyczna funkcja transcendence nr 184"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd185",
+    "description": "Syntetyczna funkcja cognitive nr 185"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd186",
+    "description": "Syntetyczna funkcja orchestrator nr 186"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd187",
+    "description": "Syntetyczna funkcja voice nr 187"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd188",
+    "description": "Syntetyczna funkcja chat nr 188"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd189",
+    "description": "Syntetyczna funkcja security nr 189"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd190",
+    "description": "Syntetyczna funkcja admin nr 190"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd191",
+    "description": "Syntetyczna funkcja analytics nr 191"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd192",
+    "description": "Syntetyczna funkcja diagnostics nr 192"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd193",
+    "description": "Syntetyczna funkcja auth nr 193"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd194",
+    "description": "Syntetyczna funkcja storage nr 194"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd195",
+    "description": "Syntetyczna funkcja feedback nr 195"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd196",
+    "description": "Syntetyczna funkcja log nr 196"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd197",
+    "description": "Syntetyczna funkcja planning nr 197"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd198",
+    "description": "Syntetyczna funkcja scenarios nr 198"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd199",
+    "description": "Syntetyczna funkcja inspector nr 199"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd200",
+    "description": "Syntetyczna funkcja dashboard nr 200"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd201",
+    "description": "Syntetyczna funkcja memory nr 201"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd202",
+    "description": "Syntetyczna funkcja quantum nr 202"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd203",
+    "description": "Syntetyczna funkcja evolution nr 203"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd204",
+    "description": "Syntetyczna funkcja transcendence nr 204"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd205",
+    "description": "Syntetyczna funkcja cognitive nr 205"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd206",
+    "description": "Syntetyczna funkcja orchestrator nr 206"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd207",
+    "description": "Syntetyczna funkcja voice nr 207"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd208",
+    "description": "Syntetyczna funkcja chat nr 208"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd209",
+    "description": "Syntetyczna funkcja security nr 209"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd210",
+    "description": "Syntetyczna funkcja admin nr 210"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd211",
+    "description": "Syntetyczna funkcja analytics nr 211"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd212",
+    "description": "Syntetyczna funkcja diagnostics nr 212"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd213",
+    "description": "Syntetyczna funkcja auth nr 213"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd214",
+    "description": "Syntetyczna funkcja storage nr 214"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd215",
+    "description": "Syntetyczna funkcja feedback nr 215"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd216",
+    "description": "Syntetyczna funkcja log nr 216"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd217",
+    "description": "Syntetyczna funkcja planning nr 217"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd218",
+    "description": "Syntetyczna funkcja scenarios nr 218"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd219",
+    "description": "Syntetyczna funkcja inspector nr 219"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd220",
+    "description": "Syntetyczna funkcja dashboard nr 220"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd221",
+    "description": "Syntetyczna funkcja memory nr 221"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd222",
+    "description": "Syntetyczna funkcja quantum nr 222"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd223",
+    "description": "Syntetyczna funkcja evolution nr 223"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd224",
+    "description": "Syntetyczna funkcja transcendence nr 224"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd225",
+    "description": "Syntetyczna funkcja cognitive nr 225"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd226",
+    "description": "Syntetyczna funkcja orchestrator nr 226"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd227",
+    "description": "Syntetyczna funkcja voice nr 227"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd228",
+    "description": "Syntetyczna funkcja chat nr 228"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd229",
+    "description": "Syntetyczna funkcja security nr 229"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd230",
+    "description": "Syntetyczna funkcja admin nr 230"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd231",
+    "description": "Syntetyczna funkcja analytics nr 231"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd232",
+    "description": "Syntetyczna funkcja diagnostics nr 232"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd233",
+    "description": "Syntetyczna funkcja auth nr 233"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd234",
+    "description": "Syntetyczna funkcja storage nr 234"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd235",
+    "description": "Syntetyczna funkcja feedback nr 235"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd236",
+    "description": "Syntetyczna funkcja log nr 236"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd237",
+    "description": "Syntetyczna funkcja planning nr 237"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd238",
+    "description": "Syntetyczna funkcja scenarios nr 238"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd239",
+    "description": "Syntetyczna funkcja inspector nr 239"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd240",
+    "description": "Syntetyczna funkcja dashboard nr 240"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd241",
+    "description": "Syntetyczna funkcja memory nr 241"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd242",
+    "description": "Syntetyczna funkcja quantum nr 242"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd243",
+    "description": "Syntetyczna funkcja evolution nr 243"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd244",
+    "description": "Syntetyczna funkcja transcendence nr 244"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd245",
+    "description": "Syntetyczna funkcja cognitive nr 245"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd246",
+    "description": "Syntetyczna funkcja orchestrator nr 246"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd247",
+    "description": "Syntetyczna funkcja voice nr 247"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd248",
+    "description": "Syntetyczna funkcja chat nr 248"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd249",
+    "description": "Syntetyczna funkcja security nr 249"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd250",
+    "description": "Syntetyczna funkcja admin nr 250"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd251",
+    "description": "Syntetyczna funkcja analytics nr 251"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd252",
+    "description": "Syntetyczna funkcja diagnostics nr 252"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd253",
+    "description": "Syntetyczna funkcja auth nr 253"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd254",
+    "description": "Syntetyczna funkcja storage nr 254"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd255",
+    "description": "Syntetyczna funkcja feedback nr 255"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd256",
+    "description": "Syntetyczna funkcja log nr 256"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd257",
+    "description": "Syntetyczna funkcja planning nr 257"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd258",
+    "description": "Syntetyczna funkcja scenarios nr 258"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd259",
+    "description": "Syntetyczna funkcja inspector nr 259"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd260",
+    "description": "Syntetyczna funkcja dashboard nr 260"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd261",
+    "description": "Syntetyczna funkcja memory nr 261"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd262",
+    "description": "Syntetyczna funkcja quantum nr 262"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd263",
+    "description": "Syntetyczna funkcja evolution nr 263"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd264",
+    "description": "Syntetyczna funkcja transcendence nr 264"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd265",
+    "description": "Syntetyczna funkcja cognitive nr 265"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd266",
+    "description": "Syntetyczna funkcja orchestrator nr 266"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd267",
+    "description": "Syntetyczna funkcja voice nr 267"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd268",
+    "description": "Syntetyczna funkcja chat nr 268"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd269",
+    "description": "Syntetyczna funkcja security nr 269"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd270",
+    "description": "Syntetyczna funkcja admin nr 270"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd271",
+    "description": "Syntetyczna funkcja analytics nr 271"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd272",
+    "description": "Syntetyczna funkcja diagnostics nr 272"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd273",
+    "description": "Syntetyczna funkcja auth nr 273"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd274",
+    "description": "Syntetyczna funkcja storage nr 274"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd275",
+    "description": "Syntetyczna funkcja feedback nr 275"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd276",
+    "description": "Syntetyczna funkcja log nr 276"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd277",
+    "description": "Syntetyczna funkcja planning nr 277"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd278",
+    "description": "Syntetyczna funkcja scenarios nr 278"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd279",
+    "description": "Syntetyczna funkcja inspector nr 279"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd280",
+    "description": "Syntetyczna funkcja dashboard nr 280"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd281",
+    "description": "Syntetyczna funkcja memory nr 281"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd282",
+    "description": "Syntetyczna funkcja quantum nr 282"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd283",
+    "description": "Syntetyczna funkcja evolution nr 283"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd284",
+    "description": "Syntetyczna funkcja transcendence nr 284"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd285",
+    "description": "Syntetyczna funkcja cognitive nr 285"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd286",
+    "description": "Syntetyczna funkcja orchestrator nr 286"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd287",
+    "description": "Syntetyczna funkcja voice nr 287"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd288",
+    "description": "Syntetyczna funkcja chat nr 288"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd289",
+    "description": "Syntetyczna funkcja security nr 289"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd290",
+    "description": "Syntetyczna funkcja admin nr 290"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd291",
+    "description": "Syntetyczna funkcja analytics nr 291"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd292",
+    "description": "Syntetyczna funkcja diagnostics nr 292"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd293",
+    "description": "Syntetyczna funkcja auth nr 293"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd294",
+    "description": "Syntetyczna funkcja storage nr 294"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd295",
+    "description": "Syntetyczna funkcja feedback nr 295"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd296",
+    "description": "Syntetyczna funkcja log nr 296"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd297",
+    "description": "Syntetyczna funkcja planning nr 297"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd298",
+    "description": "Syntetyczna funkcja scenarios nr 298"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd299",
+    "description": "Syntetyczna funkcja inspector nr 299"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd300",
+    "description": "Syntetyczna funkcja dashboard nr 300"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd301",
+    "description": "Syntetyczna funkcja memory nr 301"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd302",
+    "description": "Syntetyczna funkcja quantum nr 302"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd303",
+    "description": "Syntetyczna funkcja evolution nr 303"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd304",
+    "description": "Syntetyczna funkcja transcendence nr 304"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd305",
+    "description": "Syntetyczna funkcja cognitive nr 305"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd306",
+    "description": "Syntetyczna funkcja orchestrator nr 306"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd307",
+    "description": "Syntetyczna funkcja voice nr 307"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd308",
+    "description": "Syntetyczna funkcja chat nr 308"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd309",
+    "description": "Syntetyczna funkcja security nr 309"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd310",
+    "description": "Syntetyczna funkcja admin nr 310"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd311",
+    "description": "Syntetyczna funkcja analytics nr 311"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd312",
+    "description": "Syntetyczna funkcja diagnostics nr 312"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd313",
+    "description": "Syntetyczna funkcja auth nr 313"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd314",
+    "description": "Syntetyczna funkcja storage nr 314"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd315",
+    "description": "Syntetyczna funkcja feedback nr 315"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd316",
+    "description": "Syntetyczna funkcja log nr 316"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd317",
+    "description": "Syntetyczna funkcja planning nr 317"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd318",
+    "description": "Syntetyczna funkcja scenarios nr 318"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd319",
+    "description": "Syntetyczna funkcja inspector nr 319"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd320",
+    "description": "Syntetyczna funkcja dashboard nr 320"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd321",
+    "description": "Syntetyczna funkcja memory nr 321"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd322",
+    "description": "Syntetyczna funkcja quantum nr 322"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd323",
+    "description": "Syntetyczna funkcja evolution nr 323"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd324",
+    "description": "Syntetyczna funkcja transcendence nr 324"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd325",
+    "description": "Syntetyczna funkcja cognitive nr 325"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd326",
+    "description": "Syntetyczna funkcja orchestrator nr 326"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd327",
+    "description": "Syntetyczna funkcja voice nr 327"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd328",
+    "description": "Syntetyczna funkcja chat nr 328"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd329",
+    "description": "Syntetyczna funkcja security nr 329"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd330",
+    "description": "Syntetyczna funkcja admin nr 330"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd331",
+    "description": "Syntetyczna funkcja analytics nr 331"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd332",
+    "description": "Syntetyczna funkcja diagnostics nr 332"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd333",
+    "description": "Syntetyczna funkcja auth nr 333"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd334",
+    "description": "Syntetyczna funkcja storage nr 334"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd335",
+    "description": "Syntetyczna funkcja feedback nr 335"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd336",
+    "description": "Syntetyczna funkcja log nr 336"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd337",
+    "description": "Syntetyczna funkcja planning nr 337"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd338",
+    "description": "Syntetyczna funkcja scenarios nr 338"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd339",
+    "description": "Syntetyczna funkcja inspector nr 339"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd340",
+    "description": "Syntetyczna funkcja dashboard nr 340"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd341",
+    "description": "Syntetyczna funkcja memory nr 341"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd342",
+    "description": "Syntetyczna funkcja quantum nr 342"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd343",
+    "description": "Syntetyczna funkcja evolution nr 343"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd344",
+    "description": "Syntetyczna funkcja transcendence nr 344"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd345",
+    "description": "Syntetyczna funkcja cognitive nr 345"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd346",
+    "description": "Syntetyczna funkcja orchestrator nr 346"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd347",
+    "description": "Syntetyczna funkcja voice nr 347"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd348",
+    "description": "Syntetyczna funkcja chat nr 348"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd349",
+    "description": "Syntetyczna funkcja security nr 349"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd350",
+    "description": "Syntetyczna funkcja admin nr 350"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd351",
+    "description": "Syntetyczna funkcja analytics nr 351"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd352",
+    "description": "Syntetyczna funkcja diagnostics nr 352"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd353",
+    "description": "Syntetyczna funkcja auth nr 353"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd354",
+    "description": "Syntetyczna funkcja storage nr 354"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd355",
+    "description": "Syntetyczna funkcja feedback nr 355"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd356",
+    "description": "Syntetyczna funkcja log nr 356"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd357",
+    "description": "Syntetyczna funkcja planning nr 357"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd358",
+    "description": "Syntetyczna funkcja scenarios nr 358"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd359",
+    "description": "Syntetyczna funkcja inspector nr 359"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd360",
+    "description": "Syntetyczna funkcja dashboard nr 360"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd361",
+    "description": "Syntetyczna funkcja memory nr 361"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd362",
+    "description": "Syntetyczna funkcja quantum nr 362"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd363",
+    "description": "Syntetyczna funkcja evolution nr 363"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd364",
+    "description": "Syntetyczna funkcja transcendence nr 364"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd365",
+    "description": "Syntetyczna funkcja cognitive nr 365"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd366",
+    "description": "Syntetyczna funkcja orchestrator nr 366"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd367",
+    "description": "Syntetyczna funkcja voice nr 367"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd368",
+    "description": "Syntetyczna funkcja chat nr 368"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd369",
+    "description": "Syntetyczna funkcja security nr 369"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd370",
+    "description": "Syntetyczna funkcja admin nr 370"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd371",
+    "description": "Syntetyczna funkcja analytics nr 371"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd372",
+    "description": "Syntetyczna funkcja diagnostics nr 372"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd373",
+    "description": "Syntetyczna funkcja auth nr 373"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd374",
+    "description": "Syntetyczna funkcja storage nr 374"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd375",
+    "description": "Syntetyczna funkcja feedback nr 375"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd376",
+    "description": "Syntetyczna funkcja log nr 376"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd377",
+    "description": "Syntetyczna funkcja planning nr 377"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd378",
+    "description": "Syntetyczna funkcja scenarios nr 378"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd379",
+    "description": "Syntetyczna funkcja inspector nr 379"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd380",
+    "description": "Syntetyczna funkcja dashboard nr 380"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd381",
+    "description": "Syntetyczna funkcja memory nr 381"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd382",
+    "description": "Syntetyczna funkcja quantum nr 382"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd383",
+    "description": "Syntetyczna funkcja evolution nr 383"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd384",
+    "description": "Syntetyczna funkcja transcendence nr 384"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd385",
+    "description": "Syntetyczna funkcja cognitive nr 385"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd386",
+    "description": "Syntetyczna funkcja orchestrator nr 386"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd387",
+    "description": "Syntetyczna funkcja voice nr 387"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd388",
+    "description": "Syntetyczna funkcja chat nr 388"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd389",
+    "description": "Syntetyczna funkcja security nr 389"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd390",
+    "description": "Syntetyczna funkcja admin nr 390"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd391",
+    "description": "Syntetyczna funkcja analytics nr 391"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd392",
+    "description": "Syntetyczna funkcja diagnostics nr 392"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd393",
+    "description": "Syntetyczna funkcja auth nr 393"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd394",
+    "description": "Syntetyczna funkcja storage nr 394"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd395",
+    "description": "Syntetyczna funkcja feedback nr 395"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd396",
+    "description": "Syntetyczna funkcja log nr 396"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd397",
+    "description": "Syntetyczna funkcja planning nr 397"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd398",
+    "description": "Syntetyczna funkcja scenarios nr 398"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd399",
+    "description": "Syntetyczna funkcja inspector nr 399"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd400",
+    "description": "Syntetyczna funkcja dashboard nr 400"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd401",
+    "description": "Syntetyczna funkcja memory nr 401"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd402",
+    "description": "Syntetyczna funkcja quantum nr 402"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd403",
+    "description": "Syntetyczna funkcja evolution nr 403"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd404",
+    "description": "Syntetyczna funkcja transcendence nr 404"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd405",
+    "description": "Syntetyczna funkcja cognitive nr 405"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd406",
+    "description": "Syntetyczna funkcja orchestrator nr 406"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd407",
+    "description": "Syntetyczna funkcja voice nr 407"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd408",
+    "description": "Syntetyczna funkcja chat nr 408"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd409",
+    "description": "Syntetyczna funkcja security nr 409"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd410",
+    "description": "Syntetyczna funkcja admin nr 410"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd411",
+    "description": "Syntetyczna funkcja analytics nr 411"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd412",
+    "description": "Syntetyczna funkcja diagnostics nr 412"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd413",
+    "description": "Syntetyczna funkcja auth nr 413"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd414",
+    "description": "Syntetyczna funkcja storage nr 414"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd415",
+    "description": "Syntetyczna funkcja feedback nr 415"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd416",
+    "description": "Syntetyczna funkcja log nr 416"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd417",
+    "description": "Syntetyczna funkcja planning nr 417"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd418",
+    "description": "Syntetyczna funkcja scenarios nr 418"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd419",
+    "description": "Syntetyczna funkcja inspector nr 419"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd420",
+    "description": "Syntetyczna funkcja dashboard nr 420"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd421",
+    "description": "Syntetyczna funkcja memory nr 421"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd422",
+    "description": "Syntetyczna funkcja quantum nr 422"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd423",
+    "description": "Syntetyczna funkcja evolution nr 423"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd424",
+    "description": "Syntetyczna funkcja transcendence nr 424"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd425",
+    "description": "Syntetyczna funkcja cognitive nr 425"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd426",
+    "description": "Syntetyczna funkcja orchestrator nr 426"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd427",
+    "description": "Syntetyczna funkcja voice nr 427"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd428",
+    "description": "Syntetyczna funkcja chat nr 428"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd429",
+    "description": "Syntetyczna funkcja security nr 429"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd430",
+    "description": "Syntetyczna funkcja admin nr 430"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd431",
+    "description": "Syntetyczna funkcja analytics nr 431"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd432",
+    "description": "Syntetyczna funkcja diagnostics nr 432"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd433",
+    "description": "Syntetyczna funkcja auth nr 433"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd434",
+    "description": "Syntetyczna funkcja storage nr 434"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd435",
+    "description": "Syntetyczna funkcja feedback nr 435"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd436",
+    "description": "Syntetyczna funkcja log nr 436"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd437",
+    "description": "Syntetyczna funkcja planning nr 437"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd438",
+    "description": "Syntetyczna funkcja scenarios nr 438"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd439",
+    "description": "Syntetyczna funkcja inspector nr 439"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd440",
+    "description": "Syntetyczna funkcja dashboard nr 440"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd441",
+    "description": "Syntetyczna funkcja memory nr 441"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd442",
+    "description": "Syntetyczna funkcja quantum nr 442"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd443",
+    "description": "Syntetyczna funkcja evolution nr 443"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd444",
+    "description": "Syntetyczna funkcja transcendence nr 444"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd445",
+    "description": "Syntetyczna funkcja cognitive nr 445"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd446",
+    "description": "Syntetyczna funkcja orchestrator nr 446"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd447",
+    "description": "Syntetyczna funkcja voice nr 447"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd448",
+    "description": "Syntetyczna funkcja chat nr 448"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd449",
+    "description": "Syntetyczna funkcja security nr 449"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd450",
+    "description": "Syntetyczna funkcja admin nr 450"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd451",
+    "description": "Syntetyczna funkcja analytics nr 451"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd452",
+    "description": "Syntetyczna funkcja diagnostics nr 452"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd453",
+    "description": "Syntetyczna funkcja auth nr 453"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd454",
+    "description": "Syntetyczna funkcja storage nr 454"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd455",
+    "description": "Syntetyczna funkcja feedback nr 455"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd456",
+    "description": "Syntetyczna funkcja log nr 456"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd457",
+    "description": "Syntetyczna funkcja planning nr 457"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd458",
+    "description": "Syntetyczna funkcja scenarios nr 458"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd459",
+    "description": "Syntetyczna funkcja inspector nr 459"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd460",
+    "description": "Syntetyczna funkcja dashboard nr 460"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd461",
+    "description": "Syntetyczna funkcja memory nr 461"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd462",
+    "description": "Syntetyczna funkcja quantum nr 462"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd463",
+    "description": "Syntetyczna funkcja evolution nr 463"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd464",
+    "description": "Syntetyczna funkcja transcendence nr 464"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd465",
+    "description": "Syntetyczna funkcja cognitive nr 465"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd466",
+    "description": "Syntetyczna funkcja orchestrator nr 466"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd467",
+    "description": "Syntetyczna funkcja voice nr 467"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd468",
+    "description": "Syntetyczna funkcja chat nr 468"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd469",
+    "description": "Syntetyczna funkcja security nr 469"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd470",
+    "description": "Syntetyczna funkcja admin nr 470"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd471",
+    "description": "Syntetyczna funkcja analytics nr 471"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd472",
+    "description": "Syntetyczna funkcja diagnostics nr 472"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd473",
+    "description": "Syntetyczna funkcja auth nr 473"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd474",
+    "description": "Syntetyczna funkcja storage nr 474"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd475",
+    "description": "Syntetyczna funkcja feedback nr 475"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd476",
+    "description": "Syntetyczna funkcja log nr 476"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd477",
+    "description": "Syntetyczna funkcja planning nr 477"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd478",
+    "description": "Syntetyczna funkcja scenarios nr 478"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd479",
+    "description": "Syntetyczna funkcja inspector nr 479"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd480",
+    "description": "Syntetyczna funkcja dashboard nr 480"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd481",
+    "description": "Syntetyczna funkcja memory nr 481"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd482",
+    "description": "Syntetyczna funkcja quantum nr 482"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd483",
+    "description": "Syntetyczna funkcja evolution nr 483"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd484",
+    "description": "Syntetyczna funkcja transcendence nr 484"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd485",
+    "description": "Syntetyczna funkcja cognitive nr 485"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd486",
+    "description": "Syntetyczna funkcja orchestrator nr 486"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd487",
+    "description": "Syntetyczna funkcja voice nr 487"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd488",
+    "description": "Syntetyczna funkcja chat nr 488"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd489",
+    "description": "Syntetyczna funkcja security nr 489"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd490",
+    "description": "Syntetyczna funkcja admin nr 490"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd491",
+    "description": "Syntetyczna funkcja analytics nr 491"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd492",
+    "description": "Syntetyczna funkcja diagnostics nr 492"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd493",
+    "description": "Syntetyczna funkcja auth nr 493"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd494",
+    "description": "Syntetyczna funkcja storage nr 494"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd495",
+    "description": "Syntetyczna funkcja feedback nr 495"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd496",
+    "description": "Syntetyczna funkcja log nr 496"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd497",
+    "description": "Syntetyczna funkcja planning nr 497"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd498",
+    "description": "Syntetyczna funkcja scenarios nr 498"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd499",
+    "description": "Syntetyczna funkcja inspector nr 499"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd500",
+    "description": "Syntetyczna funkcja dashboard nr 500"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd501",
+    "description": "Syntetyczna funkcja memory nr 501"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd502",
+    "description": "Syntetyczna funkcja quantum nr 502"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd503",
+    "description": "Syntetyczna funkcja evolution nr 503"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd504",
+    "description": "Syntetyczna funkcja transcendence nr 504"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd505",
+    "description": "Syntetyczna funkcja cognitive nr 505"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd506",
+    "description": "Syntetyczna funkcja orchestrator nr 506"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd507",
+    "description": "Syntetyczna funkcja voice nr 507"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd508",
+    "description": "Syntetyczna funkcja chat nr 508"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd509",
+    "description": "Syntetyczna funkcja security nr 509"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd510",
+    "description": "Syntetyczna funkcja admin nr 510"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd511",
+    "description": "Syntetyczna funkcja analytics nr 511"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd512",
+    "description": "Syntetyczna funkcja diagnostics nr 512"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd513",
+    "description": "Syntetyczna funkcja auth nr 513"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd514",
+    "description": "Syntetyczna funkcja storage nr 514"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd515",
+    "description": "Syntetyczna funkcja feedback nr 515"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd516",
+    "description": "Syntetyczna funkcja log nr 516"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd517",
+    "description": "Syntetyczna funkcja planning nr 517"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd518",
+    "description": "Syntetyczna funkcja scenarios nr 518"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd519",
+    "description": "Syntetyczna funkcja inspector nr 519"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd520",
+    "description": "Syntetyczna funkcja dashboard nr 520"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd521",
+    "description": "Syntetyczna funkcja memory nr 521"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd522",
+    "description": "Syntetyczna funkcja quantum nr 522"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd523",
+    "description": "Syntetyczna funkcja evolution nr 523"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd524",
+    "description": "Syntetyczna funkcja transcendence nr 524"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd525",
+    "description": "Syntetyczna funkcja cognitive nr 525"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd526",
+    "description": "Syntetyczna funkcja orchestrator nr 526"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd527",
+    "description": "Syntetyczna funkcja voice nr 527"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd528",
+    "description": "Syntetyczna funkcja chat nr 528"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd529",
+    "description": "Syntetyczna funkcja security nr 529"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd530",
+    "description": "Syntetyczna funkcja admin nr 530"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd531",
+    "description": "Syntetyczna funkcja analytics nr 531"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd532",
+    "description": "Syntetyczna funkcja diagnostics nr 532"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd533",
+    "description": "Syntetyczna funkcja auth nr 533"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd534",
+    "description": "Syntetyczna funkcja storage nr 534"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd535",
+    "description": "Syntetyczna funkcja feedback nr 535"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd536",
+    "description": "Syntetyczna funkcja log nr 536"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd537",
+    "description": "Syntetyczna funkcja planning nr 537"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd538",
+    "description": "Syntetyczna funkcja scenarios nr 538"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd539",
+    "description": "Syntetyczna funkcja inspector nr 539"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd540",
+    "description": "Syntetyczna funkcja dashboard nr 540"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd541",
+    "description": "Syntetyczna funkcja memory nr 541"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd542",
+    "description": "Syntetyczna funkcja quantum nr 542"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd543",
+    "description": "Syntetyczna funkcja evolution nr 543"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd544",
+    "description": "Syntetyczna funkcja transcendence nr 544"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd545",
+    "description": "Syntetyczna funkcja cognitive nr 545"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd546",
+    "description": "Syntetyczna funkcja orchestrator nr 546"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd547",
+    "description": "Syntetyczna funkcja voice nr 547"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd548",
+    "description": "Syntetyczna funkcja chat nr 548"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd549",
+    "description": "Syntetyczna funkcja security nr 549"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd550",
+    "description": "Syntetyczna funkcja admin nr 550"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd551",
+    "description": "Syntetyczna funkcja analytics nr 551"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd552",
+    "description": "Syntetyczna funkcja diagnostics nr 552"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd553",
+    "description": "Syntetyczna funkcja auth nr 553"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd554",
+    "description": "Syntetyczna funkcja storage nr 554"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd555",
+    "description": "Syntetyczna funkcja feedback nr 555"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd556",
+    "description": "Syntetyczna funkcja log nr 556"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd557",
+    "description": "Syntetyczna funkcja planning nr 557"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd558",
+    "description": "Syntetyczna funkcja scenarios nr 558"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd559",
+    "description": "Syntetyczna funkcja inspector nr 559"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd560",
+    "description": "Syntetyczna funkcja dashboard nr 560"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd561",
+    "description": "Syntetyczna funkcja memory nr 561"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd562",
+    "description": "Syntetyczna funkcja quantum nr 562"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd563",
+    "description": "Syntetyczna funkcja evolution nr 563"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd564",
+    "description": "Syntetyczna funkcja transcendence nr 564"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd565",
+    "description": "Syntetyczna funkcja cognitive nr 565"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd566",
+    "description": "Syntetyczna funkcja orchestrator nr 566"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd567",
+    "description": "Syntetyczna funkcja voice nr 567"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd568",
+    "description": "Syntetyczna funkcja chat nr 568"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd569",
+    "description": "Syntetyczna funkcja security nr 569"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd570",
+    "description": "Syntetyczna funkcja admin nr 570"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd571",
+    "description": "Syntetyczna funkcja analytics nr 571"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd572",
+    "description": "Syntetyczna funkcja diagnostics nr 572"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd573",
+    "description": "Syntetyczna funkcja auth nr 573"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd574",
+    "description": "Syntetyczna funkcja storage nr 574"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd575",
+    "description": "Syntetyczna funkcja feedback nr 575"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd576",
+    "description": "Syntetyczna funkcja log nr 576"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd577",
+    "description": "Syntetyczna funkcja planning nr 577"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd578",
+    "description": "Syntetyczna funkcja scenarios nr 578"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd579",
+    "description": "Syntetyczna funkcja inspector nr 579"
+  },
+  {
+    "module": "dashboard",
+    "command": "&dashboard.cmd580",
+    "description": "Syntetyczna funkcja dashboard nr 580"
+  },
+  {
+    "module": "memory",
+    "command": "&memory.cmd581",
+    "description": "Syntetyczna funkcja memory nr 581"
+  },
+  {
+    "module": "quantum",
+    "command": "&quantum.cmd582",
+    "description": "Syntetyczna funkcja quantum nr 582"
+  },
+  {
+    "module": "evolution",
+    "command": "&evolution.cmd583",
+    "description": "Syntetyczna funkcja evolution nr 583"
+  },
+  {
+    "module": "transcendence",
+    "command": "&transcendence.cmd584",
+    "description": "Syntetyczna funkcja transcendence nr 584"
+  },
+  {
+    "module": "cognitive",
+    "command": "&cognitive.cmd585",
+    "description": "Syntetyczna funkcja cognitive nr 585"
+  },
+  {
+    "module": "orchestrator",
+    "command": "&orchestrator.cmd586",
+    "description": "Syntetyczna funkcja orchestrator nr 586"
+  },
+  {
+    "module": "voice",
+    "command": "&voice.cmd587",
+    "description": "Syntetyczna funkcja voice nr 587"
+  },
+  {
+    "module": "chat",
+    "command": "&chat.cmd588",
+    "description": "Syntetyczna funkcja chat nr 588"
+  },
+  {
+    "module": "security",
+    "command": "&security.cmd589",
+    "description": "Syntetyczna funkcja security nr 589"
+  },
+  {
+    "module": "admin",
+    "command": "&admin.cmd590",
+    "description": "Syntetyczna funkcja admin nr 590"
+  },
+  {
+    "module": "analytics",
+    "command": "&analytics.cmd591",
+    "description": "Syntetyczna funkcja analytics nr 591"
+  },
+  {
+    "module": "diagnostics",
+    "command": "&diagnostics.cmd592",
+    "description": "Syntetyczna funkcja diagnostics nr 592"
+  },
+  {
+    "module": "auth",
+    "command": "&auth.cmd593",
+    "description": "Syntetyczna funkcja auth nr 593"
+  },
+  {
+    "module": "storage",
+    "command": "&storage.cmd594",
+    "description": "Syntetyczna funkcja storage nr 594"
+  },
+  {
+    "module": "feedback",
+    "command": "&feedback.cmd595",
+    "description": "Syntetyczna funkcja feedback nr 595"
+  },
+  {
+    "module": "log",
+    "command": "&log.cmd596",
+    "description": "Syntetyczna funkcja log nr 596"
+  },
+  {
+    "module": "planning",
+    "command": "&planning.cmd597",
+    "description": "Syntetyczna funkcja planning nr 597"
+  },
+  {
+    "module": "scenarios",
+    "command": "&scenarios.cmd598",
+    "description": "Syntetyczna funkcja scenarios nr 598"
+  },
+  {
+    "module": "inspector",
+    "command": "&inspector.cmd599",
+    "description": "Syntetyczna funkcja inspector nr 599"
+  }
+]
