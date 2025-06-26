@@ -1,7 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,7 +12,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // First, handle CORS preflight request
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -18,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, messages, prompt, model = 'gpt-4o-mini' } = await req.json();
+    const { action, messages, prompt, model = 'gpt-4o-mini', session_id } = await req.json();
 
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
@@ -28,7 +31,26 @@ serve(async (req) => {
     const startTime = Date.now();
 
     if (action === 'chat') {
-      // Chat completion dla Live Chat
+      // Pobierz kontekst konwersacji z bazy danych jeśli podano session_id
+      let conversationMessages = messages || [];
+      
+      if (session_id) {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const { data: dbMessages, error } = await supabase
+          .from('chat_messages')
+          .select('role, content')
+          .eq('session_id', session_id)
+          .order('created_at', { ascending: true });
+
+        if (!error && dbMessages) {
+          conversationMessages = dbMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }));
+        }
+      }
+
+      // Chat completion z pełnym kontekstem
       const chatResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -40,11 +62,11 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'Jesteś Karol-Core AI, zaawansowany asystent AGI. Odpowiadaj w języku polskim, bądź pomocny i profesjonalny. Twoja wiedza obejmuje szeroki zakres tematów związanych z technologią, nauką i zarządzaniem.'
+              content: 'Jesteś Karol-Core AI (asst_7foGqdfqZKRBNloPEVXmlrua), zaawansowany asystent AGI z polskiej platformy Karol-Core. Odpowiadaj w języku polskim, bądź pomocny i profesjonalny. Twoja wiedza obejmuje szeroki zakres tematów związanych z technologią, nauką, zarządzaniem i rozwojem systemów AI. Pamiętaj o swojej tożsamości jako część ekosystemu Karol-Core AGI.'
             },
-            ...messages
+            ...conversationMessages
           ],
-          max_tokens: 1000,
+          max_tokens: 1500,
           temperature: 0.7,
         }),
       });
@@ -61,7 +83,8 @@ serve(async (req) => {
         response: chatData.choices[0].message.content,
         tokens_used: chatData.usage?.total_tokens || 0,
         processing_time: processingTime,
-        model: model
+        model: model,
+        assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua'
       };
     } else if (action === 'generate-image') {
       // Image generation
@@ -104,14 +127,14 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful assistant that summarizes text.'
+              content: 'Jesteś asystentem Karol-Core AI specjalizującym się w podsumowywaniu tekstów w języku polskim.'
             },
             {
               role: 'user',
-              content: `Summarize the following text: ${prompt}`
+              content: `Podsumuj następujący tekst: ${prompt}`
             }
           ],
-          max_tokens: 150,
+          max_tokens: 300,
         }),
       });
 
@@ -130,7 +153,6 @@ serve(async (req) => {
         model: model
       };
     } else {
-      // Fallback dla nieznanych akcji
       throw new Error(`Unknown action: ${action}`);
     }
 
