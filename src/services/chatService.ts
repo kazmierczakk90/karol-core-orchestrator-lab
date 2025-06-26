@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { 
   ChatSession, 
@@ -8,49 +7,104 @@ import type {
 } from '@/types/chat';
 
 class ChatService {
-  async createSession(data: CreateChatSessionRequest): Promise<ChatSession | null> {
+  private getDemoUser() {
+    return {
+      id: 'demo-user-id',
+      email: 'demo@karol-core.dev'
+    };
+  }
+
+  private async getCurrentUser() {
     try {
-      // Pobierz aktualnego użytkownika
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Fallback na demo użytkownika jeśli brak autentykacji
       if (!user) {
-        console.error('User not authenticated');
+        console.log('No authenticated user, using demo mode');
+        return this.getDemoUser();
+      }
+      
+      return user;
+    } catch (error) {
+      console.error('Error getting user, falling back to demo:', error);
+      return this.getDemoUser();
+    }
+  }
+
+  async createSession(data: CreateChatSessionRequest): Promise<ChatSession | null> {
+    try {
+      const user = await this.getCurrentUser();
+      
+      if (!user) {
+        console.error('No user available');
         return null;
       }
 
+      console.log('Creating session for user:', user.id);
+
+      const sessionData = {
+        user_id: user.id,
+        agent_id: data.agent_id || 'karol-core-ai',
+        title: data.title || `Sesja z Karol-Core AI - ${new Date().toLocaleString('pl-PL')}`,
+        metadata: {
+          ...data.metadata,
+          assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+          created_by: user.email || 'demo@karol-core.dev',
+          platform: 'karol-core',
+          version: '1.0'
+        },
+        status: 'active'
+      };
+
       const { data: session, error } = await supabase
         .from('chat_sessions')
-        .insert({
-          user_id: user.id,
-          agent_id: data.agent_id || 'karol-core-ai',
-          title: data.title || `Nowa sesja ${new Date().toLocaleString('pl-PL')}`,
-          metadata: data.metadata || {},
-          status: 'active'
-        })
+        .insert(sessionData)
         .select()
         .single();
 
       if (error) {
-        console.error('Error creating chat session:', error);
-        return null;
+        console.error('Database error creating session:', error);
+        
+        // Retry mechanizm - próba ponowna po krótkiej przerwie
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: retrySession, error: retryError } = await supabase
+          .from('chat_sessions')
+          .insert(sessionData)
+          .select()
+          .single();
+          
+        if (retryError) {
+          console.error('Retry failed:', retryError);
+          return null;
+        }
+        
+        console.log('Session created successfully on retry:', retrySession);
+        return retrySession as ChatSession;
       }
       
-      console.log('Chat session created successfully:', session);
+      console.log('Session created successfully:', session);
+      
+      // Analiza sesji w platformie
+      await this.logSessionAnalytics(session.id, 'session_created');
+      
       return session as ChatSession;
     } catch (error) {
-      console.error('Error in createSession:', error);
+      console.error('Unexpected error in createSession:', error);
       return null;
     }
   }
 
   async getSessions(): Promise<ChatSession[]> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await this.getCurrentUser();
       
       if (!user) {
-        console.log('User not authenticated for getSessions');
+        console.log('No user for getSessions');
         return [];
       }
+
+      console.log('Fetching sessions for user:', user.id);
 
       const { data, error } = await supabase
         .from('chat_sessions')
@@ -59,122 +113,159 @@ class ChatService {
         .order('updated_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching chat sessions:', error);
+        console.error('Error fetching sessions:', error);
         return [];
       }
       
-      console.log('Fetched sessions:', data);
+      console.log('Fetched sessions:', data?.length || 0);
       return data as ChatSession[];
     } catch (error) {
-      console.error('Error in getSessions:', error);
+      console.error('Unexpected error in getSessions:', error);
       return [];
     }
   }
 
   async getSession(sessionId: string): Promise<ChatSession | null> {
-    const { data, error } = await supabase
-      .from('chat_sessions')
-      .select('*')
-      .eq('id', sessionId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .single();
 
-    if (error) {
-      console.error('Error fetching chat session:', error);
+      if (error) {
+        console.error('Error fetching session:', error);
+        return null;
+      }
+      return data as ChatSession;
+    } catch (error) {
+      console.error('Unexpected error in getSession:', error);
       return null;
     }
-    return data as ChatSession;
   }
 
   async updateSession(sessionId: string, updates: Partial<ChatSession>): Promise<boolean> {
-    const { error } = await supabase
-      .from('chat_sessions')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', sessionId);
+    try {
+      const { error } = await supabase
+        .from('chat_sessions')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
 
-    if (error) {
-      console.error('Error updating chat session:', error);
+      if (error) {
+        console.error('Error updating session:', error);
+        return false;
+      }
+      
+      // Analiza aktywności sesji
+      await this.logSessionAnalytics(sessionId, 'session_updated');
+      
+      return true;
+    } catch (error) {
+      console.error('Unexpected error in updateSession:', error);
       return false;
     }
-    return true;
   }
 
   async deleteSession(sessionId: string): Promise<boolean> {
     try {
-      // Najpierw usuń wszystkie wiadomości z sesji
+      console.log('Deleting session:', sessionId);
+      
+      // Analiza przed usunięciem
+      await this.logSessionAnalytics(sessionId, 'session_deleted');
+      
+      // Usuń wiadomości z sesji
       const { error: messagesError } = await supabase
         .from('chat_messages')
         .delete()
         .eq('session_id', sessionId);
 
       if (messagesError) {
-        console.error('Error deleting chat messages:', messagesError);
+        console.error('Error deleting messages:', messagesError);
         return false;
       }
 
-      // Następnie usuń sesję
+      // Usuń sesję
       const { error: sessionError } = await supabase
         .from('chat_sessions')
         .delete()
         .eq('id', sessionId);
 
       if (sessionError) {
-        console.error('Error deleting chat session:', sessionError);
+        console.error('Error deleting session:', sessionError);
         return false;
       }
 
-      console.log('Session and messages deleted successfully');
+      console.log('Session deleted successfully');
       return true;
     } catch (error) {
-      console.error('Error in deleteSession:', error);
+      console.error('Unexpected error in deleteSession:', error);
       return false;
     }
   }
 
   async createMessage(data: CreateChatMessageRequest): Promise<ChatMessage | null> {
-    const { data: message, error } = await supabase
-      .from('chat_messages')
-      .insert({
-        session_id: data.session_id,
-        role: data.role,
-        content: data.content,
-        metadata: data.metadata || {},
-      })
-      .select()
-      .single();
+    try {
+      const { data: message, error } = await supabase
+        .from('chat_messages')
+        .insert({
+          session_id: data.session_id,
+          role: data.role,
+          content: data.content,
+          metadata: {
+            ...data.metadata,
+            assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+            timestamp: new Date().toISOString()
+          },
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error creating chat message:', error);
+      if (error) {
+        console.error('Error creating message:', error);
+        return null;
+      }
+      return message as ChatMessage;
+    } catch (error) {
+      console.error('Unexpected error in createMessage:', error);
       return null;
     }
-    return message as ChatMessage;
   }
 
   async getMessages(sessionId: string): Promise<ChatMessage[]> {
-    const { data, error } = await supabase
-      .from('chat_messages')
-      .select('*')
-      .eq('session_id', sessionId)
-      .order('created_at', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true });
 
-    if (error) {
-      console.error('Error fetching chat messages:', error);
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return [];
+      }
+      return data as ChatMessage[];
+    } catch (error) {
+      console.error('Unexpected error in getMessages:', error);
       return [];
     }
-    return data as ChatMessage[];
   }
 
   async sendMessageToAI(sessionId: string, content: string): Promise<ChatMessage | null> {
     try {
       console.log('Sending message to AI for session:', sessionId);
       
-      // Najpierw zapisz wiadomość użytkownika
+      // Zapisz wiadomość użytkownika
       const userMessage = await this.createMessage({
         session_id: sessionId,
         role: 'user',
         content: content,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          user_agent: navigator.userAgent
+        }
       });
 
       if (!userMessage) {
@@ -183,12 +274,13 @@ class ChatService {
 
       console.log('User message saved, calling OpenAI...');
 
-      // Wywołaj Edge Function dla OpenAI z session_id
+      // Wywołaj Edge Function z session_id
       const { data, error } = await supabase.functions.invoke('openai-integration', {
         body: {
           action: 'chat',
           session_id: sessionId,
-          model: 'gpt-4o-mini'
+          model: 'gpt-4o-mini',
+          assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua'
         }
       });
 
@@ -207,29 +299,35 @@ class ChatService {
         metadata: {
           tokens_used: data.tokens_used || 0,
           processing_time: data.processing_time || 0,
-          assistant_id: data.assistant_id || 'asst_7foGqdfqZKRBNloPEVXmlrua'
+          assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+          model: data.model || 'gpt-4o-mini',
+          timestamp: new Date().toISOString()
         }
       });
 
-      // Zaktualizuj timestamp ostatniej wiadomości w sesji
+      // Aktualizuj sesję
       await this.updateSession(sessionId, {
         last_message_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
+
+      // Analiza konwersacji
+      await this.logSessionAnalytics(sessionId, 'message_exchange');
 
       console.log('AI message saved successfully');
       return aiMessage;
     } catch (error) {
       console.error('Error sending message to AI:', error);
       
-      // Zapisz wiadomość błędu jako odpowiedź AI
+      // Zapisz wiadomość błędu
       const errorMessage = await this.createMessage({
         session_id: sessionId,
         role: 'assistant',
-        content: `Przepraszam, wystąpił błąd podczas komunikacji z systemem AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`,
+        content: `Przepraszam, wystąpił błąd: ${error instanceof Error ? error.message : 'Nieznany błąd'}`,
         metadata: {
           error: true,
-          error_message: error instanceof Error ? error.message : 'Unknown error'
+          error_message: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString()
         }
       });
 
@@ -246,36 +344,102 @@ class ChatService {
         return null;
       }
 
-      // Analiza sesji dla platformy
+      // Zaawansowana analiza sesji
       const analysis = {
         session_id: sessionId,
         message_count: messages.length,
         user_messages: messages.filter(m => m.role === 'user').length,
         ai_messages: messages.filter(m => m.role === 'assistant').length,
         total_tokens: messages.reduce((sum, msg) => sum + (msg.metadata?.tokens_used || 0), 0),
-        avg_processing_time: messages
-          .filter(m => m.metadata?.processing_time)
-          .reduce((sum, msg, _, arr) => sum + (msg.metadata.processing_time || 0) / arr.length, 0),
-        session_duration: session.last_message_at ? 
-          new Date(session.last_message_at).getTime() - new Date(session.created_at).getTime() : 0,
+        avg_processing_time: this.calculateAverageProcessingTime(messages),
+        session_duration: this.calculateSessionDuration(session),
         topics: this.extractTopics(messages),
         sentiment: this.analyzeSentiment(messages),
+        thread_continuity: this.analyzeThreadContinuity(messages),
+        engagement_score: this.calculateEngagementScore(messages),
         created_at: new Date().toISOString()
       };
 
-      // Zapisz analizę do tabeli analytics
+      // Zapisz analizę do analytics
       await supabase.from('analytics').insert({
         event_type: 'chat_session_analysis',
         agent_id: session.agent_id,
-        description: `Analiza sesji czatu: ${messages.length} wiadomości`,
+        description: `Zaawansowana analiza sesji: ${messages.length} wiadomości`,
         context: JSON.stringify(analysis),
         value: messages.length
       });
 
+      console.log('Advanced session analysis completed:', analysis);
       return analysis;
     } catch (error) {
       console.error('Error analyzing session:', error);
       return null;
+    }
+  }
+
+  private calculateAverageProcessingTime(messages: ChatMessage[]): number {
+    const aiMessages = messages.filter(m => m.metadata?.processing_time);
+    if (aiMessages.length === 0) return 0;
+    
+    const total = aiMessages.reduce((sum, msg) => sum + (msg.metadata.processing_time || 0), 0);
+    return total / aiMessages.length;
+  }
+
+  private calculateSessionDuration(session: ChatSession): number {
+    if (!session.last_message_at) return 0;
+    return new Date(session.last_message_at).getTime() - new Date(session.created_at).getTime();
+  }
+
+  private analyzeThreadContinuity(messages: ChatMessage[]): number {
+    // Analiza ciągłości wątku na podstawie kontekstu
+    let continuityScore = 0;
+    for (let i = 1; i < messages.length; i++) {
+      const prev = messages[i - 1];
+      const current = messages[i];
+      
+      // Sprawdź czy są powiązane tematycznie
+      if (this.isThematicallyContinuous(prev.content, current.content)) {
+        continuityScore++;
+      }
+    }
+    
+    return messages.length > 1 ? (continuityScore / (messages.length - 1)) * 100 : 100;
+  }
+
+  private isThematicallyContinuous(prev: string, current: string): boolean {
+    // Prosta analiza ciągłości tematycznej
+    const prevWords = prev.toLowerCase().split(' ');
+    const currentWords = current.toLowerCase().split(' ');
+    
+    const commonWords = prevWords.filter(word => 
+      currentWords.includes(word) && word.length > 3
+    );
+    
+    return commonWords.length > 0;
+  }
+
+  private calculateEngagementScore(messages: ChatMessage[]): number {
+    // Oblicz wskaźnik zaangażowania na podstawie długości wiadomości i częstotliwości
+    const userMessages = messages.filter(m => m.role === 'user');
+    if (userMessages.length === 0) return 0;
+    
+    const avgLength = userMessages.reduce((sum, msg) => sum + msg.content.length, 0) / userMessages.length;
+    const messageFrequency = userMessages.length;
+    
+    return Math.min(100, (avgLength / 10) + (messageFrequency * 5));
+  }
+
+  private async logSessionAnalytics(sessionId: string, eventType: string): Promise<void> {
+    try {
+      await supabase.from('analytics').insert({
+        event_type: eventType,
+        agent_id: 'karol-core-ai',
+        description: `Live Chat event: ${eventType}`,
+        context: JSON.stringify({ session_id: sessionId }),
+        value: 1
+      });
+    } catch (error) {
+      console.error('Error logging analytics:', error);
     }
   }
 
