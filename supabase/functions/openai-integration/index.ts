@@ -1,7 +1,12 @@
-import { serve } from '@supabase/functions-js'
-import { cors } from './_shared/cors'
 
-const openAIApiKey = process.env.OPENAI_API_KEY
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 serve(async (req) => {
   // First, handle CORS preflight request
@@ -58,75 +63,73 @@ serve(async (req) => {
         processing_time: processingTime,
         model: model
       };
-    } else {
-      if (action === 'generate-image') {
-        // Image generation
-        const imageResponse = await fetch('https://api.openai.com/v1/images/generations', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: prompt,
-            n: 1,
-            size: "512x512",
-          }),
-        });
-  
-        if (!imageResponse.ok) {
-          const error = await imageResponse.json();
-          throw new Error(error.error?.message || 'Image generation failed');
-        }
-  
-        const imageData = await imageResponse.json();
-        const processingTime = Date.now() - startTime;
-  
-        response = {
-          image_url: imageData.data[0].url,
-          processing_time: processingTime,
-          model: 'dall-e-3'
-        };
-      } else if (action === 'summarize') {
-        // Text summarization
-        const completionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              {
-                role: 'system',
-                content: 'You are a helpful assistant that summarizes text.'
-              },
-              {
-                role: 'user',
-                content: `Summarize the following text: ${prompt}`
-              }
-            ],
-            max_tokens: 150,
-          }),
-        });
-  
-        if (!completionResponse.ok) {
-          const error = await completionResponse.json();
-          throw new Error(error.error?.message || 'Text summarization failed');
-        }
-  
-        const completionData = await completionResponse.json();
-        const processingTime = Date.now() - startTime;
-  
-        response = {
-          summary: completionData.choices[0].message.content,
-          tokens_used: completionData.usage?.total_tokens || 0,
-          processing_time: processingTime,
-          model: model
-        };
+    } else if (action === 'generate-image') {
+      // Image generation
+      const imageResponse = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          n: 1,
+          size: "512x512",
+        }),
+      });
+
+      if (!imageResponse.ok) {
+        const error = await imageResponse.json();
+        throw new Error(error.error?.message || 'Image generation failed');
       }
-      
+
+      const imageData = await imageResponse.json();
+      const processingTime = Date.now() - startTime;
+
+      response = {
+        image_url: imageData.data[0].url,
+        processing_time: processingTime,
+        model: 'dall-e-3'
+      };
+    } else if (action === 'summarize') {
+      // Text summarization
+      const completionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful assistant that summarizes text.'
+            },
+            {
+              role: 'user',
+              content: `Summarize the following text: ${prompt}`
+            }
+          ],
+          max_tokens: 150,
+        }),
+      });
+
+      if (!completionResponse.ok) {
+        const error = await completionResponse.json();
+        throw new Error(error.error?.message || 'Text summarization failed');
+      }
+
+      const completionData = await completionResponse.json();
+      const processingTime = Date.now() - startTime;
+
+      response = {
+        summary: completionData.choices[0].message.content,
+        tokens_used: completionData.usage?.total_tokens || 0,
+        processing_time: processingTime,
+        model: model
+      };
+    } else {
       // Fallback dla nieznanych akcji
       throw new Error(`Unknown action: ${action}`);
     }
