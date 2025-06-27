@@ -1062,6 +1062,10 @@ export type Database = {
         Args: { decision_data: Json; agent_capabilities: string[] }
         Returns: number
       }
+      create_demo_session: {
+        Args: { p_agent_id?: string; p_title?: string; p_metadata?: Json }
+        Returns: string
+      }
       custom_access_token_hook: {
         Args: { event: Json }
         Returns: Json

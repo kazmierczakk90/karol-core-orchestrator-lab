@@ -9,7 +9,7 @@ import type {
 class ChatService {
   private getDemoUser() {
     return {
-      id: 'demo-user-id',
+      id: '00000000-0000-0000-0000-000000000001', // Prawidłowy UUID dla demo
       email: 'demo@karol-core.dev'
     };
   }
@@ -18,7 +18,6 @@ class ChatService {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Fallback na demo użytkownika jeśli brak autentykacji
       if (!user) {
         console.log('No authenticated user, using demo mode');
         return this.getDemoUser();
@@ -33,14 +32,15 @@ class ChatService {
 
   async createSession(data: CreateChatSessionRequest): Promise<ChatSession | null> {
     try {
+      console.log('🚀 Creating new session...');
       const user = await this.getCurrentUser();
       
       if (!user) {
-        console.error('No user available');
+        console.error('❌ No user available');
         return null;
       }
 
-      console.log('Creating session for user:', user.id);
+      console.log('👤 User identified:', { id: user.id, email: user.email });
 
       const sessionData = {
         user_id: user.id,
@@ -51,11 +51,48 @@ class ChatService {
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
           created_by: user.email || 'demo@karol-core.dev',
           platform: 'karol-core',
-          version: '1.0'
+          version: '2.0',
+          demo_mode: user.id === '00000000-0000-0000-0000-000000000001'
         },
         status: 'active'
       };
 
+      console.log('📝 Session data prepared:', sessionData);
+
+      // Użyj funkcji demo dla demo użytkownika
+      if (user.id === '00000000-0000-0000-0000-000000000001') {
+        console.log('🎭 Using demo session creation function');
+        
+        const { data: demoSession, error } = await supabase.rpc('create_demo_session', {
+          p_agent_id: sessionData.agent_id,
+          p_title: sessionData.title,
+          p_metadata: sessionData.metadata
+        });
+
+        if (error) {
+          console.error('❌ Demo session creation error:', error);
+          return null;
+        }
+
+        console.log('✅ Demo session created:', demoSession);
+        
+        // Pobierz pełne dane sesji
+        const { data: fullSession, error: fetchError } = await supabase
+          .from('chat_sessions')
+          .select('*')
+          .eq('id', demoSession)
+          .single();
+
+        if (fetchError) {
+          console.error('❌ Error fetching created session:', fetchError);
+          return null;
+        }
+
+        await this.logSessionAnalytics(fullSession.id, 'demo_session_created');
+        return fullSession as ChatSession;
+      }
+
+      // Dla prawdziwych użytkowników
       const { data: session, error } = await supabase
         .from('chat_sessions')
         .insert(sessionData)
@@ -63,34 +100,16 @@ class ChatService {
         .single();
 
       if (error) {
-        console.error('Database error creating session:', error);
-        
-        // Retry mechanizm - próba ponowna po krótkiej przerwie
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const { data: retrySession, error: retryError } = await supabase
-          .from('chat_sessions')
-          .insert(sessionData)
-          .select()
-          .single();
-          
-        if (retryError) {
-          console.error('Retry failed:', retryError);
-          return null;
-        }
-        
-        console.log('Session created successfully on retry:', retrySession);
-        return retrySession as ChatSession;
+        console.error('❌ Database error creating session:', error);
+        return null;
       }
       
-      console.log('Session created successfully:', session);
-      
-      // Analiza sesji w platformie
+      console.log('✅ Session created successfully:', session);
       await this.logSessionAnalytics(session.id, 'session_created');
       
       return session as ChatSession;
     } catch (error) {
-      console.error('Unexpected error in createSession:', error);
+      console.error('💥 Unexpected error in createSession:', error);
       return null;
     }
   }
@@ -100,11 +119,11 @@ class ChatService {
       const user = await this.getCurrentUser();
       
       if (!user) {
-        console.log('No user for getSessions');
+        console.log('❌ No user for getSessions');
         return [];
       }
 
-      console.log('Fetching sessions for user:', user.id);
+      console.log('📋 Fetching sessions for user:', user.id);
 
       const { data, error } = await supabase
         .from('chat_sessions')
@@ -113,14 +132,14 @@ class ChatService {
         .order('updated_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching sessions:', error);
+        console.error('❌ Error fetching sessions:', error);
         return [];
       }
       
-      console.log('Fetched sessions:', data?.length || 0);
+      console.log('✅ Fetched sessions:', data?.length || 0);
       return data as ChatSession[];
     } catch (error) {
-      console.error('Unexpected error in getSessions:', error);
+      console.error('💥 Unexpected error in getSessions:', error);
       return [];
     }
   }
@@ -255,7 +274,7 @@ class ChatService {
 
   async sendMessageToAI(sessionId: string, content: string): Promise<ChatMessage | null> {
     try {
-      console.log('Sending message to AI for session:', sessionId);
+      console.log('🤖 Sending message to AI for session:', sessionId);
       
       // Zapisz wiadomość użytkownika
       const userMessage = await this.createMessage({
@@ -272,9 +291,9 @@ class ChatService {
         throw new Error('Failed to save user message');
       }
 
-      console.log('User message saved, calling OpenAI...');
+      console.log('💾 User message saved, calling OpenAI...');
 
-      // Wywołaj Edge Function z session_id
+      // Wywołaj Edge Function
       const { data, error } = await supabase.functions.invoke('openai-integration', {
         body: {
           action: 'chat',
@@ -285,11 +304,11 @@ class ChatService {
       });
 
       if (error) {
-        console.error('OpenAI function error:', error);
+        console.error('❌ OpenAI function error:', error);
         throw new Error(`AI request failed: ${error.message}`);
       }
 
-      console.log('OpenAI response received:', data);
+      console.log('🎯 OpenAI response received:', data);
 
       // Zapisz odpowiedź AI
       const aiMessage = await this.createMessage({
@@ -311,13 +330,12 @@ class ChatService {
         updated_at: new Date().toISOString()
       });
 
-      // Analiza konwersacji
       await this.logSessionAnalytics(sessionId, 'message_exchange');
 
-      console.log('AI message saved successfully');
+      console.log('✅ AI message saved successfully');
       return aiMessage;
     } catch (error) {
-      console.error('Error sending message to AI:', error);
+      console.error('💥 Error sending message to AI:', error);
       
       // Zapisz wiadomość błędu
       const errorMessage = await this.createMessage({
@@ -431,6 +449,7 @@ class ChatService {
 
   private async logSessionAnalytics(sessionId: string, eventType: string): Promise<void> {
     try {
+      console.log('📊 Logging analytics:', { sessionId, eventType });
       await supabase.from('analytics').insert({
         event_type: eventType,
         agent_id: 'karol-core-ai',
@@ -439,7 +458,7 @@ class ChatService {
         value: 1
       });
     } catch (error) {
-      console.error('Error logging analytics:', error);
+      console.error('❌ Error logging analytics:', error);
     }
   }
 

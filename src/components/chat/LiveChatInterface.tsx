@@ -19,7 +19,9 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Zap
+  Zap,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
 import { useChatMessages } from '@/hooks/useChatMessages';
@@ -30,6 +32,7 @@ const LiveChatInterface = () => {
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connected');
+  const [debugMode, setDebugMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -85,7 +88,7 @@ const LiveChatInterface = () => {
   }, []);
 
   const handleCreateSession = async () => {
-    console.log('Creating new session...');
+    console.log('🎯 User clicked create session');
     setConnectionStatus('connecting');
     
     try {
@@ -101,26 +104,29 @@ const LiveChatInterface = () => {
         }
       });
       setConnectionStatus('connected');
+      toast.success('Sesja została utworzona pomyślnie!');
     } catch (error) {
-      console.error('Failed to create session:', error);
+      console.error('💥 Failed to create session:', error);
       setConnectionStatus('disconnected');
-      toast.error('Nie udało się utworzyć sesji. Sprawdź połączenie.');
+      toast.error(`Nie udało się utworzyć sesji: ${error instanceof Error ? error.message : 'Nieznany błąd'}`);
     }
   };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedSession || isSending) return;
     
-    console.log('Sending message:', newMessage);
+    console.log('📤 Sending message:', newMessage);
     setConnectionStatus('connecting');
     
     try {
       await sendMessage(newMessage);
       setNewMessage('');
       setConnectionStatus('connected');
+      toast.success('Wiadomość wysłana!');
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('💥 Failed to send message:', error);
       setConnectionStatus('disconnected');
+      toast.error(`Błąd wysyłania: ${error instanceof Error ? error.message : 'Nieznany błąd'}`);
     }
   };
 
@@ -172,9 +178,9 @@ const LiveChatInterface = () => {
 
   const getConnectionIcon = () => {
     switch (connectionStatus) {
-      case 'connected': return <CheckCircle className="h-4 w-4 text-green-400" />;
+      case 'connected': return <Wifi className="h-4 w-4 text-green-400" />;
       case 'connecting': return <Loader2 className="h-4 w-4 text-yellow-400 animate-spin" />;
-      case 'disconnected': return <AlertCircle className="h-4 w-4 text-red-400" />;
+      case 'disconnected': return <WifiOff className="h-4 w-4 text-red-400" />;
     }
   };
 
@@ -194,9 +200,9 @@ const LiveChatInterface = () => {
               {getConnectionIcon()}
               <Button
                 onClick={handleCreateSession}
-                disabled={isCreating || connectionStatus === 'disconnected'}
+                disabled={isCreating}
                 size="sm"
-                className="bg-cyan-600 hover:bg-cyan-700"
+                className="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
               >
                 {isCreating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -209,12 +215,16 @@ const LiveChatInterface = () => {
           
           <div className="space-y-2">
             <div className="text-xs text-slate-400">
-              <div>Asystent: Karol-Core AI</div>
-              <div>ID: asst_7foGqdfqZKRBNloPEVXmlrua</div>
+              <div>🤖 Asystent: Karol-Core AI</div>
+              <div>🆔 ID: asst_7foGqdfqZKRBNloPEVXmlrua</div>
               <div className="flex items-center space-x-1 mt-1">
                 <span>Status:</span>
                 {getConnectionIcon()}
                 <span className="capitalize">{connectionStatus}</span>
+              </div>
+              <div className="flex items-center space-x-1 mt-1">
+                <span>Sesje:</span>
+                <Badge variant="outline">{sessions.length}</Badge>
               </div>
             </div>
             
@@ -226,6 +236,15 @@ const LiveChatInterface = () => {
                 </AlertDescription>
               </Alert>
             )}
+
+            <Button
+              onClick={() => setDebugMode(!debugMode)}
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs"
+            >
+              {debugMode ? '🔍 Ukryj Debug' : '🔍 Pokaż Debug'}
+            </Button>
           </div>
         </div>
 
@@ -241,6 +260,19 @@ const LiveChatInterface = () => {
                 <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>Brak sesji czatu</p>
                 <p className="text-sm">Utwórz pierwszą sesję</p>
+                <Button
+                  onClick={handleCreateSession}
+                  disabled={isCreating}
+                  className="mt-2 bg-cyan-600 hover:bg-cyan-700"
+                  size="sm"
+                >
+                  {isCreating ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-2" />
+                  )}
+                  Utwórz sesję
+                </Button>
               </div>
             ) : (
               sessions.map((session) => (
@@ -264,41 +296,9 @@ const LiveChatInterface = () => {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleAnalyzeSession(session.id);
-                          }}
-                          disabled={isAnalyzing}
-                          className="h-6 w-6 p-0 hover:bg-blue-600/20"
-                          title="Analizuj sesję"
-                        >
-                          {isAnalyzing ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-blue-400" />
-                          ) : (
-                            <BarChart3 className="h-3 w-3 text-blue-400" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleArchiveSession(session.id);
-                          }}
-                          disabled={isArchiving}
-                          className="h-6 w-6 p-0 hover:bg-yellow-600/20"
-                          title="Archiwizuj sesję"
-                        >
-                          {isArchiving ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-yellow-400" />
-                          ) : (
-                            <Archive className="h-3 w-3 text-yellow-400" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteSession(session.id, session.title || 'Bez tytułu');
+                            if (window.confirm(`Czy na pewno chcesz usunąć sesję "${session.title}"?`)) {
+                              deleteSession(session.id);
+                            }
                           }}
                           disabled={isDeleting}
                           className="h-6 w-6 p-0 hover:bg-red-600/20"
@@ -326,6 +326,13 @@ const LiveChatInterface = () => {
                           <span>Ostatnia: {new Date(session.last_message_at).toLocaleString('pl-PL')}</span>
                         </div>
                       )}
+                      {debugMode && (
+                        <div className="text-xs opacity-75">
+                          <div>ID: {session.id}</div>
+                          <div>Agent: {session.agent_id}</div>
+                          {session.metadata?.demo_mode && <div>🎭 Demo Mode</div>}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -347,24 +354,11 @@ const LiveChatInterface = () => {
                     {activeSession.title || 'Sesja czatu'}
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Agent: Karol-Core AI • Status: {activeSession.status} • Kontynuacja wątku: ✓
+                    🤖 Agent: Karol-Core AI • Status: {activeSession.status} • Kontynuacja wątku: ✓
+                    {activeSession.metadata?.demo_mode && ' • 🎭 Demo Mode'}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAnalyzeSession(selectedSession)}
-                    disabled={isAnalyzing}
-                    className="bg-slate-900/50 border-slate-600"
-                  >
-                    {isAnalyzing ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                    )}
-                    Analizuj
-                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -461,7 +455,7 @@ const LiveChatInterface = () => {
                 <Button
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim() || isSending || connectionStatus === 'disconnected'}
-                  className="bg-cyan-600 hover:bg-cyan-700"
+                  className="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50"
                 >
                   {isSending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
