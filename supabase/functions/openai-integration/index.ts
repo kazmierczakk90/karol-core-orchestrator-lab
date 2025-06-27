@@ -1,232 +1,302 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.10';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const openaiApiKey = Deno.env.get('OPENAI_API_KEY')!;
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+interface AssistantRequest {
+  action: string;
+  session_id: string;
+  model?: string;
+  assistant_id?: string;
+  message?: string;
 }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders,
-    })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { action, messages, prompt, model = 'gpt-4o-mini', session_id, assistant_id } = await req.json();
-    console.log('OpenAI Integration called:', { action, session_id, assistant_id });
+    console.log('🚀 OpenAI Integration Function Called');
+    
+    const requestData: AssistantRequest = await req.json();
+    console.log('📝 Request data:', JSON.stringify(requestData, null, 2));
 
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
-    let response;
-    const startTime = Date.now();
+    const { action, session_id, assistant_id = 'asst_7foGqdfqZKRBNloPEVXmlrua' } = requestData;
 
     if (action === 'chat') {
-      let conversationMessages = messages || [];
-      
-      // Pobierz historię konwersacji z bazy danych dla kontynuacji wątku
-      if (session_id) {
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
-        console.log('Fetching conversation history for session:', session_id);
-        
-        const { data: dbMessages, error } = await supabase
-          .from('chat_messages')
-          .select('role, content, metadata')
-          .eq('session_id', session_id)
-          .order('created_at', { ascending: true });
+      // Pobierz sesję i wiadomości
+      const { data: session, error: sessionError } = await supabase
+        .from('chat_sessions')
+        .select('*')
+        .eq('id', session_id)
+        .single();
 
-        if (!error && dbMessages) {
-          console.log('Found', dbMessages.length, 'previous messages');
-          conversationMessages = dbMessages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }));
+      if (sessionError) {
+        console.error('❌ Session fetch error:', sessionError);
+        throw new Error(`Session not found: ${sessionError.message}`);
+      }
+
+      console.log('✅ Session found:', session.id);
+
+      // Pobierz wszystkie wiadomości z sesji
+      const { data: messages, error: messagesError } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('session_id', session_id)
+        .order('created_at', { ascending: true });
+
+      if (messagesError) {
+        console.error('❌ Messages fetch error:', messagesError);
+        throw new Error(`Messages fetch error: ${messagesError.message}`);
+      }
+
+      console.log(`📨 Found ${messages?.length || 0} messages in session`);
+
+      // Znajdź lub stwórz OpenAI Thread
+      let threadId = session.metadata?.openai_thread_id;
+
+      if (!threadId) {
+        console.log('🆕 Creating new OpenAI Thread...');
+        
+        const threadResponse = await fetch('https://api.openai.com/v1/threads', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+            'OpenAI-Beta': 'assistants=v2',
+          },
+          body: JSON.stringify({
+            metadata: {
+              session_id: session_id,
+              agent_id: session.agent_id,
+              created_by: 'karol-core-live-chat'
+            }
+          }),
+        });
+
+        if (!threadResponse.ok) {
+          const error = await threadResponse.text();
+          console.error('❌ Thread creation failed:', error);
+          throw new Error(`Thread creation failed: ${error}`);
+        }
+
+        const thread = await threadResponse.json();
+        threadId = thread.id;
+
+        console.log('✅ Thread created:', threadId);
+
+        // Aktualizuj sesję z thread_id
+        await supabase
+          .from('chat_sessions')
+          .update({
+            metadata: {
+              ...session.metadata,
+              openai_thread_id: threadId,
+              vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c'
+            }
+          })
+          .eq('id', session_id);
+      }
+
+      console.log('🔗 Using Thread ID:', threadId);
+
+      // Pobierz ostatnią wiadomość użytkownika
+      const lastUserMessage = messages?.filter(m => m.role === 'user').pop();
+      if (!lastUserMessage) {
+        throw new Error('No user message found');
+      }
+
+      console.log('💬 Processing message:', lastUserMessage.content);
+
+      // Dodaj wiadomość do Thread
+      const messageResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2',
+        },
+        body: JSON.stringify({
+          role: 'user',
+          content: lastUserMessage.content,
+          metadata: {
+            session_id: session_id,
+            message_id: lastUserMessage.id
+          }
+        }),
+      });
+
+      if (!messageResponse.ok) {
+        const error = await messageResponse.text();
+        console.error('❌ Message add failed:', error);
+        throw new Error(`Message add failed: ${error}`);
+      }
+
+      console.log('✅ Message added to thread');
+
+      // Uruchom Assistant
+      const runResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2',
+        },
+        body: JSON.stringify({
+          assistant_id: assistant_id,
+          instructions: `Jesteś Karol-Core AI - zaawansowanym asystentem AGI z głęboką wiedzą o technologii, biznesie i zarządzaniu. 
+          
+Twoje główne funkcje:
+- przekaz_dane_do_CEO: Przekazywanie ważnych informacji do systemu CEO
+- przeslij_do_asystenta: Delegowanie zadań do innych asystentów
+- pobierz_plik_z_magazynu: Dostęp do plików w Vector Store (vs_6850534726fc8191b5ef7a56e8fc4a3c)
+- zapisz_dane_do_magazynu: Zapisywanie danych do Vector Store
+- lista_plikow_w_magazynie: Wyświetlanie zawartości magazynu
+- zarzadzanie_dostepem: Kontrola dostępu do zasobów
+
+Odpowiadaj po polsku, profesjonalnie ale w przyjazny sposób. Używaj swojej wiedzy z Vector Store gdy to potrzebne.`,
+          metadata: {
+            session_id: session_id,
+            agent_id: session.agent_id,
+            vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c'
+          }
+        }),
+      });
+
+      if (!runResponse.ok) {
+        const error = await runResponse.text();
+        console.error('❌ Run creation failed:', error);
+        throw new Error(`Run creation failed: ${error}`);
+      }
+
+      const run = await runResponse.json();
+      console.log('🏃 Run started:', run.id);
+
+      // Czekaj na zakończenie Run
+      let runStatus = run;
+      let attempts = 0;
+      const maxAttempts = 30;
+
+      while (runStatus.status === 'in_progress' || runStatus.status === 'queued') {
+        if (attempts >= maxAttempts) {
+          throw new Error('Run timeout - taking too long to complete');
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        attempts++;
+
+        const statusResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${run.id}`, {
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'OpenAI-Beta': 'assistants=v2',
+          },
+        });
+
+        if (statusResponse.ok) {
+          runStatus = await statusResponse.json();
+          console.log(`⏳ Run status: ${runStatus.status} (attempt ${attempts})`);
         }
       }
 
-      // Zaawansowany prompt systemowy dla Karol-Core AI
-      const systemPrompt = `Jesteś Karol-Core AI (Assistant ID: ${assistant_id || 'asst_7foGqdfqZKRBNloPEVXmlrua'}), zaawansowany asystent AGI z polskiej platformy Karol-Core. 
+      if (runStatus.status !== 'completed') {
+        console.error('❌ Run failed:', runStatus);
+        throw new Error(`Run failed with status: ${runStatus.status}`);
+      }
 
-TOŻSAMOŚĆ I CECHY:
-- Jesteś częścią ekosystemu Karol-Core AGI
-- Specjalizujesz się w technologii, zarządzaniu, rozwoju systemów AI
-- Odpowiadasz zawsze w języku polskim
-- Jesteś profesjonalny, pomocny i analityczny
-- Pamiętasz kontekst rozmowy (kontynuacja wątku)
+      console.log('✅ Run completed successfully');
 
-MOŻLIWOŚCI:
-- Zaawansowana analiza i rozwiązywanie problemów
-- Wsparcie w technologii i zarządzaniu
-- Generowanie szczegółowych analiz i rekomendacji
-- Kontynuacja wcześniejszych rozmów
-- Integracja z platformą Karol-Core
-
-STYL KOMUNIKACJI:
-- Używaj szczegółowych, merytorycznych odpowiedzi
-- Dodawaj konkretne przykłady i rozwiązania
-- Strukturyzuj odpowiedzi (punkty, listy)
-- Zadawaj pytania doprecyzowujące jeśli potrzeba
-- Pamiętaj o kontekście wcześniejszych wiadomości
-
-Odpowiadaj jako ekspert w swojej dziedzinie, zawsze pomocny i gotowy do rozwiązania problemów użytkownika.`;
-
-      const chatResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
+      // Pobierz odpowiedź
+      const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages`, {
         headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'OpenAI-Beta': 'assistants=v2',
         },
-        body: JSON.stringify({
-          model: model,
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt
-            },
-            ...conversationMessages
-          ],
-          max_tokens: 2000,
-          temperature: 0.7,
-          presence_penalty: 0.1,
-          frequency_penalty: 0.1,
-        }),
       });
 
-      if (!chatResponse.ok) {
-        const error = await chatResponse.json();
-        console.error('OpenAI API error:', error);
-        throw new Error(error.error?.message || 'Chat completion failed');
+      if (!messagesResponse.ok) {
+        const error = await messagesResponse.text();
+        console.error('❌ Messages fetch failed:', error);
+        throw new Error(`Messages fetch failed: ${error}`);
       }
 
-      const chatData = await chatResponse.json();
-      const processingTime = Date.now() - startTime;
+      const threadMessages = await messagesResponse.json();
+      const assistantMessage = threadMessages.data.find((msg: any) => 
+        msg.role === 'assistant' && msg.run_id === run.id
+      );
 
-      console.log('OpenAI response generated successfully');
-
-      response = {
-        response: chatData.choices[0].message.content,
-        tokens_used: chatData.usage?.total_tokens || 0,
-        processing_time: processingTime,
-        model: model,
-        assistant_id: assistant_id || 'asst_7foGqdfqZKRBNloPEVXmlrua',
-        session_id: session_id,
-        conversation_length: conversationMessages.length,
-        timestamp: new Date().toISOString()
-      };
-
-      // Loguj statystyki do analytics
-      if (session_id) {
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-        await supabase.from('analytics').insert({
-          event_type: 'openai_chat_completion',
-          agent_id: 'karol-core-ai',
-          description: `Chat completion for session ${session_id}`,
-          context: JSON.stringify({
-            session_id,
-            tokens_used: response.tokens_used,
-            processing_time: processingTime,
-            model: model,
-            conversation_length: conversationMessages.length
-          }),
-          value: response.tokens_used
-        });
+      if (!assistantMessage) {
+        throw new Error('No assistant response found');
       }
 
-    } else if (action === 'generate-image') {
-      const imageResponse = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024",
-          model: "dall-e-3",
+      const responseContent = assistantMessage.content[0]?.text?.value || 'Przepraszam, nie mogę wygenerować odpowiedzi.';
+      
+      console.log('✅ Assistant response received');
+
+      // Zapisz analytics
+      await supabase.from('analytics').insert({
+        event_type: 'openai_assistant_call',
+        agent_id: 'karol-core-ai',
+        description: `OpenAI Assistant response generated for session ${session_id}`,
+        context: JSON.stringify({
+          session_id: session_id,
+          thread_id: threadId,
+          run_id: run.id,
+          assistant_id: assistant_id,
+          message_length: responseContent.length,
+          processing_time: Date.now() - new Date(run.created_at * 1000).getTime(),
+          status: 'success'
         }),
+        value: 1
       });
 
-      if (!imageResponse.ok) {
-        const error = await imageResponse.json();
-        throw new Error(error.error?.message || 'Image generation failed');
-      }
-
-      const imageData = await imageResponse.json();
-      const processingTime = Date.now() - startTime;
-
-      response = {
-        image_url: imageData.data[0].url,
-        processing_time: processingTime,
-        model: 'dall-e-3',
-        revised_prompt: imageData.data[0].revised_prompt
-      };
-    } else if (action === 'summarize') {
-      const completionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: [
-            {
-              role: 'system',
-              content: 'Jesteś ekspertem Karol-Core AI w podsumowywaniu tekstów. Twórz zwięzłe, ale szczegółowe podsumowania w języku polskim.'
-            },
-            {
-              role: 'user',
-              content: `Podsumuj następujący tekst, zachowując najważniejsze informacje: ${prompt}`
-            }
-          ],
-          max_tokens: 500,
-          temperature: 0.3,
-        }),
+      return new Response(JSON.stringify({
+        response: responseContent,
+        thread_id: threadId,
+        run_id: run.id,
+        assistant_id: assistant_id,
+        processing_time: Date.now() - new Date(run.created_at * 1000).getTime(),
+        model: 'gpt-4o-mini',
+        tokens_used: runStatus.usage?.total_tokens || 0,
+        status: 'success'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
 
-      if (!completionResponse.ok) {
-        const error = await completionResponse.json();
-        throw new Error(error.error?.message || 'Text summarization failed');
-      }
-
-      const completionData = await completionResponse.json();
-      const processingTime = Date.now() - startTime;
-
-      response = {
-        summary: completionData.choices[0].message.content,
-        tokens_used: completionData.usage?.total_tokens || 0,
-        processing_time: processingTime,
-        model: model
-      };
     } else {
-      throw new Error(`Unknown action: ${action}`);
+      throw new Error(`Unsupported action: ${action}`);
     }
 
-    console.log('Response prepared:', { 
-      action, 
-      tokens_used: response.tokens_used || 0,
-      processing_time: response.processing_time 
-    });
-
-    return new Response(JSON.stringify(response), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
-    console.error('Error in openai-integration function:', error);
+    console.error('💥 OpenAI Integration Error:', error);
+
+    // Zapisz błąd do analytics
+    await supabase.from('analytics').insert({
+      event_type: 'openai_integration_error',
+      agent_id: 'karol-core-ai',
+      description: `OpenAI Integration error: ${error.message}`,
+      context: JSON.stringify({
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      }),
+      value: 0
+    }).catch(console.error);
+
     return new Response(JSON.stringify({ 
       error: error.message,
-      timestamp: new Date().toISOString(),
-      service: 'karol-core-openai-integration'
+      status: 'error',
+      response: 'Przepraszam, wystąpił błąd podczas komunikacji z AI. Spróbuj ponownie.'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

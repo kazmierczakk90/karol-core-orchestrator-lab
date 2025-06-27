@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,18 +14,17 @@ import {
   User,
   Trash2,
   Loader2,
-  BarChart3,
   RefreshCw,
-  Archive,
   AlertCircle,
-  CheckCircle,
   Clock,
   Zap,
   Wifi,
-  WifiOff
+  WifiOff,
+  Brain
 } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
 import { useChatMessages } from '@/hooks/useChatMessages';
+import KarolCoreFunctions from './KarolCoreFunctions';
 import type { ChatSession } from '@/types/chat';
 import { toast } from 'sonner';
 
@@ -42,12 +42,8 @@ const LiveChatInterface = () => {
     createSession,
     deleteSession,
     updateSession,
-    analyzeSession,
-    archiveSession,
     isCreating,
-    isDeleting,
-    isAnalyzing,
-    isArchiving
+    isDeleting
   } = useChatSessions();
 
   const {
@@ -97,14 +93,23 @@ const LiveChatInterface = () => {
         title: `Sesja z Karol-Core AI - ${new Date().toLocaleString('pl-PL')}`,
         metadata: {
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
           created_by: 'user',
           platform: 'karol-core',
           version: '2.0',
-          features: ['thread_continuation', 'platform_analysis', 'advanced_memory']
+          features: ['thread_continuation', 'vector_search', 'function_calling', 'advanced_memory'],
+          functions: [
+            'przekaz_dane_do_CEO',
+            'przeslij_do_asystenta', 
+            'pobierz_plik_z_magazynu',
+            'zapisz_dane_do_magazynu',
+            'lista_plikow_w_magazynie',
+            'zarzadzanie_dostepem'
+          ]
         }
       });
       setConnectionStatus('connected');
-      toast.success('Sesja została utworzona pomyślnie!');
+      toast.success('Sesja z Karol-Core AI została utworzona pomyślnie!');
     } catch (error) {
       console.error('💥 Failed to create session:', error);
       setConnectionStatus('disconnected');
@@ -122,7 +127,7 @@ const LiveChatInterface = () => {
       await sendMessage(newMessage);
       setNewMessage('');
       setConnectionStatus('connected');
-      toast.success('Wiadomość wysłana!');
+      toast.success('Wiadomość wysłana do Karol-Core AI!');
     } catch (error) {
       console.error('💥 Failed to send message:', error);
       setConnectionStatus('disconnected');
@@ -134,35 +139,6 @@ const LiveChatInterface = () => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
-    }
-  };
-
-  const handleDeleteSession = async (sessionId: string, sessionTitle: string) => {
-    if (window.confirm(`Czy na pewno chcesz usunąć sesję "${sessionTitle}"? Ta akcja jest nieodwracalna.`)) {
-      try {
-        await deleteSession(sessionId);
-        if (selectedSession === sessionId) {
-          setSelectedSession(null);
-        }
-      } catch (error) {
-        console.error('Failed to delete session:', error);
-      }
-    }
-  };
-
-  const handleArchiveSession = async (sessionId: string) => {
-    try {
-      await archiveSession(sessionId);
-    } catch (error) {
-      console.error('Failed to archive session:', error);
-    }
-  };
-
-  const handleAnalyzeSession = async (sessionId: string) => {
-    try {
-      await analyzeSession(sessionId);
-    } catch (error) {
-      console.error('Failed to analyze session:', error);
     }
   };
 
@@ -193,8 +169,8 @@ const LiveChatInterface = () => {
         <div className="p-4 border-b border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white flex items-center">
-              <MessageCircle className="h-5 w-5 mr-2 text-cyan-400" />
-              Live Chat
+              <Brain className="h-5 w-5 mr-2 text-cyan-400" />
+              Karol-Core AI
             </h2>
             <div className="flex items-center space-x-2">
               {getConnectionIcon()}
@@ -215,8 +191,9 @@ const LiveChatInterface = () => {
           
           <div className="space-y-2">
             <div className="text-xs text-slate-400">
-              <div>🤖 Asystent: Karol-Core AI</div>
+              <div>🤖 Assistant: Karol-Core AI</div>
               <div>🆔 ID: asst_7foGqdfqZKRBNloPEVXmlrua</div>
+              <div>📦 Vector Store: vs_6850534726fc8191b5ef7a56e8fc4a3c</div>
               <div className="flex items-center space-x-1 mt-1">
                 <span>Status:</span>
                 {getConnectionIcon()}
@@ -257,7 +234,7 @@ const LiveChatInterface = () => {
               </div>
             ) : sessions.length === 0 ? (
               <div className="text-center text-slate-400 py-8">
-                <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>Brak sesji czatu</p>
                 <p className="text-sm">Utwórz pierwszą sesję</p>
                 <Button
@@ -290,27 +267,25 @@ const LiveChatInterface = () => {
                       <Badge className={`${getStatusBadgeColor(session.status)} border`}>
                         {session.status}
                       </Badge>
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.confirm(`Czy na pewno chcesz usunąć sesję "${session.title}"?`)) {
-                              deleteSession(session.id);
-                            }
-                          }}
-                          disabled={isDeleting}
-                          className="h-6 w-6 p-0 hover:bg-red-600/20"
-                          title="Usuń sesję"
-                        >
-                          {isDeleting ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-red-400" />
-                          ) : (
-                            <Trash2 className="h-3 w-3 text-red-400" />
-                          )}
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Czy na pewno chcesz usunąć sesję "${session.title}"?`)) {
+                            deleteSession(session.id);
+                          }
+                        }}
+                        disabled={isDeleting}
+                        className="h-6 w-6 p-0 hover:bg-red-600/20"
+                        title="Usuń sesję"
+                      >
+                        {isDeleting ? (
+                          <Loader2 className="h-3 w-3 animate-spin text-red-400" />
+                        ) : (
+                          <Trash2 className="h-3 w-3 text-red-400" />
+                        )}
+                      </Button>
                     </div>
                     <p className="text-white text-sm font-medium truncate">
                       {session.title || 'Bez tytułu'}
@@ -329,7 +304,7 @@ const LiveChatInterface = () => {
                       {debugMode && (
                         <div className="text-xs opacity-75">
                           <div>ID: {session.id}</div>
-                          <div>Agent: {session.agent_id}</div>
+                          <div>Thread: {session.metadata?.openai_thread_id || 'Brak'}</div>
                           {session.metadata?.demo_mode && <div>🎭 Demo Mode</div>}
                         </div>
                       )}
@@ -350,11 +325,12 @@ const LiveChatInterface = () => {
             <div className="p-4 border-b border-slate-700 bg-slate-800/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-medium">
-                    {activeSession.title || 'Sesja czatu'}
+                  <h3 className="text-white font-medium flex items-center">
+                    <Brain className="h-4 w-4 mr-2 text-cyan-400" />
+                    {activeSession.title || 'Sesja z Karol-Core AI'}
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    🤖 Agent: Karol-Core AI • Status: {activeSession.status} • Kontynuacja wątku: ✓
+                    🤖 Karol-Core AI Assistant • Thread ID: {activeSession.metadata?.openai_thread_id || 'Nowy'} • Vector Store: Aktywny
                     {activeSession.metadata?.demo_mode && ' • 🎭 Demo Mode'}
                   </p>
                 </div>
@@ -370,6 +346,11 @@ const LiveChatInterface = () => {
                   </Button>
                 </div>
               </div>
+              
+              {/* Pokaż funkcje Karol-Core */}
+              <div className="mt-3">
+                <KarolCoreFunctions metadata={activeSession.metadata} />
+              </div>
             </div>
 
             {/* Obszar wiadomości */}
@@ -382,10 +363,10 @@ const LiveChatInterface = () => {
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="text-center text-slate-400 py-8">
-                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>Brak wiadomości</p>
                     <p className="text-sm">Rozpocznij konwersację z Karol-Core AI</p>
-                    <p className="text-xs mt-2 opacity-75">Sesja będzie kontynuowana automatycznie</p>
+                    <p className="text-xs mt-2 opacity-75">Wszystkie funkcje AI są dostępne w tej sesji</p>
                   </div>
                 ) : (
                   messages.map((message) => (
@@ -406,7 +387,7 @@ const LiveChatInterface = () => {
                           {message.role === 'user' ? (
                             <User className="h-4 w-4" />
                           ) : (
-                            <Bot className="h-4 w-4" />
+                            <Brain className="h-4 w-4" />
                           )}
                           <span className="text-xs opacity-75">
                             {message.role === 'user' ? 'Ty' : 'Karol-Core AI'}
@@ -415,9 +396,14 @@ const LiveChatInterface = () => {
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                         <div className="text-xs opacity-50 mt-1 flex items-center justify-between">
                           <span>{new Date(message.created_at).toLocaleTimeString('pl-PL')}</span>
-                          {message.metadata?.tokens_used && (
-                            <span>Tokeny: {message.metadata.tokens_used}</span>
-                          )}
+                          <div className="flex items-center space-x-2">
+                            {message.metadata?.tokens_used && (
+                              <span>🪙 {message.metadata.tokens_used}</span>
+                            )}
+                            {message.metadata?.thread_id && (
+                              <span>🧵 Thread</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -427,12 +413,12 @@ const LiveChatInterface = () => {
                   <div className="flex justify-start">
                     <div className="bg-slate-700 text-white rounded-lg p-3">
                       <div className="flex items-center space-x-2">
-                        <Bot className="h-4 w-4" />
+                        <Brain className="h-4 w-4" />
                         <span className="text-xs opacity-75">Karol-Core AI</span>
                       </div>
                       <div className="flex items-center space-x-2 mt-1">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-sm">Generuję odpowiedź...</span>
+                        <span className="text-sm">Analizuję zapytanie...</span>
                       </div>
                     </div>
                   </div>
@@ -477,11 +463,11 @@ const LiveChatInterface = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center text-slate-400">
-              <MessageCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <Brain className="h-16 w-16 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-2">Wybierz lub utwórz sesję czatu</h3>
               <p className="mb-4">Rozpocznij konwersację z Karol-Core AI</p>
               <p className="text-sm mb-4 opacity-75">
-                Funkcje: Kontynuacja wątków • Analiza platform • Zaawansowana pamięć
+                Funkcje: CEO Integration • Assistant Delegation • Vector Store • Access Management
               </p>
               <Button
                 onClick={handleCreateSession}

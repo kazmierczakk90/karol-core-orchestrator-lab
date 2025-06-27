@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type { 
   ChatSession, 
@@ -9,7 +10,7 @@ import type {
 class ChatService {
   private getDemoUser() {
     return {
-      id: '00000000-0000-0000-0000-000000000001', // Prawidłowy UUID dla demo
+      id: '00000000-0000-0000-0000-000000000001', // Poprawny UUID dla demo
       email: 'demo@karol-core.dev'
     };
   }
@@ -19,13 +20,13 @@ class ChatService {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        console.log('No authenticated user, using demo mode');
+        console.log('🎭 No authenticated user, using demo mode');
         return this.getDemoUser();
       }
       
       return user;
     } catch (error) {
-      console.error('Error getting user, falling back to demo:', error);
+      console.error('❌ Error getting user, falling back to demo:', error);
       return this.getDemoUser();
     }
   }
@@ -49,10 +50,19 @@ class ChatService {
         metadata: {
           ...data.metadata,
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
           created_by: user.email || 'demo@karol-core.dev',
           platform: 'karol-core',
           version: '2.0',
-          demo_mode: user.id === '00000000-0000-0000-0000-000000000001'
+          demo_mode: user.id === '00000000-0000-0000-0000-000000000001',
+          functions: [
+            'przekaz_dane_do_CEO',
+            'przeslij_do_asystenta', 
+            'pobierz_plik_z_magazynu',
+            'zapisz_dane_do_magazynu',
+            'lista_plikow_w_magazynie',
+            'zarzadzanie_dostepem'
+          ]
         },
         status: 'active'
       };
@@ -63,7 +73,7 @@ class ChatService {
       if (user.id === '00000000-0000-0000-0000-000000000001') {
         console.log('🎭 Using demo session creation function');
         
-        const { data: demoSession, error } = await supabase.rpc('create_demo_session', {
+        const { data: demoSessionId, error } = await supabase.rpc('create_demo_session', {
           p_agent_id: sessionData.agent_id,
           p_title: sessionData.title,
           p_metadata: sessionData.metadata
@@ -74,13 +84,13 @@ class ChatService {
           return null;
         }
 
-        console.log('✅ Demo session created:', demoSession);
+        console.log('✅ Demo session created:', demoSessionId);
         
         // Pobierz pełne dane sesji
         const { data: fullSession, error: fetchError } = await supabase
           .from('chat_sessions')
           .select('*')
-          .eq('id', demoSession)
+          .eq('id', demoSessionId)
           .single();
 
         if (fetchError) {
@@ -291,15 +301,15 @@ class ChatService {
         throw new Error('Failed to save user message');
       }
 
-      console.log('💾 User message saved, calling OpenAI...');
+      console.log('💾 User message saved, calling OpenAI Assistant...');
 
-      // Wywołaj Edge Function
+      // Wywołaj Edge Function z prawidłowymi parametrami
       const { data, error } = await supabase.functions.invoke('openai-integration', {
         body: {
           action: 'chat',
           session_id: sessionId,
-          model: 'gpt-4o-mini',
-          assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua'
+          assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c'
         }
       });
 
@@ -308,7 +318,7 @@ class ChatService {
         throw new Error(`AI request failed: ${error.message}`);
       }
 
-      console.log('🎯 OpenAI response received:', data);
+      console.log('🎯 OpenAI Assistant response received:', data);
 
       // Zapisz odpowiedź AI
       const aiMessage = await this.createMessage({
@@ -319,8 +329,19 @@ class ChatService {
           tokens_used: data.tokens_used || 0,
           processing_time: data.processing_time || 0,
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+          thread_id: data.thread_id,
+          run_id: data.run_id,
+          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
           model: data.model || 'gpt-4o-mini',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          functions_available: [
+            'przekaz_dane_do_CEO',
+            'przeslij_do_asystenta', 
+            'pobierz_plik_z_magazynu',
+            'zapisz_dane_do_magazynu',
+            'lista_plikow_w_magazynie',
+            'zarzadzanie_dostepem'
+          ]
         }
       });
 
@@ -330,9 +351,9 @@ class ChatService {
         updated_at: new Date().toISOString()
       });
 
-      await this.logSessionAnalytics(sessionId, 'message_exchange');
+      await this.logSessionAnalytics(sessionId, 'ai_assistant_message_exchange');
 
-      console.log('✅ AI message saved successfully');
+      console.log('✅ AI Assistant message saved successfully');
       return aiMessage;
     } catch (error) {
       console.error('💥 Error sending message to AI:', error);
@@ -341,11 +362,12 @@ class ChatService {
       const errorMessage = await this.createMessage({
         session_id: sessionId,
         role: 'assistant',
-        content: `Przepraszam, wystąpił błąd: ${error instanceof Error ? error.message : 'Nieznany błąd'}`,
+        content: `Przepraszam, wystąpił błąd: ${error instanceof Error ? error.message : 'Nieznany błąd'}. Spróbuj ponownie.`,
         metadata: {
           error: true,
           error_message: error instanceof Error ? error.message : 'Unknown error',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua'
         }
       });
 
