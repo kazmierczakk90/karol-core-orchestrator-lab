@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { CoreCommand, CommandExecutionResult, CommandContext } from '@/types/commands';
 import { ParsedCommand } from './CommandParser';
@@ -324,16 +323,20 @@ class CommandExecutorService {
 
   private async logCommandExecution(parsedCommand: ParsedCommand, context: CommandContext): Promise<void> {
     try {
-      await supabase.from('logs').insert({
+      const { error } = await supabase.from('logs').insert({
         log_type: 'command_execution',
         agent_id: 'command-system',
         message: `Executing command: ${parsedCommand.command.name}`,
         details: {
           command: parsedCommand.command.name,
           args: parsedCommand.args,
-          context
+          context: JSON.parse(JSON.stringify(context)) // Ensure proper JSON serialization
         }
       });
+
+      if (error) {
+        console.error('Failed to log command execution:', error);
+      }
     } catch (error) {
       console.error('Failed to log command execution:', error);
     }
@@ -345,7 +348,7 @@ class CommandExecutorService {
     context: CommandContext
   ): Promise<void> {
     try {
-      await supabase.from('analytics').insert({
+      const { error } = await supabase.from('analytics').insert({
         event_type: 'command_executed',
         agent_id: 'command-system',
         description: `Command execution result: ${parsedCommand.command.name}`,
@@ -353,10 +356,14 @@ class CommandExecutorService {
           command: parsedCommand.command.name,
           success: result.success,
           message: result.message,
-          executionContext: context
+          executionContext: JSON.parse(JSON.stringify(context)) // Ensure proper JSON serialization
         }),
         value: result.success ? 1 : 0
       });
+
+      if (error) {
+        console.error('Failed to log command result:', error);
+      }
     } catch (error) {
       console.error('Failed to log command result:', error);
     }
