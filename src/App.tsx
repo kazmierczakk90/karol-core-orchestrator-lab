@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,29 +21,36 @@ const AppContent = () => {
   useAutoImprovement();
 
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/chat-test" element={<ChatTest />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 };
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-100">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/chat-test" element={<ChatTest />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <GlobalLoadingProvider>
+          <LanguageProvider>
+            <SimplifiedAuthProvider>
+              <ErrorBoundary>
+                <div className="min-h-screen bg-gray-100">
+                  <AppContent />
+                  <Toaster />
+                  <Sonner />
+                </div>
+              </ErrorBoundary>
+            </SimplifiedAuthProvider>
+          </LanguageProvider>
+        </GlobalLoadingProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 

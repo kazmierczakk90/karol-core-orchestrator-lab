@@ -68,7 +68,7 @@ export const CommandPalette = () => {
   }, [searchQuery]);
 
   const handleCommandExecute = (command: CoreCommand) => {
-    executeCommand(command.name, { source: 'command_palette' });
+    executeCommand(command.name);
     setIsOpen(false);
     setSearchQuery('');
     setSelectedIndex(0);
