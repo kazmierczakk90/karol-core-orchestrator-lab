@@ -13,6 +13,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ChatTest from '@/pages/ChatTest';
+import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
 
 const queryClient = new QueryClient();
 

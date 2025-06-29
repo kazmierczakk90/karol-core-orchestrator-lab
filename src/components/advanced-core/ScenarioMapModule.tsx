@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Tree, Map, Tag, Plus, Play, Settings } from 'lucide-react';
+import { TreePine, Map, Tag, Plus, Play, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ScenarioNode {
@@ -54,7 +54,7 @@ const ScenarioMapModule = () => {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Tree className="h-4 w-4 text-cyan-400" />
+              <TreePine className="h-4 w-4 text-cyan-400" />
               <span className="text-white font-medium">{node.name}</span>
               <Badge variant={node.status === 'active' ? 'default' : 'secondary'}>
                 {node.status}
