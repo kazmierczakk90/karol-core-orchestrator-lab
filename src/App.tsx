@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import ChatTest from '@/pages/ChatTest';
+import AGIPanelPage from './pages/AGIPanelPage';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +26,7 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/chat-test" element={<ChatTest />} />
+        <Route path="/agi-panel" element={<AGIPanelPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
