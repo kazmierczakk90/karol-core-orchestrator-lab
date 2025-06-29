@@ -174,6 +174,14 @@ const Index = () => {
           </Button>
           
           <Button
+            onClick={() => window.location.href = '/extended-agi-panel'}
+            className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-4 text-lg font-semibold"
+          >
+            <Brain className="h-5 w-5 mr-2" />
+            Extended AGI Panel
+          </Button>
+          
+          <Button
             variant="outline"
             className="border-slate-600 text-slate-300 hover:bg-slate-800 px-8 py-4 text-lg"
           >

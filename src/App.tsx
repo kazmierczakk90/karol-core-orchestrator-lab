@@ -26,6 +26,7 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/chat-test" element={<ChatTest />} />
+        <Route path="/extended-agi-panel" element={<ExtendedAGIPanelPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
