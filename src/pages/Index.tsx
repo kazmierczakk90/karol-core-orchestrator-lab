@@ -180,6 +180,14 @@ const Index = () => {
             <Brain className="h-5 w-5 mr-2" />
             Extended AGI Panel
           </Button>
+
+          <Button
+            onClick={() => window.location.href = '/karol-extensions'}
+            className="bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white px-8 py-4 text-lg font-semibold"
+          >
+            <Zap className="h-5 w-5 mr-2" />
+            Extensions Panel
+          </Button>
           
           <Button
             variant="outline"
