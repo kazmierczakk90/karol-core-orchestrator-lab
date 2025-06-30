@@ -6,6 +6,7 @@ import QuickActions from './QuickActions';
 import SystemOverview from './SystemOverview';
 import FUKOStats from './FUKOStats';
 import SafetyCore from './advanced-core/SafetyCore';
+import ComprehensiveOptimizationManager from './optimization/ComprehensiveOptimizationManager';
 
 const AGIDashboard = () => {
   return (
@@ -14,7 +15,7 @@ const AGIDashboard = () => {
         <CardHeader>
           <CardTitle className="text-cyan-400">Karol Core AGI Dashboard</CardTitle>
           <CardDescription className="text-slate-300">
-            Multi-agent system with FUKO-PZK decision framework + Level 20+ Safety Protocols
+            Multi-agent system with FUKO-PZK decision framework + Level 20+ Safety Protocols + 12-Area Optimization
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -23,9 +24,10 @@ const AGIDashboard = () => {
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-slate-800/50">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-800/50">
           <TabsTrigger value="overview">System Overview</TabsTrigger>
           <TabsTrigger value="safety">Safety Core</TabsTrigger>
+          <TabsTrigger value="optimization">Optimization</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
@@ -40,6 +42,10 @@ const AGIDashboard = () => {
         
         <TabsContent value="safety" className="space-y-6">
           <SafetyCore />
+        </TabsContent>
+        
+        <TabsContent value="optimization" className="space-y-6">
+          <ComprehensiveOptimizationManager />
         </TabsContent>
       </Tabs>
     </div>
