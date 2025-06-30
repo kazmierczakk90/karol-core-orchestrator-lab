@@ -9,17 +9,38 @@ import {
   Crown, 
   Activity,
   Settings,
-  TrendingUp
+  TrendingUp,
+  Shield
 } from 'lucide-react';
 
-// Import the new platform orchestrator
+// Import the new platform orchestrator and control panel
 import PlatformOrchestrator from '@/components/advanced-core/PlatformOrchestrator';
+import KarolCoreControlPanel from '@/components/advanced-core/KarolCoreControlPanel';
 
 const Index = () => {
-  const [platformMode, setPlatformMode] = useState<'welcome' | 'advanced'>('welcome');
+  const [platformMode, setPlatformMode] = useState<'welcome' | 'advanced' | 'control'>('welcome');
 
   if (platformMode === 'advanced') {
     return <PlatformOrchestrator />;
+  }
+
+  if (platformMode === 'control') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <Button 
+              onClick={() => setPlatformMode('welcome')} 
+              variant="outline" 
+              className="mb-4"
+            >
+              ← Back to Welcome
+            </Button>
+          </div>
+          <KarolCoreControlPanel />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -187,6 +208,14 @@ const Index = () => {
           >
             <Zap className="h-5 w-5 mr-2" />
             Extensions Panel
+          </Button>
+          
+          <Button
+            onClick={() => setPlatformMode('control')}
+            className="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-8 py-4 text-lg font-semibold"
+          >
+            <Shield className="h-5 w-5 mr-2" />
+            Control Panel
           </Button>
           
           <Button
