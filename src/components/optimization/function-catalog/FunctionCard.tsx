@@ -67,13 +67,13 @@ const FunctionCard = ({ func, onToggle, onDetails }: FunctionCardProps) => {
 
           {/* Badges */}
           <div className="flex flex-wrap gap-1">
-            <Badge className={getStatusColor(func.status)} variant="outline" size="sm">
+            <Badge className={getStatusColor(func.status)} variant="outline">
               {func.status}
             </Badge>
-            <Badge className={getLevelColor(func.level)} variant="outline" size="sm">
+            <Badge className={getLevelColor(func.level)} variant="outline">
               {func.level}
             </Badge>
-            <Badge variant="outline" className="text-slate-400" size="sm">
+            <Badge variant="outline" className="text-slate-400">
               v{func.version}
             </Badge>
           </div>
