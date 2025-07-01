@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,12 +8,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Zap, TrendingUp, Shield, Activity, Database, Code, 
-  Brain, Settings, AlertTriangle, CheckCircle, Clock, Play
+  Brain, Settings, AlertTriangle, CheckCircle, Clock, Play,
+  BookOpen, Network
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PerformanceAnalyticsDashboard from './PerformanceAnalyticsDashboard';
 import AutoOptimizationEngine from './AutoOptimizationEngine';
 import OptimizationSafetyLayer from './OptimizationSafetyLayer';
+import ComprehensiveFunctionCatalog from './function-catalog/ComprehensiveFunctionCatalog';
 
 interface OptimizationArea {
   id: string;
@@ -186,8 +187,8 @@ const ComprehensiveOptimizationManager = () => {
               <div className="text-slate-400 text-sm">System Health</div>
             </div>
             <div className="bg-slate-700/50 p-4 rounded-lg">
-              <div className="text-yellow-400 text-2xl font-bold">12</div>
-              <div className="text-slate-400 text-sm">Areas Analyzed</div>
+              <div className="text-yellow-400 text-2xl font-bold">195+</div>
+              <div className="text-slate-400 text-sm">Functions Active</div>
             </div>
           </div>
 
@@ -199,39 +200,16 @@ const ComprehensiveOptimizationManager = () => {
               </AlertDescription>
             </Alert>
           )}
-
-          <div className="flex space-x-4 mb-6">
-            <Button
-              onClick={() => runPhaseOptimization(1)}
-              disabled={isOptimizing}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Faza 1: Krytyczne
-            </Button>
-            <Button
-              onClick={() => runPhaseOptimization(2)}
-              disabled={isOptimizing}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Faza 2: Zaawansowane
-            </Button>
-            <Button
-              onClick={() => runPhaseOptimization(3)}
-              disabled={isOptimizing}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Play className="h-4 w-4 mr-2" />
-              Faza 3: Meta-Opt
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-slate-800/50">
+        <TabsList className="grid w-full grid-cols-5 bg-slate-800/50">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="catalog">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Function Catalog
+          </TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="auto">Auto-Opt</TabsTrigger>
           <TabsTrigger value="safety">Safety</TabsTrigger>
@@ -285,6 +263,10 @@ const ComprehensiveOptimizationManager = () => {
               ))}
             </div>
           </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="catalog">
+          <ComprehensiveFunctionCatalog />
         </TabsContent>
         
         <TabsContent value="analytics">
