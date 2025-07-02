@@ -209,6 +209,14 @@ const Index = () => {
             <Zap className="h-5 w-5 mr-2" />
             Extensions Panel
           </Button>
+
+          <Button
+            onClick={() => window.location.href = '/advanced-modules'}
+            className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-4 text-lg font-semibold"
+          >
+            <Shield className="h-5 w-5 mr-2" />
+            Advanced Modules
+          </Button>
           
           <Button
             onClick={() => setPlatformMode('control')}

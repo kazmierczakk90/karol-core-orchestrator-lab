@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,7 @@ import AuthPage from "./pages/AuthPage";
 import ChatTest from '@/pages/ChatTest';
 import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
 import KarolCoreExtensionsPage from './pages/KarolCoreExtensionsPage';
+import AdvancedModulesPage from './pages/AdvancedModulesPage';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,7 @@ const AppContent = () => {
         <Route path="/chat-test" element={<ChatTest />} />
         <Route path="/extended-agi-panel" element={<ExtendedAGIPanelPage />} />
         <Route path="/karol-extensions" element={<KarolCoreExtensionsPage />} />
+        <Route path="/advanced-modules" element={<AdvancedModulesPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
