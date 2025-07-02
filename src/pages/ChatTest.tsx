@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Activity, FileText, Settings } from 'lucide-react';
-import EnhancedChatInterface from '@/components/chat/EnhancedChatInterface';
+import { MessageSquare, Activity, FileText, Settings, Zap } from 'lucide-react';
+import OptimizedLiveChatInterface from '@/components/chat/OptimizedLiveChatInterface';
 import ChatSimulator from '@/components/chat/ChatSimulator';
 import ChatAuditReport from '@/components/chat/ChatAuditReport';
 import { CommandPalette } from '@/components/commands/CommandPalette';
@@ -22,17 +22,21 @@ const ChatTest = () => {
               <div>
                 <CardTitle className="text-2xl text-cyan-400 flex items-center space-x-2">
                   <MessageSquare className="h-6 w-6" />
-                  <span>Karol-Core Chat System</span>
+                  <span>Karol-Core Chat System v2.0</span>
                 </CardTitle>
                 <p className="text-slate-400 mt-1">
-                  Zaawansowany system czatu z integracją komend i agentem CEO
+                  Zoptymalizowany system czatu z 47 agentami AI
                 </p>
               </div>
               <div className="flex items-center space-x-2">
                 <Badge className="bg-green-500/20 text-green-400">
-                  System Ready
+                  <Zap className="h-3 w-3 mr-1" />
+                  Optymalizowany
                 </Badge>
                 <Badge className="bg-blue-500/20 text-blue-400">
+                  47 Agentów
+                </Badge>
+                <Badge className="bg-purple-500/20 text-purple-400">
                   v2.0
                 </Badge>
               </div>
@@ -50,7 +54,7 @@ const ChatTest = () => {
                   className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  Chat Interface
+                  Live Chat
                 </TabsTrigger>
                 <TabsTrigger 
                   value="simulator"
@@ -80,7 +84,7 @@ const ChatTest = () => {
           <TabsContent value="chat" className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               <div className="min-h-[600px]">
-                <EnhancedChatInterface />
+                <OptimizedLiveChatInterface />
               </div>
             </div>
           </TabsContent>
@@ -96,28 +100,50 @@ const ChatTest = () => {
           <TabsContent value="settings" className="space-y-6">
             <Card className="bg-slate-800/50 border-slate-700/50">
               <CardHeader>
-                <CardTitle className="text-cyan-400">Ustawienia Systemu</CardTitle>
+                <CardTitle className="text-cyan-400">Ustawienia Systemu Czatu</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-slate-300">
-                  <h3 className="text-lg font-semibold mb-2">Konfiguracja</h3>
+                  <h3 className="text-lg font-semibold mb-2">Konfiguracja v2.0</h3>
                   <ul className="space-y-2 text-sm">
-                    <li>• OpenAI API: Skonfigurowany</li>
-                    <li>• Supabase: Połączony</li>
-                    <li>• System komend: Aktywny</li>
-                    <li>• Demo sesje: Włączone</li>
+                    <li>• ✅ OpenAI API: Skonfigurowany (Chat Completions)</li>
+                    <li>• ✅ Supabase: Połączony i zoptymalizowany</li>
+                    <li>• ✅ 47 Agentów Karol-Core: Aktywnych</li>
+                    <li>• ✅ System wyboru agentów: Włączony</li>
+                    <li>• ✅ Demo sesje: Włączone z optymalizacją</li>
+                    <li>• ✅ Refetch interval: 2 minuty (zoptymalizowane)</li>
                   </ul>
                 </div>
                 
                 <div className="text-slate-300">
-                  <h3 className="text-lg font-semibold mb-2">Dostępne funkcje</h3>
+                  <h3 className="text-lg font-semibold mb-2">Zaimplementowane funkcje</h3>
                   <ul className="space-y-2 text-sm">
-                    <li>• 💬 Chat z agentem CEO</li>
-                    <li>• ⌨️ System komend (&pomoc)</li>
-                    <li>• 🔍 Wyszukiwanie komend</li>
-                    <li>• 🎯 Command Palette (⌘+K)</li>
-                    <li>• 📊 Symulacja i audyt</li>
+                    <li>• 🤖 47 specjalistycznych agentów AI</li>
+                    <li>• 👑 Wybór agenta przed konwersacją</li>
+                    <li>• 💬 Optymalizowane API calls</li>
+                    <li>• 🔍 Wyszukiwanie i filtrowanie agentów</li>
+                    <li>• 📊 Monitoring połączenia i statusu</li>
+                    <li>• ⚡ Ulepszona wydajność</li>
+                    <li>• 💾 Persistent storage sesji</li>
+                    <li>• 🎯 Command system (&commands)</li>
                   </ul>
+                </div>
+
+                <div className="text-slate-300">
+                  <h3 className="text-lg font-semibold mb-2">Dostępne kategorie agentów</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>• 👑 Zarządzanie</div>
+                    <div>• 🔮 Rdzeń Systemu</div>
+                    <div>• 📊 Analityka</div>
+                    <div>• 🎤 Komunikacja</div>
+                    <div>• 🔀 Routing</div>
+                    <div>• 🛡️ Bezpieczeństwo</div>
+                    <div>• ☁️ Chmura</div>
+                    <div>• 📱 Rozwój</div>
+                    <div>• 🎉 Rozrywka</div>
+                    <div>• 🗄️ Dane</div>
+                    <div>• 🌐 Integracje</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

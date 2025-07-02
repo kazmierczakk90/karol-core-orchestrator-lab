@@ -10,27 +10,44 @@ export const useChatSessions = () => {
   const { data: sessions = [], isLoading, error } = useQuery({
     queryKey: ['chat-sessions'],
     queryFn: () => chatService.getSessions(),
-    refetchInterval: 30000,
-    retry: 3,
-    retryDelay: 1000,
+    refetchInterval: 120000, // Zmniejszono z 30s na 2 minuty
+    retry: 2,
+    retryDelay: 2000,
+    staleTime: 60000, // Dodano stale time
   });
 
   const createSessionMutation = useMutation({
     mutationFn: async (data: CreateChatSessionRequest) => {
-      console.log('Creating session with data:', data);
-      const result = await chatService.createSession(data);
+      console.log('🎯 Creating session with data:', data);
+      const result = await chatService.createSession({
+        ...data,
+        metadata: {
+          ...data.metadata,
+          demo_mode: true,
+          created_at: new Date().toISOString(),
+          karol_core_version: '2.0',
+          session_type: 'live_chat',
+          features_enabled: [
+            'agent_selection',
+            'command_system',
+            'vector_search',
+            'conversation_memory',
+            'advanced_routing'
+          ]
+        }
+      });
       if (!result) {
         throw new Error('Nie udało się utworzyć sesji');
       }
       return result;
     },
     onSuccess: (newSession) => {
-      console.log('Session created successfully:', newSession);
+      console.log('✅ Session created successfully:', newSession);
       queryClient.invalidateQueries({ queryKey: ['chat-sessions'] });
       toast.success('Nowa sesja została utworzona pomyślnie');
     },
     onError: (error) => {
-      console.error('Error creating session:', error);
+      console.error('💥 Error creating session:', error);
       toast.error(`Błąd podczas tworzenia sesji: ${error.message}`);
     }
   });
@@ -71,45 +88,6 @@ export const useChatSessions = () => {
     }
   });
 
-  const analyzeSessionMutation = useMutation({
-    mutationFn: async (sessionId: string) => {
-      const analysis = await chatService.analyzeSessionForPlatform(sessionId);
-      if (!analysis) {
-        throw new Error('Nie udało się przeanalizować sesji');
-      }
-      return analysis;
-    },
-    onSuccess: (analysis) => {
-      console.log('Session analysis completed:', analysis);
-      toast.success('Analiza sesji została zakończona');
-    },
-    onError: (error) => {
-      console.error('Error analyzing session:', error);
-      toast.error(`Błąd podczas analizy: ${error.message}`);
-    }
-  });
-
-  const archiveSessionMutation = useMutation({
-    mutationFn: async (sessionId: string) => {
-      const success = await chatService.updateSession(sessionId, { 
-        status: 'archived',
-        updated_at: new Date().toISOString()
-      });
-      if (!success) {
-        throw new Error('Nie udało się zarchiwizować sesji');
-      }
-      return success;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chat-sessions'] });
-      toast.success('Sesja została zarchiwizowana');
-    },
-    onError: (error) => {
-      console.error('Error archiving session:', error);
-      toast.error(`Błąd archiwizacji: ${error.message}`);
-    }
-  });
-
   return {
     sessions,
     isLoading,
@@ -117,12 +95,8 @@ export const useChatSessions = () => {
     createSession: createSessionMutation.mutate,
     updateSession: updateSessionMutation.mutate,
     deleteSession: deleteSessionMutation.mutate,
-    analyzeSession: analyzeSessionMutation.mutate,
-    archiveSession: archiveSessionMutation.mutate,
     isCreating: createSessionMutation.isPending,
     isUpdating: updateSessionMutation.isPending,
     isDeleting: deleteSessionMutation.isPending,
-    isAnalyzing: analyzeSessionMutation.isPending,
-    isArchiving: archiveSessionMutation.isPending,
   };
 };

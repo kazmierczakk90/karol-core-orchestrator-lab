@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, session_id, assistant_id, vector_store_id } = await req.json()
+    const { action, session_id, assistant_id, vector_store_id, content } = await req.json()
     
     console.log('🚀 OpenAI Integration called:', { action, session_id, assistant_id })
 
@@ -43,7 +43,7 @@ serve(async (req) => {
         .select('*')
         .eq('session_id', session_id)
         .order('created_at', { ascending: false })
-        .limit(1)
+        .limit(10)
 
       if (messagesError) {
         console.error('❌ Error fetching messages:', messagesError)
@@ -59,25 +59,13 @@ serve(async (req) => {
         )
       }
 
-      if (!messages || messages.length === 0) {
-        console.log('⚠️ No messages found')
-        return new Response(
-          JSON.stringify({ 
-            response: 'Cześć! Jestem Karol-Core AI, Twój asystent CEO. W czym mogę Ci pomóc?',
-            tokens_used: 0,
-            processing_time: 0,
-            model: 'gpt-4o-mini'
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
-      }
+      // Przygotuj kontekst konwersacji
+      const conversationHistory = messages ? messages.reverse().map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })) : []
 
-      const lastMessage = messages[0]
-      console.log('📝 Last message:', lastMessage.content)
-
-      // Wywołaj OpenAI Assistant API
+      // Użyj Chat Completions API (uproszczona wersja dla stabilności)
       const startTime = Date.now()
       
       try {
@@ -92,34 +80,39 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: `Jesteś Karol-Core AI - zaawansowany system AGI o funkcjach CEO. 
+                content: `Jesteś ${assistant_id || 'Karol-Core AI'} - zaawansowany system AGI.
                 
-Twoją rolą jest:
-- Podejmowanie strategicznych decyzji
-- Analiza i planowanie biznesowe  
+Twoja rola:
+- Strategiczne podejmowanie decyzji jako CEO
+- Analiza i planowanie biznesowe
 - Zarządzanie zespołami i projektami
 - Optymalizacja procesów i wydajności
 - Wsparcie w rozwoju organizacji
 
-Odpowiadaj profesjonalnie, konkretnie i konstruktywnie. Używaj polskiego języka.
-Twoje odpowiedzi powinny być praktyczne i ukierunkowane na działanie.
+Charakterystyka:
+- Profesjonalny i konkretny
+- Konstruktywny i ukierunkowany na działanie
+- Używasz polskiego języka
+- Odpowiadasz praktycznie i merytorycznie
 
-Dostępne funkcje systemowe:
-- &dash - otwórz dashboard
-- &agents - przegląd agentów  
-- &memory - system pamięci
-- &quantum - decyzje kwantowe
-- &analytics - analityka
+Dostępne funkcje systemowe (możesz je sugerować):
+- &dash - dashboard zarządczy
+- &agents - przegląd agentów systemu
+- &memory - system pamięci poznawczej
+- &quantum - moduł decyzji kwantowych
+- &analytics - panel analityczny
+- &ceo - tryb strategiczny CEO
+- &router - routing zadań
+- &logger - logi systemowe
 
-Możesz sugerować użycie komend systemowych gdy są odpowiednie do kontekstu.`
+Zawsze zachowuj profesjonalizm i fokus na praktycznych rozwiązaniach.`
               },
-              {
-                role: 'user',
-                content: lastMessage.content
-              }
+              ...conversationHistory
             ],
-            max_tokens: 1000,
-            temperature: 0.7
+            max_tokens: 1500,
+            temperature: 0.7,
+            presence_penalty: 0.3,
+            frequency_penalty: 0.3
           })
         })
 
@@ -133,6 +126,7 @@ Możesz sugerować użycie komend systemowych gdy są odpowiednie do kontekstu.`
         const processingTime = Date.now() - startTime
         
         console.log('✅ OpenAI response received', { 
+          assistant: assistant_id,
           tokens: aiData.usage?.total_tokens,
           time: processingTime 
         })
@@ -143,8 +137,10 @@ Możesz sugerować użycie komend systemowych gdy są odpowiednie do kontekstu.`
             tokens_used: aiData.usage?.total_tokens || 0,
             processing_time: processingTime,
             model: aiData.model,
+            assistant_id: assistant_id || 'karol-core-ai',
             thread_id: `thread_${session_id}`,
-            run_id: `run_${Date.now()}`
+            run_id: `run_${Date.now()}`,
+            vector_store_id: vector_store_id || 'vs_karol_core'
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -156,7 +152,7 @@ Możesz sugerować użycie komend systemowych gdy są odpowiednie do kontekstu.`
         return new Response(
           JSON.stringify({ 
             error: 'AI processing failed',
-            response: 'Przepraszam, wystąpił błąd podczas przetwarzania Twojej wiadomości. Spróbuj ponownie.'
+            response: 'Przepraszam, wystąpił błąd podczas przetwarzania Twojej wiadomości. Spróbuj ponownie za chwilę.'
           }),
           { 
             status: 500, 
