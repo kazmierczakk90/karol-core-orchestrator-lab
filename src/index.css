@@ -43,16 +43,6 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217.2 32.6% 17.5%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* New gradient variables */
-    --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%);
-    --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-    --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-    --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    --highlight-primary: #0ea5e9;
-    --highlight-secondary: #10b981;
-    --highlight-accent: #f59e0b;
-    --highlight-warning: #ef4444;
   }
 
   .dark {
@@ -101,110 +91,231 @@
 
   body {
     @apply bg-background text-foreground;
-    color: rgb(248 250 252); /* Better default text color */
+    color: rgb(248 250 252);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Enhanced visibility for buttons and interactive elements */
+  /* Enhanced typography for better readability */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-slate-100 font-semibold leading-tight;
+    letter-spacing: -0.025em;
+  }
+
+  h1 { @apply text-4xl md:text-5xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+  h5 { @apply text-lg md:text-xl; }
+  h6 { @apply text-base md:text-lg; }
+
+  p {
+    @apply text-slate-200 leading-relaxed;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  /* Enhanced button visibility and interaction */
   button {
-    @apply text-slate-100;
+    @apply text-slate-100 font-medium transition-all duration-200;
+    cursor: pointer;
   }
 
-  /* Better contrast for form elements */
+  button:hover {
+    @apply transform scale-105;
+  }
+
+  button:active {
+    @apply transform scale-95;
+  }
+
+  /* Improved form elements */
   input, textarea, select {
-    @apply text-slate-100 placeholder:text-slate-400;
+    @apply text-slate-100 placeholder:text-slate-400 bg-slate-800/70 border-slate-600;
+    backdrop-filter: blur(8px);
   }
 
-  /* Ensure proper text visibility in cards */
+  input:focus, textarea:focus, select:focus {
+    @apply border-slate-500 ring-2 ring-slate-500/20 outline-none;
+  }
+
+  /* Enhanced card styling */
   .card {
-    @apply text-slate-100;
+    @apply text-slate-100 bg-slate-800/60 border-slate-700/50;
+    backdrop-filter: blur(10px);
   }
 
-  /* Better visibility for labels */
+  /* Better label visibility */
   label {
-    @apply text-slate-200;
+    @apply text-slate-200 font-medium;
   }
 
-  /* Enhanced visibility for navigation elements */
+  /* Enhanced navigation */
   nav, .navigation {
     @apply text-slate-100;
   }
 
-  /* Better contrast for headings */
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-slate-100;
-  }
-
-  /* Ensure proper visibility for table content */
+  /* Improved table styling */
   table, th, td {
     @apply text-slate-100;
   }
 
-  /* Better visibility for dropdown content */
-  .dropdown-content, [role="menu"], [role="listbox"] {
-    @apply bg-slate-800 text-slate-100 border-slate-600;
+  th {
+    @apply text-slate-200 font-semibold;
   }
 
-  /* Enhanced visibility for modal content */
+  /* Better dropdown visibility */
+  .dropdown-content, [role="menu"], [role="listbox"] {
+    @apply bg-slate-800/95 text-slate-100 border-slate-600 shadow-xl;
+    backdrop-filter: blur(16px);
+  }
+
+  /* Enhanced modal styling */
   .modal, .dialog {
-    @apply text-slate-100;
+    @apply text-slate-100 bg-slate-800/95;
+    backdrop-filter: blur(20px);
   }
 }
 
 @layer components {
+  /* Enhanced gradient utilities */
   .gradient-primary {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%);
   }
   
   .gradient-secondary {
-    background: var(--gradient-secondary);
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
   }
   
   .gradient-accent {
-    background: var(--gradient-accent);
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
   }
   
   .gradient-dark {
-    background: var(--gradient-dark);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   }
 
+  /* Enhanced text gradients */
   .text-gradient-primary {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 50%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .border-gradient-primary {
-    border: 2px solid transparent;
-    background: linear-gradient(white, white) padding-box, var(--gradient-primary) border-box;
+  .text-gradient-secondary {
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
+  /* Enhanced interaction effects */
   .hover-gradient-scale {
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hover-gradient-scale:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   }
 
-  /* Enhanced button visibility */
+  /* Improved component styling */
   .btn-enhanced {
-    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-500 hover:border-slate-400;
+    @apply bg-slate-700/80 hover:bg-slate-600/90 text-slate-100 border-slate-500/50 hover:border-slate-400/70 shadow-lg hover:shadow-xl;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
   }
 
-  /* Better visibility for form controls */
   .form-control-enhanced {
-    @apply bg-slate-800 border-slate-600 text-slate-100 placeholder:text-slate-400;
+    @apply bg-slate-800/70 border-slate-600/70 text-slate-100 placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20;
+    backdrop-filter: blur(8px);
   }
 
-  /* Enhanced card visibility */
   .card-enhanced {
-    @apply bg-slate-800/90 border-slate-700/50 text-slate-100;
+    @apply bg-slate-800/60 border-slate-700/50 text-slate-100 shadow-xl;
+    backdrop-filter: blur(12px);
   }
 
-  /* Better sidebar styling */
   .sidebar-enhanced {
-    @apply bg-slate-900/95 border-slate-700/50 text-slate-100;
+    @apply bg-slate-900/95 border-slate-700/50 text-slate-100 shadow-2xl;
+    backdrop-filter: blur(16px);
+  }
+
+  /* Enhanced pagination styling */
+  .pagination-enhanced {
+    @apply flex items-center justify-center space-x-2 mt-8;
+  }
+
+  .pagination-btn {
+    @apply px-4 py-2 bg-slate-800/70 border border-slate-600 text-slate-200 hover:bg-slate-700/80 hover:border-slate-500 transition-all duration-200 rounded-md;
+    backdrop-filter: blur(8px);
+  }
+
+  .pagination-btn.active {
+    @apply bg-slate-600 border-slate-500 text-white font-medium;
+  }
+
+  .pagination-btn:disabled {
+    @apply opacity-50 cursor-not-allowed hover:bg-slate-800/70;
+  }
+
+  /* Responsive text scaling */
+  .responsive-text-sm { @apply text-sm md:text-base; }
+  .responsive-text-base { @apply text-base md:text-lg; }
+  .responsive-text-lg { @apply text-lg md:text-xl; }
+  .responsive-text-xl { @apply text-xl md:text-2xl; }
+
+  /* Enhanced focus states */
+  .focus-enhanced:focus {
+    @apply outline-none ring-2 ring-offset-2 ring-slate-500 ring-offset-slate-900;
+  }
+
+  /* Better spacing utilities */
+  .section-spacing { @apply py-12 md:py-16 lg:py-20; }
+  .content-spacing { @apply space-y-6 md:space-y-8; }
+}
+
+/* Improved animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out;
+}
+
+/* Print styles */
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+  
+  .no-print {
+    display: none !important;
   }
 }
