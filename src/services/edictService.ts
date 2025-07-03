@@ -54,12 +54,16 @@ ENHANCED INSTRUCTION: Please process the original request following the analysis
     return promptTemplate.trim();
   }
 
-  async createPrompt(data: Partial<EDICTPrompt>): Promise<EDICTPrompt | null> {
+  async createPrompt(originalPrompt: string, analysis?: IntentionAnalysis, rules?: any, generatedPrompt?: string, mode: 'lite' | 'advanced' = 'lite', userId?: string): Promise<EDICTPrompt | null> {
     const { data: result, error } = await supabase
       .from('edict_prompts')
       .insert({
-        ...data,
-        user_id: data.user_id || null
+        original_prompt: originalPrompt,
+        analyzed_intention: analysis || null,
+        enriched_rules: rules || null,
+        generated_prompt: generatedPrompt || null,
+        orchestration_mode: mode,
+        user_id: userId || null
       })
       .select()
       .single();
@@ -98,13 +102,7 @@ ENHANCED INSTRUCTION: Please process the original request following the analysis
       const generatedPrompt = await this.generatePrompt(originalPrompt, analysis, rules);
       
       // Krok 4: Zapis do bazy
-      return await this.createPrompt({
-        original_prompt: originalPrompt,
-        analyzed_intention: analysis,
-        enriched_rules: rules,
-        generated_prompt: generatedPrompt,
-        orchestration_mode: mode
-      });
+      return await this.createPrompt(originalPrompt, analysis, rules, generatedPrompt, mode);
     } catch (error) {
       console.error('Error processing EDICT prompt:', error);
       return null;
