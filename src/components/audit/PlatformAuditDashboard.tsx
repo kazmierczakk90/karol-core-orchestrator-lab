@@ -187,23 +187,24 @@ const PlatformAuditDashboard = () => {
 
   const auditDatabase = async (issues: AuditIssue[]) => {
     try {
-      // Sprawdź tabele
-      const tables = [
+      // Sprawdź konkretne tabele bezpośrednio
+      const tablesToCheck = [
         'agents', 'chat_sessions', 'chat_messages', 'profiles',
         'edict_prompts', 'xdgpt_models', 'xds_research', 'analytics'
       ];
 
-      for (const table of tables) {
+      for (const tableName of tablesToCheck) {
         try {
-          const { data, error } = await supabase.from(table).select('count').limit(1);
+          // Use type assertion to handle the dynamic table name issue
+          const { data, error } = await (supabase as any).from(tableName).select('count').limit(1);
           if (error) {
             issues.push({
-              id: `db-${table}`,
+              id: `db-${tableName}`,
               category: 'high',
               type: 'error',
-              title: `Błąd tabeli ${table}`,
+              title: `Błąd tabeli ${tableName}`,
               description: `Nie można dostać się do tabeli: ${error.message}`,
-              location: `Database table: ${table}`,
+              location: `Database table: ${tableName}`,
               impact: 'Funkcjonalność może być ograniczona',
               recommendation: 'Sprawdź strukturę bazy danych i uprawnienia',
               status: 'pending',
@@ -211,7 +212,7 @@ const PlatformAuditDashboard = () => {
             });
           }
         } catch (err) {
-          console.error(`Error checking table ${table}:`, err);
+          console.error(`Error checking table ${tableName}:`, err);
         }
       }
 
@@ -472,13 +473,30 @@ const PlatformAuditDashboard = () => {
 
   const saveAuditResults = async (issues: AuditIssue[], metrics: SystemMetrics) => {
     try {
+      // Convert issues to JSON-compatible format
+      const issuesForDb = issues.map(issue => ({
+        id: issue.id,
+        category: issue.category,
+        type: issue.type,
+        title: issue.title,
+        description: issue.description,
+        location: issue.location,
+        impact: issue.impact,
+        recommendation: issue.recommendation,
+        status: issue.status,
+        estimatedTime: issue.estimatedTime,
+        agentRequired: issue.agentRequired || null
+      }));
+
+      const recommendationsForDb = issues.map(i => i.recommendation);
+
       await supabase.from('audit_logs').insert({
         audit_type: 'comprehensive_platform_audit',
         target_entity: 'karol_core_platform',
         target_id: 'platform_v2',
         consistency_score: metrics.performanceScore,
-        issues_found: issues,
-        recommendations: issues.map(i => i.recommendation),
+        issues_found: issuesForDb as any,
+        recommendations: recommendationsForDb as any,
         severity_level: issues.some(i => i.category === 'critical') ? 'error' : 
                       issues.some(i => i.category === 'high') ? 'warning' : 'info'
       });
