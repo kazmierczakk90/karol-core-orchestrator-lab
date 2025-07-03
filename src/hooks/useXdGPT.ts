@@ -65,9 +65,9 @@ export const useXdGPT = () => {
     }
   }, []);
 
-  const createMacro = useCallback(async (macro: Partial<XdGPTMacro>) => {
+  const createMacro = useCallback(async (macroData: { name: string; command_template: string; description?: string; parameters?: any[] }) => {
     try {
-      const result = await xdgptService.createMacro(macro);
+      const result = await xdgptService.createMacro(macroData);
       if (result) {
         setMacros(prev => [result, ...prev]);
         toast.success('Macro created successfully');

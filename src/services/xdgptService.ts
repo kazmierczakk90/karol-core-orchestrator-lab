@@ -65,10 +65,17 @@ class XdGPTService {
     };
   }
 
-  async createMacro(macro: Partial<XdGPTMacro>): Promise<XdGPTMacro | null> {
+  async createMacro(macroData: { name: string; command_template: string; description?: string; parameters?: any[]; user_id?: string }): Promise<XdGPTMacro | null> {
     const { data, error } = await supabase
       .from('xdgpt_macros')
-      .insert(macro)
+      .insert({
+        name: macroData.name,
+        command_template: macroData.command_template,
+        description: macroData.description || null,
+        parameters: macroData.parameters || [],
+        user_id: macroData.user_id || null,
+        is_active: true
+      })
       .select()
       .single();
 
@@ -116,27 +123,26 @@ class XdGPTService {
     return `Executing macro "${macro.name}": ${command}`;
   }
 
-  async uploadFile(file: File): Promise<XdGPTFile | null> {
+  async uploadFile(file: File, userId?: string): Promise<XdGPTFile | null> {
     try {
       // W rzeczywistości upload do Supabase Storage
       const filePath = `xdgpt-files/${Date.now()}-${file.name}`;
       
-      const fileRecord: Partial<XdGPTFile> = {
-        filename: file.name,
-        file_path: filePath,
-        file_size: file.size,
-        file_type: file.type,
-        version: 1,
-        is_encrypted: false,
-        metadata: {
-          originalName: file.name,
-          uploadedAt: new Date().toISOString()
-        }
-      };
-
       const { data, error } = await supabase
         .from('xdgpt_files')
-        .insert(fileRecord)
+        .insert({
+          filename: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          file_type: file.type,
+          version: 1,
+          is_encrypted: false,
+          metadata: {
+            originalName: file.name,
+            uploadedAt: new Date().toISOString()
+          },
+          user_id: userId || null
+        })
         .select()
         .single();
 
