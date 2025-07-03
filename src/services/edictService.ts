@@ -59,8 +59,8 @@ ENHANCED INSTRUCTION: Please process the original request following the analysis
       .from('edict_prompts')
       .insert({
         original_prompt: originalPrompt,
-        analyzed_intention: analysis || null,
-        enriched_rules: rules || null,
+        analyzed_intention: analysis ? JSON.parse(JSON.stringify(analysis)) : null,
+        enriched_rules: rules ? JSON.parse(JSON.stringify(rules)) : null,
         generated_prompt: generatedPrompt || null,
         orchestration_mode: mode,
         user_id: userId || null
