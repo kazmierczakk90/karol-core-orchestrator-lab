@@ -323,6 +323,42 @@ export type Database = {
         }
         Relationships: []
       }
+      edict_prompts: {
+        Row: {
+          analyzed_intention: Json | null
+          created_at: string
+          enriched_rules: Json | null
+          generated_prompt: string | null
+          id: string
+          orchestration_mode: string | null
+          original_prompt: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          analyzed_intention?: Json | null
+          created_at?: string
+          enriched_rules?: Json | null
+          generated_prompt?: string | null
+          id?: string
+          orchestration_mode?: string | null
+          original_prompt: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          analyzed_intention?: Json | null
+          created_at?: string
+          enriched_rules?: Json | null
+          generated_prompt?: string | null
+          id?: string
+          orchestration_mode?: string | null
+          original_prompt?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string | null
@@ -545,6 +581,36 @@ export type Database = {
           id?: string
           impact?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      karol_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1046,6 +1112,197 @@ export type Database = {
           status?: string
           type?: string
           uptime?: number | null
+        }
+        Relationships: []
+      }
+      xdgpt_files: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          filename: string
+          id: string
+          is_encrypted: boolean | null
+          metadata: Json | null
+          updated_at: string
+          user_id: string | null
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          filename: string
+          id?: string
+          is_encrypted?: boolean | null
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          filename?: string
+          id?: string
+          is_encrypted?: boolean | null
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string | null
+          version?: number | null
+        }
+        Relationships: []
+      }
+      xdgpt_macros: {
+        Row: {
+          command_template: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          parameters: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          command_template: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parameters?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          command_template?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parameters?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      xdgpt_models: {
+        Row: {
+          api_endpoint: string | null
+          configuration: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          provider: string
+        }
+        Insert: {
+          api_endpoint?: string | null
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          provider: string
+        }
+        Update: {
+          api_endpoint?: string | null
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          provider?: string
+        }
+        Relationships: []
+      }
+      xds_content: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          extraction_metadata: Json | null
+          id: string
+          processed_content: string | null
+          raw_content: string | null
+          research_id: string | null
+          segments: Json | null
+          source_url: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          extraction_metadata?: Json | null
+          id?: string
+          processed_content?: string | null
+          raw_content?: string | null
+          research_id?: string | null
+          segments?: Json | null
+          source_url?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          extraction_metadata?: Json | null
+          id?: string
+          processed_content?: string | null
+          raw_content?: string | null
+          research_id?: string | null
+          segments?: Json | null
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xds_content_research_id_fkey"
+            columns: ["research_id"]
+            isOneToOne: false
+            referencedRelation: "xds_research"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xds_research: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          generated_queries: Json | null
+          id: string
+          intention_analysis: Json | null
+          pipeline_stage: number | null
+          query: string
+          research_results: Json | null
+          status: string | null
+          synthesis_result: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          generated_queries?: Json | null
+          id?: string
+          intention_analysis?: Json | null
+          pipeline_stage?: number | null
+          query: string
+          research_results?: Json | null
+          status?: string | null
+          synthesis_result?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          generated_queries?: Json | null
+          id?: string
+          intention_analysis?: Json | null
+          pipeline_stage?: number | null
+          query?: string
+          research_results?: Json | null
+          status?: string | null
+          synthesis_result?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
