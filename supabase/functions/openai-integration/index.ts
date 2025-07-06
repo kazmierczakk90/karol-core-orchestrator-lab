@@ -65,7 +65,56 @@ serve(async (req) => {
   console.log(`🚀 [${requestId}] OpenAI Integration called`)
 
   try {
-    const { action, session_id, assistant_id, vector_store_id, content } = await req.json()
+    // SECURITY: Validate request size and rate limiting
+    const contentLength = req.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > 10000) {
+      console.error(`❌ [${requestId}] Request too large: ${contentLength} bytes`)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Request too large',
+          response: 'Żądanie jest zbyt duże. Maksymalny rozmiar to 10KB.',
+          request_id: requestId
+        }),
+        { 
+          status: 413, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const requestBody = await req.json()
+    const { action, session_id, assistant_id, vector_store_id, content } = requestBody
+
+    // SECURITY: Input validation
+    if (!action || typeof action !== 'string') {
+      console.error(`❌ [${requestId}] Missing or invalid action`)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid action',
+          response: 'Nieprawidłowa akcja.',
+          request_id: requestId
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    if (content && content.length > 5000) {
+      console.error(`❌ [${requestId}] Content too long: ${content.length} characters`)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Content too long',
+          response: 'Treść wiadomości jest zbyt długa. Maksymalnie 5000 znaków.',
+          request_id: requestId
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
     
     console.log(`📋 [${requestId}] Request details:`, { 
       action, 

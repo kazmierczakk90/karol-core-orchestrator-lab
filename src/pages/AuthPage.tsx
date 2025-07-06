@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Brain, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginHelper from '@/components/LoginHelper';
+import SecurityNotice from '@/components/SecurityNotice';
+import SecureAdminPanel from '@/components/SecureAdminPanel';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -92,6 +94,8 @@ const AuthPage = () => {
 
         {/* Login Helper - shows default credentials */}
         <LoginHelper />
+        <SecurityNotice />
+        <SecureAdminPanel />
 
         <Card className="bg-slate-800/50 border-cyan-800/30 backdrop-blur-sm">
           <CardHeader>
