@@ -204,7 +204,11 @@ Dostępne funkcje systemowe (możesz je sugerować):
 
 Zawsze zachowuj profesjonalizm i fokus na praktycznych rozwiązaniach.`
             },
-            ...conversationHistory
+            ...conversationHistory,
+            {
+              role: 'user',
+              content: content
+            }
           ],
           max_tokens: 1500,
           temperature: 0.7,
