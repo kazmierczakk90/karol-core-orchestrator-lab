@@ -1361,6 +1361,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      test_rls_as_role: {
+        Args: { user_id: string; user_role?: string }
+        Returns: undefined
+      }
       update_user_profile: {
         Args: { user_id: string; profile_updates: Json }
         Returns: undefined
