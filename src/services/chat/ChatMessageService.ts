@@ -7,6 +7,8 @@ import { ChatAnalyticsService } from './ChatAnalyticsService';
 export class ChatMessageService {
   static async createMessage(data: CreateChatMessageRequest): Promise<ChatMessage | null> {
     try {
+      console.log('💬 Creating message:', { session_id: data.session_id, role: data.role });
+      
       const { data: message, error } = await supabase
         .from('chat_messages')
         .insert({
@@ -16,19 +18,22 @@ export class ChatMessageService {
           metadata: {
             ...data.metadata,
             assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            demo_mode: true // Mark as demo message for compatibility
           },
         })
         .select()
         .single();
 
       if (error) {
-        console.error('Error creating message:', error);
+        console.error('❌ Error creating message:', error);
         return null;
       }
+      
+      console.log('✅ Message created successfully:', message.id);
       return message as ChatMessage;
     } catch (error) {
-      console.error('Unexpected error in createMessage:', error);
+      console.error('💥 Unexpected error in createMessage:', error);
       return null;
     }
   }
@@ -55,6 +60,7 @@ export class ChatMessageService {
   static async sendMessageToAI(sessionId: string, content: string): Promise<ChatMessage | null> {
     try {
       console.log('🤖 Sending message to AI for session:', sessionId);
+      console.log('📝 Message content:', content);
       
       // Zapisz wiadomość użytkownika
       const userMessage = await this.createMessage({
@@ -63,7 +69,9 @@ export class ChatMessageService {
         content: content,
         metadata: {
           timestamp: new Date().toISOString(),
-          user_agent: navigator.userAgent
+          user_agent: navigator.userAgent,
+          platform: 'karol-core',
+          version: '2.0'
         }
       });
 
@@ -74,18 +82,21 @@ export class ChatMessageService {
       console.log('💾 User message saved, calling OpenAI Assistant...');
 
       // Wywołaj Edge Function z prawidłowymi parametrami
+      console.log('🚀 Calling OpenAI integration function...');
       const { data, error } = await supabase.functions.invoke('openai-integration', {
         body: {
           action: 'chat',
           session_id: sessionId,
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
-          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c'
+          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
+          content: content
         }
       });
 
       if (error) {
         console.error('❌ OpenAI function error:', error);
-        throw new Error(`AI request failed: ${error.message}`);
+        // Provide more detailed error information
+        throw new Error(`AI request failed: ${error.message || 'Connection to OpenAI failed'}`);
       }
 
       console.log('🎯 OpenAI Assistant response received:', data);

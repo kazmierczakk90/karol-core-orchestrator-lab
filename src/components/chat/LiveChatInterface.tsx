@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
 import { useChatMessages } from '@/hooks/useChatMessages';
-import KarolCoreFunctions from './KarolCoreFunctions';
+import LiveChatStatus from './LiveChatStatus';
 import type { ChatSession } from '@/types/chat';
 import { toast } from 'sonner';
 
@@ -88,15 +88,17 @@ const LiveChatInterface = () => {
     setConnectionStatus('connecting');
     
     try {
+      console.log('📡 Creating new chat session...');
       await createSession({
         agent_id: 'karol-core-ai',
-        title: `Sesja z Karol-Core AI - ${new Date().toLocaleString('pl-PL')}`,
+        title: `Live Chat z Karol-Core AI - ${new Date().toLocaleString('pl-PL')}`,
         metadata: {
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
           vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
-          created_by: 'user',
+          created_by: 'demo@karol-core.dev',
           platform: 'karol-core',
           version: '2.0',
+          demo_mode: true,
           features: ['thread_continuation', 'vector_search', 'function_calling', 'advanced_memory'],
           functions: [
             'przekaz_dane_do_CEO',
@@ -109,29 +111,31 @@ const LiveChatInterface = () => {
         }
       });
       setConnectionStatus('connected');
-      toast.success('Sesja z Karol-Core AI została utworzona pomyślnie!');
+      console.log('✅ Session created successfully');
+      toast.success('🚀 Sesja Live Chat została utworzona! Karol-Core AI jest gotowy do rozmowy.');
     } catch (error) {
       console.error('💥 Failed to create session:', error);
       setConnectionStatus('disconnected');
-      toast.error(`Nie udało się utworzyć sesji: ${error instanceof Error ? error.message : 'Nieznany błąd'}`);
+      toast.error(`❌ Nie udało się utworzyć sesji: ${error instanceof Error ? error.message : 'Nieznany błąd'}`);
     }
   };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedSession || isSending) return;
     
-    console.log('📤 Sending message:', newMessage);
+    console.log('📤 Sending message to Karol-Core AI:', newMessage);
+    console.log('🎯 Session ID:', selectedSession);
     setConnectionStatus('connecting');
     
     try {
       await sendMessage(newMessage);
       setNewMessage('');
       setConnectionStatus('connected');
-      toast.success('Wiadomość wysłana do Karol-Core AI!');
+      toast.success('✅ Wiadomość wysłana do Karol-Core AI!');
     } catch (error) {
       console.error('💥 Failed to send message:', error);
       setConnectionStatus('disconnected');
-      toast.error(`Błąd wysyłania: ${error instanceof Error ? error.message : 'Nieznany błąd'}`);
+      toast.error(`❌ Błąd komunikacji z AI: ${error instanceof Error ? error.message : 'Nieznany błąd'}`);
     }
   };
 
@@ -189,21 +193,18 @@ const LiveChatInterface = () => {
             </div>
           </div>
           
-          <div className="space-y-2">
-            <div className="text-xs text-slate-400">
-              <div>🤖 Assistant: Karol-Core AI</div>
-              <div>🆔 ID: asst_7foGqdfqZKRBNloPEVXmlrua</div>
-              <div>📦 Vector Store: vs_6850534726fc8191b5ef7a56e8fc4a3c</div>
-              <div className="flex items-center space-x-1 mt-1">
-                <span>Status:</span>
-                {getConnectionIcon()}
-                <span className="capitalize">{connectionStatus}</span>
+            <div className="space-y-2">
+              <LiveChatStatus 
+                status={connectionStatus}
+                sessionsCount={sessions.length}
+                demoMode={true}
+              />
+              
+              <div className="text-xs text-slate-400">
+                <div>🤖 Assistant: Karol-Core AI</div>
+                <div>🆔 ID: asst_7foGqdfqZKRBNloPEVXmlrua</div>
+                <div>📦 Vector Store: vs_6850534726fc8191b5ef7a56e8fc4a3c</div>
               </div>
-              <div className="flex items-center space-x-1 mt-1">
-                <span>Sesje:</span>
-                <Badge variant="outline">{sessions.length}</Badge>
-              </div>
-            </div>
             
             {sessionsError && (
               <Alert className="bg-red-500/10 border-red-500/30">
@@ -347,9 +348,19 @@ const LiveChatInterface = () => {
                 </div>
               </div>
               
-              {/* Pokaż funkcje Karol-Core */}
+              {/* Display available Karol-Core functions */}
               <div className="mt-3">
-                <KarolCoreFunctions metadata={activeSession.metadata} />
+                <div className="text-xs text-slate-400 bg-slate-800/30 rounded p-2">
+                  <div className="font-medium mb-1">🚀 Karol-Core Funkcje:</div>
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    <div>📊 CEO Integration</div>
+                    <div>🤖 Assistant Delegation</div>
+                    <div>📦 Vector Store</div>
+                    <div>🔒 Access Management</div>
+                    <div>📁 File Storage</div>
+                    <div>🔄 Data Transfer</div>
+                  </div>
+                </div>
               </div>
             </div>
 
