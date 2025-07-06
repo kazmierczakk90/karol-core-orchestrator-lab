@@ -5,17 +5,11 @@ import type { Database } from './types';
 
 const SUPABASE_URL = "https://xhhgaysawtaeimxeodfd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoaGdheXNhd3RhZWlteGVvZGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwODM0NjQsImV4cCI6MjA2NDY1OTQ2NH0.XvbFSKGO-3uYAEcFmHy6EzBHLGsOOerBO4mX9qwPc6Q";
-const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoaGdheXNhd3RhZWlteGVvZGZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0OTA4MzQ2NCwiZXhwIjoyMDY0NjU5NDY0fQ.x-LGIMiCHUrlVOPCKWnC2-Bxj_950PDcdqk3BnNEwn8";
+
+// SECURITY: Service role key removed from frontend client
+// Service role operations should only be performed in edge functions
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-// Service role client for admin operations
-export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});

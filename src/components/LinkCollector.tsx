@@ -201,12 +201,20 @@ const LinkCollector = ({ extractedLinks = [] }: LinkCollectorProps) => {
   };
 
   const showNotification = (title: string, message: string, type: 'success' | 'error' = 'success') => {
+    // SECURITY FIX: Use safe DOM manipulation instead of innerHTML to prevent XSS
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white p-4 rounded-lg shadow-lg z-50`;
-    notification.innerHTML = `
-      <div class="font-bold">${title}</div>
-      <div class="text-sm">${message}</div>
-    `;
+    
+    const titleElement = document.createElement('div');
+    titleElement.className = 'font-bold';
+    titleElement.textContent = title; // Safe text assignment
+    
+    const messageElement = document.createElement('div');
+    messageElement.className = 'text-sm';
+    messageElement.textContent = message; // Safe text assignment
+    
+    notification.appendChild(titleElement);
+    notification.appendChild(messageElement);
     document.body.appendChild(notification);
     
     setTimeout(() => {

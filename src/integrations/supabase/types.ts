@@ -99,6 +99,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_interactions: {
+        Row: {
+          created_at: string | null
+          id: number
+          metadata: Json | null
+          model: string
+          OPENAI_API_KEY: string | null
+          prompt: string
+          response: string | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          metadata?: Json | null
+          model: string
+          OPENAI_API_KEY?: string | null
+          prompt: string
+          response?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          metadata?: Json | null
+          model?: string
+          OPENAI_API_KEY?: string | null
+          prompt?: string
+          response?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analytics: {
         Row: {
           agent_id: string | null
@@ -1359,6 +1395,24 @@ export type Database = {
           role: string
           created_at: string
           updated_at: string
+        }[]
+      }
+      search_logs: {
+        Args: {
+          search_term: string
+          log_type_filter?: string
+          start_date?: string
+          end_date?: string
+          limit_rows?: number
+        }
+        Returns: {
+          id: string
+          log_type: string
+          agent_id: string
+          user_id: string
+          message: string
+          details: Json
+          created_at: string
         }[]
       }
       test_rls_as_role: {
