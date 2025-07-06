@@ -12,6 +12,7 @@ import SystemCapabilities from '@/components/homepage/SystemCapabilities';
 import ActionButtons from '@/components/homepage/ActionButtons';
 import FooterInfo from '@/components/homepage/FooterInfo';
 import { Button } from '@/components/ui/button';
+import TestOpenAI from '@/components/TestOpenAI';
 
 const Index = () => {
   const [platformMode, setPlatformMode] = useState<'welcome' | 'advanced' | 'control'>('welcome');
@@ -45,6 +46,7 @@ const Index = () => {
         <HeroSection />
         <FeatureCards />
         <SystemCapabilities />
+        <TestOpenAI />
         <ActionButtons 
           onAdvancedPlatform={() => setPlatformMode('advanced')}
           onControlPanel={() => setPlatformMode('control')}
