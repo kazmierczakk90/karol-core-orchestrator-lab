@@ -16,6 +16,7 @@ import ChatTest from '@/pages/ChatTest';
 import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
 import KarolCoreExtensionsPage from './pages/KarolCoreExtensionsPage';
 import AdvancedModulesPage from './pages/AdvancedModulesPage';
+import PricingPage from './pages/PricingPage';
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const AppContent = () => {
         <Route path="/extended-agi-panel" element={<ExtendedAGIPanelPage />} />
         <Route path="/karol-extensions" element={<KarolCoreExtensionsPage />} />
         <Route path="/advanced-modules" element={<AdvancedModulesPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
