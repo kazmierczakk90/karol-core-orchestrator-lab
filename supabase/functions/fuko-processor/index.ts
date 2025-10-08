@@ -31,7 +31,7 @@ serve(async (req) => {
 
     if (agentsError) throw agentsError;
 
-    const bestAgent = findBestAgent(agents as FukoAgent[], message);
+    const bestAgent = await findBestAgent(agents as FukoAgent[], message, supabaseAdmin);
 
     if (bestAgent) {
       console.log(`Agent "${bestAgent.name}" selected for message ${message.id}`);

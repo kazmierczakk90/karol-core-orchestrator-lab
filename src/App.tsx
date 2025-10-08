@@ -17,6 +17,7 @@ import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
 import KarolCoreExtensionsPage from './pages/KarolCoreExtensionsPage';
 import AdvancedModulesPage from './pages/AdvancedModulesPage';
 import PricingPage from './pages/PricingPage';
+import RoutingPage from './pages/RoutingPage';
 
 const queryClient = new QueryClient();
 
@@ -33,8 +34,9 @@ const AppContent = () => {
         <Route path="/extended-agi-panel" element={<ExtendedAGIPanelPage />} />
         <Route path="/karol-extensions" element={<KarolCoreExtensionsPage />} />
         <Route path="/advanced-modules" element={<AdvancedModulesPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="*" element={<NotFound />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/routing" element={<RoutingPage />} />
+          <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
