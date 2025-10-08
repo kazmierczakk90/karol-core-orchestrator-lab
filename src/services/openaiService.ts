@@ -3,7 +3,7 @@ import { ChatMessage, Agent, Project, MemoryEntry, ProjectFile } from '@/types/o
 
 class OpenAIService {
   private baseURL = 'https://api.openai.com/v1';
-  private apiKey = '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';
+  // API key is managed securely in Supabase Edge Functions
   private vectorStoreId = 'vs_67e0601510188191a419f8ee23dd0110';
   
   private agents: Agent[] = [
@@ -73,27 +73,20 @@ class OpenAIService {
       throw new Error(`Agent ${agentId} not found`);
     }
 
+    // Use Supabase Edge Function instead of direct API calls for security
+    console.warn('Direct OpenAI calls deprecated. Use Supabase Edge Function via useOpenAI hook instead.');
+    
     try {
-      const response = await fetch(`${this.baseURL}/chat/completions`, {
+      const response = await fetch(`https://xhhgaysawtaeimxeodfd.supabase.co/functions/v1/openai-integration`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4-1106-preview',
-          messages: [
-            {
-              role: 'system',
-              content: `${agent.instructions}\n\nYou are part of the Karol-Core AGI system. Respond as ${agent.name} with appropriate expertise and personality.`
-            },
-            {
-              role: 'user',
-              content: message
-            }
-          ],
-          max_tokens: 1500,
-          temperature: 0.7
+          action: 'chat',
+          session_id: `session_${Date.now()}`,
+          assistant_id: agentId,
+          content: message
         }),
       });
 
@@ -102,7 +95,7 @@ class OpenAIService {
       }
 
       const data = await response.json();
-      const responseText = data.choices[0].message.content;
+      const responseText = data.response;
 
       // Store in memory
       this.addToMemory(agentId, message, responseText);
@@ -130,17 +123,24 @@ class OpenAIService {
   }
 
   async uploadFile(file: File, projectId?: string): Promise<ProjectFile> {
+    console.warn('File upload not yet implemented via Edge Function');
+    throw new Error('File upload must be implemented via Supabase Edge Function for security');
+    
+    // TODO: Implement file upload via secure Edge Function
     const formData = new FormData();
     formData.append('file', file);
     formData.append('purpose', 'assistants');
 
     try {
-      const response = await fetch(`${this.baseURL}/files`, {
+      const response = await fetch(`https://xhhgaysawtaeimxeodfd.supabase.co/functions/v1/openai-integration`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify({
+          action: 'upload_file',
+          file_name: file.name
+        }),
       });
 
       if (!response.ok) {
@@ -169,20 +169,8 @@ class OpenAIService {
   }
 
   private async addFileToVectorStore(fileId: string): Promise<void> {
-    try {
-      await fetch(`${this.baseURL}/vector_stores/${this.vectorStoreId}/files`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          file_id: fileId
-        }),
-      });
-    } catch (error) {
-      console.error('Error adding file to vector store:', error);
-    }
+    console.warn('Vector store operations must be implemented via Edge Function');
+    // TODO: Implement via secure Edge Function
   }
 
   createProject(name: string, description: string, agentId: string): Project {
