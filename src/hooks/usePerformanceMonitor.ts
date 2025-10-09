@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface PerformanceMetrics {
@@ -31,13 +31,22 @@ export const usePerformanceMonitor = () => {
     cacheHitRate: 0
   });
 
-  const [cache] = useState<Map<string, CacheEntry>>(new Map());
+  const [cache] = useState<Map<string, CacheEntry>>(() => new Map());
+  const cacheCleanupIntervalRef = useRef<NodeJS.Timeout>();
 
-  // Memory usage monitoring
+  // Memory usage monitoring z alertami
   const measureMemoryUsage = useCallback(() => {
     if ('performance' in window && 'memory' in (performance as any)) {
       const memory = (performance as any).memory;
       const usedMB = memory.usedJSHeapSize / (1024 * 1024);
+      const limitMB = memory.jsHeapSizeLimit / (1024 * 1024);
+      const usagePercent = (usedMB / limitMB) * 100;
+      
+      // Alert przy wysokim zużyciu pamięci
+      if (usagePercent > 90) {
+        console.warn(`⚠️ High memory usage: ${usagePercent.toFixed(1)}% (${usedMB.toFixed(0)}MB / ${limitMB.toFixed(0)}MB)`);
+      }
+      
       return Math.round(usedMB);
     }
     return 0;
@@ -71,12 +80,13 @@ export const usePerformanceMonitor = () => {
     }
   }, []);
 
-  // Cache management
+  // Cache management z auto-cleanup
   const getCached = useCallback((key: string): any | null => {
     const entry = cache.get(key);
     if (!entry) return null;
     
-    if (Date.now() - entry.timestamp > entry.ttl) {
+    const now = Date.now();
+    if (now - entry.timestamp > entry.ttl) {
       cache.delete(key);
       return null;
     }
@@ -145,7 +155,7 @@ export const usePerformanceMonitor = () => {
     });
   }, [measureApiLatency, getCached, setCached]);
 
-  // Performance monitoring loop
+  // Performance monitoring loop z auto-cleanup cache
   useEffect(() => {
     const interval = setInterval(() => {
       const memUsage = measureMemoryUsage();
@@ -156,8 +166,30 @@ export const usePerformanceMonitor = () => {
       }));
     }, 5000);
 
-    return () => clearInterval(interval);
-  }, [measureMemoryUsage]);
+    // Auto-cleanup expired cache entries co 30 sekund
+    cacheCleanupIntervalRef.current = setInterval(() => {
+      const now = Date.now();
+      let cleaned = 0;
+      
+      cache.forEach((entry, key) => {
+        if (now - entry.timestamp > entry.ttl) {
+          cache.delete(key);
+          cleaned++;
+        }
+      });
+      
+      if (cleaned > 0) {
+        console.log(`🧹 Cache cleanup: removed ${cleaned} expired entries`);
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      if (cacheCleanupIntervalRef.current) {
+        clearInterval(cacheCleanupIntervalRef.current);
+      }
+    };
+  }, [measureMemoryUsage, cache]);
 
   // Render time measurement
   const measureRenderTime = useCallback((componentName: string) => {
