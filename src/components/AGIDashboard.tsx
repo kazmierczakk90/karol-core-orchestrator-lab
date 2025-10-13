@@ -8,6 +8,7 @@ import FUKOStats from './FUKOStats';
 import SafetyCore from './advanced-core/SafetyCore';
 import ComprehensiveOptimizationManager from './optimization/ComprehensiveOptimizationManager';
 import AdvancedAgentsManager from './agents/AdvancedAgentsManager';
+import AgentUptimeTable from './AgentUptimeTable';
 
 const AGIDashboard = () => {
   return (
@@ -25,11 +26,12 @@ const AGIDashboard = () => {
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-slate-800/50">
+        <TabsList className="grid w-full grid-cols-5 bg-slate-800/50">
           <TabsTrigger value="overview">System Overview</TabsTrigger>
           <TabsTrigger value="agents">Advanced Agents</TabsTrigger>
           <TabsTrigger value="safety">Safety Core</TabsTrigger>
           <TabsTrigger value="optimization">Optimization</TabsTrigger>
+          <TabsTrigger value="monitoring">P0 Monitoring</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
@@ -52,6 +54,10 @@ const AGIDashboard = () => {
         
         <TabsContent value="optimization" className="space-y-6">
           <ComprehensiveOptimizationManager />
+        </TabsContent>
+        
+        <TabsContent value="monitoring" className="space-y-6">
+          <AgentUptimeTable />
         </TabsContent>
       </Tabs>
     </div>

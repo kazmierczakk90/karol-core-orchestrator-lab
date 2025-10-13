@@ -9,6 +9,12 @@ export interface KarolConfig {
   updated_at: string;
 }
 
+export interface ModuleConfig {
+  agentId: string;
+  enabled: boolean;
+  [key: string]: any;
+}
+
 export interface PlatformConfig {
   platform_version: string;
   edict_config: {
@@ -30,5 +36,30 @@ export interface PlatformConfig {
     count: number;
     active: boolean;
     auto_select: boolean;
+  };
+  modules?: {
+    reflexEngine?: ModuleConfig & {
+      frequency_minutes: number;
+      last_run: string | null;
+    };
+    snapshotDaemon?: ModuleConfig & {
+      interval_minutes: number;
+      backup_path: string;
+      retain_last: number;
+    };
+    guardianCore?: ModuleConfig & {
+      drift_threshold: number;
+      auto_fix: boolean;
+      check_interval_minutes: number;
+    };
+    intentAttribution?: ModuleConfig;
+    impactTracker?: ModuleConfig;
+    narrativeBuilder?: ModuleConfig & {
+      daily_report_hour_utc: number;
+    };
+    agentUptimeMonitor?: ModuleConfig & {
+      heartbeat_interval_seconds: number;
+    };
+    priorityEngine?: ModuleConfig;
   };
 }
