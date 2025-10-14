@@ -11,6 +11,7 @@ import { useAutoImprovement } from "@/hooks/useAutoImprovement";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import KarolCore10Dashboard from "./components/KarolCore10Dashboard";
 import AuthPage from "./pages/AuthPage";
 import ChatTest from '@/pages/ChatTest';
 import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
@@ -36,6 +37,7 @@ const AppContent = () => {
         <Route path="/advanced-modules" element={<AdvancedModulesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/routing" element={<RoutingPage />} />
+          <Route path="/karol-core-10" element={<KarolCore10Dashboard />} />
           <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
