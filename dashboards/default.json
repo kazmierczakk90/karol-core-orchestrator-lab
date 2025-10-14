@@ -1,0 +1,118 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "karol-core-main",
+    "title": "Karol-Core AGI Dashboard",
+    "tags": ["karol-core", "agi", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "5s"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Agent Health Status",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "karol_agents_ok",
+          "legendFormat": "Healthy"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "System Latency",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "karol_latency_avg_ms",
+          "legendFormat": "Average Latency"
+        },
+        {
+          "expr": "karol_latency_max_ms",
+          "legendFormat": "Max Latency"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Audit Events",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(karol_audit_events_total[5m])",
+          "legendFormat": "Events/sec"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Agent Status Distribution",
+      "type": "piechart",
+      "targets": [
+        {
+          "expr": "karol_agents_ok",
+          "legendFormat": "OK"
+        },
+        {
+          "expr": "karol_agents_degraded",
+          "legendFormat": "Degraded"
+        },
+        {
+          "expr": "karol_agents_down",
+          "legendFormat": "Down"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 5,
+      "title": "Error Rate",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(karol_audit_errors_total[5m])",
+          "legendFormat": "Errors/sec"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 8
+      }
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+  }
+}
