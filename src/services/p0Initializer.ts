@@ -8,6 +8,9 @@ import { startIntentAttribution } from './intentAttributionService';
 import { coreSyncOrchestrator } from './core/coreSyncOrchestrator';
 import { metaUIController } from './ui/metaUIController';
 import { agiAutonomyEngine } from './autonomy/agiAutonomyEngine';
+import { startRecalibrationCycle } from './recalibrationEngine';
+import { initializeAllBridges } from './integrations/index';
+import { eventBus } from './eventBus';
 
 export function initializeP0Systems() {
   console.log('🛡️ [P0] Initializing protective systems...');
@@ -24,6 +27,19 @@ export function initializeP0Systems() {
     console.log('🛡️ [P0] All protective systems online');
   } catch (error) {
     console.error('❌ [P0] Initialization failed:', error);
+  }
+  
+  // P1-P2 initialization
+  console.log('📊 [P1-P2] Initializing Operational Intelligence & Self-Calibration...');
+  
+  try {
+    // Start Recalibration Cycle (P2)
+    startRecalibrationCycle(60); // Every 60 minutes
+    console.log('✅ [P2] Recalibration Engine started (60min cycle)');
+    
+    console.log('🛡️ [P1-P2] Operational & Self-Calibration layers active');
+  } catch (error) {
+    console.error('❌ [P1-P2] Initialization failed:', error);
   }
   
   // AGI 10.0 initialization
@@ -48,5 +64,31 @@ export function initializeP0Systems() {
     console.log('⚡ Dynamiczna reakcja agentów ✓');
   } catch (error) {
     console.error('❌ [AGI 10.0] Initialization failed:', error);
+  }
+  
+  // Initialize Event Bus and Integration Bridges
+  console.log('🌉 [EventBus] Initializing cross-layer communication...');
+  
+  try {
+    eventBus.setDebugMode(import.meta.env.DEV);
+    console.log('✅ [EventBus] Event bus initialized');
+    
+    // Initialize all integration bridges (P0↔P2, P3↔Core, etc.)
+    initializeAllBridges();
+    console.log('✅ [Bridges] All integration bridges active');
+    
+    // Emit system ready event
+    eventBus.emitSync('system_ready', {
+      timestamp: new Date(),
+      source: 'p0_initializer',
+      metadata: {
+        layers: ['P0', 'P1', 'P2', 'P3', 'AGI-10.0'],
+        bridges: ['guardian↔recalibration', 'influence↔loadbalancer', 'style↔memory']
+      }
+    });
+    
+    console.log('🎉 [System] Karol-Core AGI fully initialized and operational!');
+  } catch (error) {
+    console.error('❌ [EventBus] Initialization failed:', error);
   }
 }
