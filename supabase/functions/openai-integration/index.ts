@@ -139,23 +139,9 @@ serve(async (req) => {
       )
     }
 
-    // Validate API key if this is the first request or on demand
-    const keyValidation = await validateOpenAIKey(openaiApiKey)
-    if (!keyValidation.valid) {
-      console.error(`❌ [${requestId}] OpenAI API key validation failed:`, keyValidation.error)
-      return new Response(
-        JSON.stringify({ 
-          error: 'OpenAI API key invalid',
-          response: 'Klucz OpenAI API jest nieprawidłowy lub wygasł. Skontaktuj się z administratorem.',
-          request_id: requestId,
-          details: keyValidation.error
-        }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
+    // Note: Removed key validation check to avoid 403 errors with restricted keys
+    // The key will be validated during actual API call instead
+    console.log(`🔑 [${requestId}] Using OpenAI API key (validation skipped for restricted keys)`)
 
     if (action === 'chat') {
       console.log(`💬 [${requestId}] Processing chat request...`)

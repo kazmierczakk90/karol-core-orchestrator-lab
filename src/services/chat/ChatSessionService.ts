@@ -76,15 +76,19 @@ export class ChatSessionService {
 
         console.log('✅ Demo session created:', demoSessionId);
         
-        // Pobierz pełne dane sesji
-        const { data: fullSession, error: fetchError } = await supabase
-          .from('chat_sessions')
-          .select('*')
-          .eq('id', demoSessionId)
-          .single();
+        // Pobierz pełne dane sesji używając RPC
+        const { data: sessions, error: fetchError } = await supabase.rpc('get_demo_sessions');
 
-        if (fetchError) {
+        if (fetchError || !sessions || sessions.length === 0) {
           console.error('❌ Error fetching created session:', fetchError);
+          return null;
+        }
+
+        // Znajdź nowo utworzoną sesję
+        const fullSession = sessions.find((s: any) => s.id === demoSessionId);
+        
+        if (!fullSession) {
+          console.error('❌ Created session not found in results');
           return null;
         }
 
@@ -124,6 +128,20 @@ export class ChatSessionService {
       }
 
       console.log('📋 Fetching sessions for user:', user.id);
+
+      // Użyj funkcji RPC dla demo użytkownika
+      if (DemoUserService.isDemoUser(user.id)) {
+        console.log('🎭 Using demo sessions RPC function');
+        const { data, error } = await supabase.rpc('get_demo_sessions');
+        
+        if (error) {
+          console.error('❌ Error fetching demo sessions:', error);
+          return [];
+        }
+        
+        console.log('✅ Fetched demo sessions:', data?.length || 0);
+        return data as ChatSession[];
+      }
 
       const { data, error } = await supabase
         .from('chat_sessions')

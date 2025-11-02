@@ -1475,12 +1475,9 @@ export type Database = {
         Args: { p_agent_id?: string; p_metadata?: Json; p_title?: string }
         Returns: string
       }
-      custom_access_token_hook: {
-        Args: { event: Json }
-        Returns: Json
-      }
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       get_all_user_profiles: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           email: string
@@ -1489,6 +1486,34 @@ export type Database = {
           last_name: string
           last_sign_in_at: string
           role: string
+        }[]
+      }
+      get_demo_messages: {
+        Args: { p_session_id: string }
+        Returns: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json
+          processing_time: number
+          role: string
+          session_id: string
+          tokens_used: number
+          updated_at: string
+        }[]
+      }
+      get_demo_sessions: {
+        Args: never
+        Returns: {
+          agent_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          metadata: Json
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
         }[]
       }
       get_employee_by_id: {
