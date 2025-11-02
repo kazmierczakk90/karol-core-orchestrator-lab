@@ -1,3 +1,14 @@
+/**
+ * @deprecated Use orchestrationEngineV2 instead
+ * Orchestration Engine - Central AGI coordination system (V1 - Legacy)
+ * 
+ * ⚠️ WARNING: This is the V1 implementation. Please migrate to:
+ * - src/services/orchestrationEngineV2.ts for orchestration
+ * - src/services/core/centralStateManager.ts for state management
+ * - src/services/eventBus.ts for event communication
+ * 
+ * See MIGRATION_GUIDE_V1_TO_V2.md for migration instructions.
+ */
 
 import { AgentCapability, SystemEvent, QuantumState } from '@/types/platformCore';
 

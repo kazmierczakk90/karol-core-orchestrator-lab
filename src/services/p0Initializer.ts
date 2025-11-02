@@ -11,6 +11,7 @@ import { agiAutonomyEngine } from './autonomy/agiAutonomyEngine';
 import { startRecalibrationCycle } from './recalibrationEngine';
 import { initializeAllBridges } from './integrations/index';
 import { eventBus } from './eventBus';
+import { centralStateManager } from './core/centralStateManager';
 
 export function initializeP0Systems() {
   console.log('🛡️ [P0] Initializing protective systems...');
@@ -78,16 +79,22 @@ export function initializeP0Systems() {
     console.log('✅ [Bridges] All integration bridges active');
     
     // Emit system ready event
+    // Initialize Central State Manager (Unified State)
+    centralStateManager.markInitialized();
+    console.log('✅ [StateManager] Central State Manager initialized');
+    
     eventBus.emitSync('system_ready', {
       timestamp: new Date(),
       source: 'p0_initializer',
       metadata: {
         layers: ['P0', 'P1', 'P2', 'P3', 'AGI-10.0'],
-        bridges: ['guardian↔recalibration', 'influence↔loadbalancer', 'style↔memory']
+        bridges: ['guardian↔recalibration', 'influence↔loadbalancer', 'style↔memory'],
+        stateManagement: 'unified'
       }
     });
     
     console.log('🎉 [System] Karol-Core AGI fully initialized and operational!');
+    console.log('📊 System Analytics:', centralStateManager.getAnalytics());
   } catch (error) {
     console.error('❌ [EventBus] Initialization failed:', error);
   }
