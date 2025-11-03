@@ -115,7 +115,7 @@ const OptimizedLiveChatInterface = () => {
           agent_name: selectedAgent.name,
           agent_category: selectedAgent.category,
           agent_capabilities: selectedAgent.capabilities,
-          vector_store_id: 'vs_karol_core_main',
+          vector_store_id: 'vs_67e03445b63c819183a0c37c390f5904',
           created_by: 'user',
           platform: 'karol-core-v2',
           session_version: '2.0',

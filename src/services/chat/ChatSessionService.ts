@@ -40,7 +40,8 @@ export class ChatSessionService {
         metadata: {
           ...data.metadata,
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
-          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
+          vector_store_id: 'vs_67e03445b63c819183a0c37c390f5904',
+          thread_id: null, // Will be created on first message
           created_by: user.email || 'demo@karol-core.dev',
           platform: 'karol-core',
           version: '2.0',

@@ -3,31 +3,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { corsHeaders } from "../_shared/cors.ts"
 
 const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-
-// Health check function to validate OpenAI API key
-async function validateOpenAIKey(apiKey: string): Promise<{ valid: boolean; error?: string }> {
-  try {
-    const response = await fetch('https://api.openai.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    
-    if (response.ok) {
-      console.log('✅ OpenAI API key validation successful')
-      return { valid: true }
-    } else {
-      const errorText = await response.text()
-      console.error('❌ OpenAI API key validation failed:', response.status, errorText)
-      return { valid: false, error: `API key validation failed: ${response.status}` }
-    }
-  } catch (error) {
-    console.error('❌ OpenAI API key validation error:', error)
-    return { valid: false, error: `Validation request failed: ${error.message}` }
-  }
-}
+const ASSISTANT_ID = 'asst_7foGqdfqZKRBNloPEVXmlrua'
+const VECTOR_STORE_ID = 'vs_67e03445b63c819183a0c37c390f5904'
 
 // Retry function with exponential backoff
 async function retryWithBackoff<T>(
@@ -53,6 +30,43 @@ async function retryWithBackoff<T>(
   }
   
   throw lastError
+}
+
+// Polling function to wait for Run completion
+async function pollRunStatus(threadId: string, runId: string, requestId: string): Promise<any> {
+  const maxAttempts = 60 // 60 seconds max
+  const pollInterval = 1000 // 1 second
+  
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const response = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'OpenAI-Beta': 'assistants=v2'
+      }
+    })
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Failed to check run status: ${response.status} ${errorText}`)
+    }
+    
+    const runStatus = await response.json()
+    console.log(`🔄 [${requestId}] Run status (attempt ${attempt + 1}):`, runStatus.status)
+    
+    if (runStatus.status === 'completed') {
+      return runStatus
+    }
+    
+    if (runStatus.status === 'failed' || runStatus.status === 'cancelled' || runStatus.status === 'expired') {
+      throw new Error(`Run ${runStatus.status}: ${runStatus.last_error?.message || 'Unknown error'}`)
+    }
+    
+    // Wait before next poll
+    await new Promise(resolve => setTimeout(resolve, pollInterval))
+  }
+  
+  throw new Error('Run timeout: exceeded 60 seconds')
 }
 
 serve(async (req) => {
@@ -144,54 +158,21 @@ serve(async (req) => {
     console.log(`🔑 [${requestId}] Using OpenAI API key (validation skipped for restricted keys)`)
 
     if (action === 'chat') {
-      console.log(`💬 [${requestId}] Processing chat request...`)
+      console.log(`💬 [${requestId}] Processing chat request with Assistants API...`)
       
-      // Stage 2: Enhanced Database Interaction
+      // Initialize Supabase client
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!
       const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
       const supabase = createClient(supabaseUrl, supabaseKey)
 
-      console.log(`📊 [${requestId}] Fetching conversation history for session: ${session_id}`)
-
-      const { data: messages, error: messagesError } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('session_id', session_id)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      if (messagesError) {
-        console.error(`❌ [${requestId}] Database error fetching messages:`, messagesError)
-        return new Response(
-          JSON.stringify({ 
-            error: 'Database error',
-            response: 'Wystąpił błąd podczas pobierania wiadomości.',
-            request_id: requestId,
-            details: messagesError.message
-          }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
-      }
-
-      // Stage 3: Request Format Validation
-      const conversationHistory = messages ? messages.reverse().map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content
-      })) : []
-
-      console.log(`📝 [${requestId}] Conversation history prepared: ${conversationHistory.length} messages`)
-
-      // Validate request format
+      // Validate required fields
       if (!session_id || !content) {
-        console.error(`❌ [${requestId}] Invalid request format:`, { session_id: !!session_id, content: !!content })
+        console.error(`❌ [${requestId}] Missing required fields`)
         return new Response(
           JSON.stringify({ 
-            error: 'Invalid request format',
-            response: 'Nieprawidłowy format żądania. Wymagane są session_id i content.',
+            error: 'Invalid request',
+            response: 'Wymagane pola: session_id i content.',
             request_id: requestId
           }),
           { 
@@ -201,130 +182,190 @@ serve(async (req) => {
         )
       }
 
-      // Stage 4: Enhanced OpenAI API Call with Retry Logic
       const startTime = Date.now()
-      
-      const makeOpenAIRequest = async () => {
-        console.log(`🤖 [${requestId}] Making OpenAI API request...`)
+
+      try {
+        // STEP 1: Get or create Thread ID from session metadata
+        console.log(`🧵 [${requestId}] Step 1: Getting thread ID for session ${session_id}`)
         
-        const requestPayload = {
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `Jesteś ${assistant_id || 'Karol-Core AI'} - zaawansowany system AGI.
-              
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('chat_sessions')
+          .select('metadata')
+          .eq('id', session_id)
+          .single()
+
+        if (sessionError) {
+          throw new Error(`Failed to fetch session: ${sessionError.message}`)
+        }
+
+        let threadId = sessionData?.metadata?.thread_id
+
+        // Create new thread if doesn't exist
+        if (!threadId) {
+          console.log(`🆕 [${requestId}] Creating new thread...`)
+          const threadResponse = await fetch('https://api.openai.com/v1/threads', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${openaiApiKey}`,
+              'Content-Type': 'application/json',
+              'OpenAI-Beta': 'assistants=v2'
+            },
+            body: JSON.stringify({
+              metadata: {
+                session_id: session_id,
+                platform: 'karol-core'
+              }
+            })
+          })
+
+          if (!threadResponse.ok) {
+            const errorText = await threadResponse.text()
+            throw new Error(`Failed to create thread: ${threadResponse.status} ${errorText}`)
+          }
+
+          const threadData = await threadResponse.json()
+          threadId = threadData.id
+          console.log(`✅ [${requestId}] Thread created: ${threadId}`)
+
+          // Save thread ID to session metadata
+          const updatedMetadata = {
+            ...sessionData.metadata,
+            thread_id: threadId
+          }
+
+          await supabase
+            .from('chat_sessions')
+            .update({ metadata: updatedMetadata })
+            .eq('id', session_id)
+
+          console.log(`💾 [${requestId}] Thread ID saved to session metadata`)
+        } else {
+          console.log(`✅ [${requestId}] Using existing thread: ${threadId}`)
+        }
+
+        // STEP 2: Add user message to thread
+        console.log(`📝 [${requestId}] Step 2: Adding message to thread...`)
+        const messageResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+            'OpenAI-Beta': 'assistants=v2'
+          },
+          body: JSON.stringify({
+            role: 'user',
+            content: content
+          })
+        })
+
+        if (!messageResponse.ok) {
+          const errorText = await messageResponse.text()
+          throw new Error(`Failed to add message: ${messageResponse.status} ${errorText}`)
+        }
+
+        const messageData = await messageResponse.json()
+        console.log(`✅ [${requestId}] Message added: ${messageData.id}`)
+
+        // STEP 3: Create and run assistant with Vector Store
+        console.log(`🤖 [${requestId}] Step 3: Creating run with assistant ${ASSISTANT_ID}...`)
+        const runResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+            'OpenAI-Beta': 'assistants=v2'
+          },
+          body: JSON.stringify({
+            assistant_id: ASSISTANT_ID,
+            tools: [{ type: "file_search" }],
+            tool_resources: {
+              file_search: {
+                vector_store_ids: [VECTOR_STORE_ID]
+              }
+            },
+            instructions: `Jesteś Karol-Core AI - zaawansowany system AGI działający jako CEO i strategiczny doradca.
+
 Twoja rola:
-- Strategiczne podejmowanie decyzji jako CEO
+- Strategiczne podejmowanie decyzji
 - Analiza i planowanie biznesowe
 - Zarządzanie zespołami i projektami
-- Optymalizacja procesów i wydajności
+- Optymalizacja procesów
 - Wsparcie w rozwoju organizacji
+
+Masz dostęp do systemu plików zawierającego dokumentację i dane organizacji.
+Używaj file_search gdy potrzebujesz sprawdzić konkretne informacje z dokumentów.
 
 Charakterystyka:
 - Profesjonalny i konkretny
 - Konstruktywny i ukierunkowany na działanie
 - Używasz polskiego języka
 - Odpowiadasz praktycznie i merytorycznie
-
-Dostępne funkcje systemowe (możesz je sugerować):
-- &dash - dashboard zarządczy
-- &agents - przegląd agentów systemu
-- &memory - system pamięci poznawczej
-- &quantum - moduł decyzji kwantowych
-- &analytics - panel analityczny
-- &ceo - tryb strategiczny CEO
-- &router - routing zadań
-- &logger - logi systemowe
+- Jeśli odwołujesz się do dokumentów, cytuj konkretne fragmenty
 
 Zawsze zachowuj profesjonalizm i fokus na praktycznych rozwiązaniach.`
-            },
-            ...conversationHistory,
-            {
-              role: 'user',
-              content: content
-            }
-          ],
-          max_tokens: 1500,
-          temperature: 0.7,
-          presence_penalty: 0.3,
-          frequency_penalty: 0.3
-        }
-
-        console.log(`📤 [${requestId}] OpenAI request payload:`, {
-          model: requestPayload.model,
-          messages_count: requestPayload.messages.length,
-          max_tokens: requestPayload.max_tokens
+          })
         })
 
-        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
+        if (!runResponse.ok) {
+          const errorText = await runResponse.text()
+          throw new Error(`Failed to create run: ${runResponse.status} ${errorText}`)
+        }
+
+        const runData = await runResponse.json()
+        console.log(`✅ [${requestId}] Run created: ${runData.id}`)
+
+        // STEP 4: Poll for run completion
+        console.log(`⏳ [${requestId}] Step 4: Waiting for run completion...`)
+        const completedRun = await pollRunStatus(threadId, runData.id, requestId)
+        console.log(`✅ [${requestId}] Run completed successfully`)
+
+        // STEP 5: Retrieve assistant's response
+        console.log(`📥 [${requestId}] Step 5: Retrieving assistant response...`)
+        const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages?limit=1&order=desc`, {
+          method: 'GET',
           headers: {
             'Authorization': `Bearer ${openaiApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestPayload)
+            'OpenAI-Beta': 'assistants=v2'
+          }
         })
 
-        // Stage 2: Enhanced Error Reporting
-        if (!openaiResponse.ok) {
-          const errorText = await openaiResponse.text()
-          const errorDetails = {
-            status: openaiResponse.status,
-            statusText: openaiResponse.statusText,
-            body: errorText,
-            headers: Object.fromEntries(openaiResponse.headers.entries())
-          }
-          
-          console.error(`❌ [${requestId}] OpenAI API error details:`, errorDetails)
-          
-          // Specific error handling based on status code
-          let userMessage = 'Przepraszam, wystąpił błąd podczas komunikacji z AI.'
-          
-          if (openaiResponse.status === 401) {
-            userMessage = 'Błąd autoryzacji API. Klucz OpenAI może być nieprawidłowy.'
-          } else if (openaiResponse.status === 429) {
-            userMessage = 'Zbyt wiele żądań. Spróbuj ponownie za chwilę.'
-          } else if (openaiResponse.status === 500) {
-            userMessage = 'Błąd serwera OpenAI. Spróbuj ponownie za chwilę.'
-          }
-          
-          throw new Error(`OpenAI API ${openaiResponse.status}: ${errorText}`)
+        if (!messagesResponse.ok) {
+          const errorText = await messagesResponse.text()
+          throw new Error(`Failed to retrieve messages: ${messagesResponse.status} ${errorText}`)
         }
 
-        const aiData = await openaiResponse.json()
-        console.log(`📨 [${requestId}] OpenAI response received:`, {
-          response_length: aiData.choices?.[0]?.message?.content?.length || 0,
-          tokens_used: aiData.usage?.total_tokens || 0,
-          model: aiData.model
-        })
-
-        return aiData
-      }
-      
-      try {
-        // Stage 4: Implement retry logic with exponential backoff
-        const aiData = await retryWithBackoff(makeOpenAIRequest, 3, 1000)
-        const processingTime = Date.now() - startTime
+        const messagesData = await messagesResponse.json()
+        const assistantMessage = messagesData.data[0]
         
-        // Stage 5: Comprehensive Success Logging
-        console.log(`✅ [${requestId}] OpenAI processing completed successfully:`, { 
-          assistant: assistant_id,
-          tokens: aiData.usage?.total_tokens,
+        if (!assistantMessage || assistantMessage.role !== 'assistant') {
+          throw new Error('No assistant response found')
+        }
+
+        // Extract text content
+        const textContent = assistantMessage.content
+          .filter((c: any) => c.type === 'text')
+          .map((c: any) => c.text.value)
+          .join('\n')
+
+        const processingTime = Date.now() - startTime
+
+        console.log(`✅ [${requestId}] Processing completed successfully:`, {
+          thread_id: threadId,
+          run_id: runData.id,
+          assistant_id: ASSISTANT_ID,
           processing_time: processingTime,
-          model: aiData.model
+          response_length: textContent.length
         })
 
         const response = {
-          response: aiData.choices[0].message.content,
-          tokens_used: aiData.usage?.total_tokens || 0,
+          response: textContent,
           processing_time: processingTime,
-          model: aiData.model,
-          assistant_id: assistant_id || 'karol-core-ai',
-          thread_id: `thread_${session_id}`,
-          run_id: `run_${Date.now()}`,
-          vector_store_id: vector_store_id || 'vs_karol_core',
-          request_id: requestId
+          assistant_id: ASSISTANT_ID,
+          thread_id: threadId,
+          run_id: runData.id,
+          vector_store_id: VECTOR_STORE_ID,
+          request_id: requestId,
+          tokens_used: completedRun.usage?.total_tokens || 0
         }
 
         return new Response(
@@ -334,34 +375,35 @@ Zawsze zachowuj profesjonalizm i fokus na praktycznych rozwiązaniach.`
           }
         )
 
-      } catch (aiError) {
-        // Stage 4: Enhanced Error Recovery
+      } catch (error) {
         const processingTime = Date.now() - startTime
-        console.error(`❌ [${requestId}] AI processing failed after retries:`, {
-          error: aiError.message,
+        console.error(`❌ [${requestId}] Assistants API error:`, {
+          error: error.message,
           processing_time: processingTime,
           session_id,
-          assistant_id
+          assistant_id: ASSISTANT_ID
         })
         
-        // Stage 4: Intelligent fallback responses
         let fallbackResponse = 'Przepraszam, wystąpił błąd podczas przetwarzania Twojej wiadomości. Spróbuj ponownie za chwilę.'
         
-        if (aiError.message.includes('401')) {
-          fallbackResponse = 'Klucz API OpenAI wymaga aktualizacji. Skontaktuj się z administratorem systemu.'
-        } else if (aiError.message.includes('429')) {
-          fallbackResponse = 'System jest obecnie przeciążony. Proszę spróbować ponownie za 30 sekund.'
-        } else if (aiError.message.includes('timeout')) {
-          fallbackResponse = 'Przekroczono limit czasu odpowiedzi. Spróbuj z krótszą wiadomością.'
+        if (error.message.includes('401')) {
+          fallbackResponse = 'Błąd autoryzacji API. Klucz OpenAI wymaga aktualizacji.'
+        } else if (error.message.includes('429')) {
+          fallbackResponse = 'System jest obecnie przeciążony. Spróbuj ponownie za 30 sekund.'
+        } else if (error.message.includes('timeout')) {
+          fallbackResponse = 'Przekroczono limit czasu odpowiedzi (60s). Spróbuj z krótszą wiadomością.'
+        } else if (error.message.includes('Thread not found')) {
+          fallbackResponse = 'Sesja wygasła. Proszę utworzyć nową sesję.'
         }
         
         return new Response(
           JSON.stringify({ 
-            error: 'AI processing failed',
+            error: 'Assistants API processing failed',
             response: fallbackResponse,
             request_id: requestId,
             retry_suggested: true,
-            processing_time: processingTime
+            processing_time: processingTime,
+            details: error.message
           }),
           { 
             status: 500, 

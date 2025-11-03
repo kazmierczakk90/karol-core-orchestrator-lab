@@ -144,7 +144,7 @@ export class ChatMessageService {
           action: 'chat',
           session_id: sessionId,
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
-          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
+          vector_store_id: 'vs_67e03445b63c819183a0c37c390f5904',
           content: content
         }
       });
@@ -168,7 +168,7 @@ export class ChatMessageService {
           assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
           thread_id: data.thread_id,
           run_id: data.run_id,
-          vector_store_id: 'vs_6850534726fc8191b5ef7a56e8fc4a3c',
+          vector_store_id: 'vs_67e03445b63c819183a0c37c390f5904',
           model: data.model || 'gpt-4o-mini',
           timestamp: new Date().toISOString(),
           functions_available: [
