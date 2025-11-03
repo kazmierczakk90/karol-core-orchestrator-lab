@@ -9,6 +9,44 @@ export class ChatMessageService {
     try {
       console.log('💬 Creating message:', { session_id: data.session_id, role: data.role });
       
+      // Check if demo user
+      const { data: { user } } = await supabase.auth.getUser();
+      const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+      
+      if (!user || user.id === DEMO_USER_ID) {
+        console.log('🎭 Using RPC for demo user message creation');
+        
+        const { data: messageId, error } = await supabase.rpc('create_demo_message', {
+          p_session_id: data.session_id,
+          p_role: data.role,
+          p_content: data.content,
+          p_metadata: {
+            ...data.metadata,
+            assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
+            timestamp: new Date().toISOString(),
+            demo_mode: true
+          }
+        });
+
+        if (error) {
+          console.error('❌ Error creating demo message:', error);
+          return null;
+        }
+
+        // Fetch the created message
+        const { data: messages } = await supabase.rpc('get_demo_messages', {
+          p_session_id: data.session_id
+        });
+
+        const createdMessage = messages?.find((m: any) => m.id === messageId);
+        if (createdMessage) {
+          console.log('✅ Demo message created successfully:', messageId);
+          return createdMessage as ChatMessage;
+        }
+        
+        return null;
+      }
+      
       const { data: message, error } = await supabase
         .from('chat_messages')
         .insert({
@@ -18,8 +56,7 @@ export class ChatMessageService {
           metadata: {
             ...data.metadata,
             assistant_id: 'asst_7foGqdfqZKRBNloPEVXmlrua',
-            timestamp: new Date().toISOString(),
-            demo_mode: true // Mark as demo message for compatibility
+            timestamp: new Date().toISOString()
           },
         })
         .select()

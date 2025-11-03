@@ -36,7 +36,7 @@ const OptimizedLiveChatInterface = () => {
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connected');
-  const [showAgentSelector, setShowAgentSelector] = useState(false);
+  const [showAgentSelector, setShowAgentSelector] = useState(true); // Zawsze widoczny
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -130,6 +130,7 @@ const OptimizedLiveChatInterface = () => {
         }
       });
       setConnectionStatus('connected');
+      // Nie zamykamy selektora - pozostaje otwarty
       toast.success(`Sesja z ${selectedAgent.name} została utworzona!`);
     } catch (error) {
       console.error('💥 Failed to create session:', error);

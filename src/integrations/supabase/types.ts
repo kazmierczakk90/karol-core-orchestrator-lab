@@ -1471,6 +1471,15 @@ export type Database = {
         Args: { agent_capabilities: string[]; decision_data: Json }
         Returns: number
       }
+      create_demo_message: {
+        Args: {
+          p_content: string
+          p_metadata?: Json
+          p_role: string
+          p_session_id: string
+        }
+        Returns: string
+      }
       create_demo_session: {
         Args: { p_agent_id?: string; p_metadata?: Json; p_title?: string }
         Returns: string
