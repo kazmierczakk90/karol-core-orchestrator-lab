@@ -1574,6 +1574,10 @@ export type Database = {
         Args: { user_id: string; user_role?: string }
         Returns: undefined
       }
+      update_demo_session: {
+        Args: { p_session_id: string; p_updates: Json }
+        Returns: boolean
+      }
       update_user_profile: {
         Args: { profile_updates: Json; user_id: string }
         Returns: undefined

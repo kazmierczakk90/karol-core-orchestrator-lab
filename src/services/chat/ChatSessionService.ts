@@ -184,6 +184,26 @@ export class ChatSessionService {
 
   static async updateSession(sessionId: string, updates: Partial<ChatSession>): Promise<boolean> {
     try {
+      // Check if demo user
+      const { data: { user } } = await supabase.auth.getUser();
+      const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+      
+      if (!user || user.id === DEMO_USER_ID) {
+        console.log('🎭 Using RPC for demo session update');
+        const { data, error } = await supabase.rpc('update_demo_session', {
+          p_session_id: sessionId,
+          p_updates: updates as any
+        });
+
+        if (error) {
+          console.error('❌ Error updating demo session:', error);
+          return false;
+        }
+        
+        await ChatAnalyticsService.logSessionAnalytics(sessionId, 'session_updated');
+        return data as boolean;
+      }
+
       const { error } = await supabase
         .from('chat_sessions')
         .update({
