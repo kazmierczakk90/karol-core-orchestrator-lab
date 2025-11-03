@@ -210,8 +210,27 @@ export class ChatSessionService {
     try {
       console.log('Deleting session:', sessionId);
       
+      // Check if demo user
+      const { data: { user } } = await supabase.auth.getUser();
+      const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+      
       // Analiza przed usunięciem
       await ChatAnalyticsService.logSessionAnalytics(sessionId, 'session_deleted');
+      
+      if (!user || user.id === DEMO_USER_ID) {
+        console.log('🎭 Using RPC for demo session deletion');
+        const { data, error } = await supabase.rpc('delete_demo_session', {
+          p_session_id: sessionId
+        });
+
+        if (error) {
+          console.error('❌ Error deleting demo session:', error);
+          return false;
+        }
+        
+        console.log('✅ Demo session deleted successfully');
+        return data as boolean;
+      }
       
       // Usuń wiadomości z sesji
       const { error: messagesError } = await supabase

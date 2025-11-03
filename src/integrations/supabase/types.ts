@@ -1476,6 +1476,11 @@ export type Database = {
         Returns: string
       }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
+      delete_demo_session: { Args: { p_session_id: string }; Returns: boolean }
+      delete_demo_session_messages: {
+        Args: { p_session_id: string }
+        Returns: undefined
+      }
       get_all_user_profiles: {
         Args: never
         Returns: {

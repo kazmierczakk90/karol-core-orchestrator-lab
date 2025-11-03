@@ -40,6 +40,25 @@ export class ChatMessageService {
 
   static async getMessages(sessionId: string): Promise<ChatMessage[]> {
     try {
+      // Check if demo user
+      const { data: { user } } = await supabase.auth.getUser();
+      const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+      
+      if (!user || user.id === DEMO_USER_ID) {
+        console.log('🎭 Using RPC for demo user messages');
+        const { data, error } = await supabase.rpc('get_demo_messages', {
+          p_session_id: sessionId
+        });
+
+        if (error) {
+          console.error('❌ Error fetching demo messages:', error);
+          return [];
+        }
+        
+        console.log('✅ Fetched demo messages:', data?.length || 0);
+        return data as ChatMessage[];
+      }
+
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
