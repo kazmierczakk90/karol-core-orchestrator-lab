@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_health_checks: {
+        Row: {
+          agent_id: string
+          alert_level: string | null
+          alert_triggered: boolean | null
+          auto_action_taken: string | null
+          checked_at: string | null
+          created_at: string | null
+          detected_issues: Json[] | null
+          error_rate: number | null
+          health_score: number | null
+          health_status: string
+          id: string
+          load_level: number | null
+          performance_anomalies: Json[] | null
+          recommended_actions: string[] | null
+          response_time: number | null
+          success_rate: number | null
+        }
+        Insert: {
+          agent_id: string
+          alert_level?: string | null
+          alert_triggered?: boolean | null
+          auto_action_taken?: string | null
+          checked_at?: string | null
+          created_at?: string | null
+          detected_issues?: Json[] | null
+          error_rate?: number | null
+          health_score?: number | null
+          health_status: string
+          id?: string
+          load_level?: number | null
+          performance_anomalies?: Json[] | null
+          recommended_actions?: string[] | null
+          response_time?: number | null
+          success_rate?: number | null
+        }
+        Update: {
+          agent_id?: string
+          alert_level?: string | null
+          alert_triggered?: boolean | null
+          auto_action_taken?: string | null
+          checked_at?: string | null
+          created_at?: string | null
+          detected_issues?: Json[] | null
+          error_rate?: number | null
+          health_score?: number | null
+          health_status?: string
+          id?: string
+          load_level?: number | null
+          performance_anomalies?: Json[] | null
+          recommended_actions?: string[] | null
+          response_time?: number | null
+          success_rate?: number | null
+        }
+        Relationships: []
+      }
       agent_states: {
         Row: {
           agent_id: string
@@ -364,6 +421,66 @@ export type Database = {
         }
         Relationships: []
       }
+      drift_corrections: {
+        Row: {
+          agent_id: string
+          auto_corrected: boolean | null
+          baseline_metrics: Json
+          corrected: boolean | null
+          correction_applied: Json
+          correction_successful: boolean | null
+          correction_type: string
+          created_at: string | null
+          current_metrics: Json
+          detected_at: string | null
+          deviation_details: Json
+          drift_severity: number
+          drift_type: string
+          id: string
+          manual_review_required: boolean | null
+          verification_metrics: Json | null
+          verified_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          auto_corrected?: boolean | null
+          baseline_metrics: Json
+          corrected?: boolean | null
+          correction_applied: Json
+          correction_successful?: boolean | null
+          correction_type: string
+          created_at?: string | null
+          current_metrics: Json
+          detected_at?: string | null
+          deviation_details: Json
+          drift_severity: number
+          drift_type: string
+          id?: string
+          manual_review_required?: boolean | null
+          verification_metrics?: Json | null
+          verified_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          auto_corrected?: boolean | null
+          baseline_metrics?: Json
+          corrected?: boolean | null
+          correction_applied?: Json
+          correction_successful?: boolean | null
+          correction_type?: string
+          created_at?: string | null
+          current_metrics?: Json
+          detected_at?: string | null
+          deviation_details?: Json
+          drift_severity?: number
+          drift_type?: string
+          id?: string
+          manual_review_required?: boolean | null
+          verification_metrics?: Json | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       edict_prompts: {
         Row: {
           analyzed_intention: Json | null
@@ -592,6 +709,77 @@ export type Database = {
         }
         Relationships: []
       }
+      improvement_decisions: {
+        Row: {
+          action_description: string
+          action_type: string
+          agent_votes: Json
+          created_at: string | null
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          implementation_plan: Json
+          pattern_id: string | null
+          required_approval_score: number | null
+          requires_testing: boolean | null
+          risk_factors: Json[] | null
+          risk_level: string | null
+          rollback_plan: Json | null
+          status: string | null
+          test_scenarios: Json[] | null
+          total_vote_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          agent_votes?: Json
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          implementation_plan: Json
+          pattern_id?: string | null
+          required_approval_score?: number | null
+          requires_testing?: boolean | null
+          risk_factors?: Json[] | null
+          risk_level?: string | null
+          rollback_plan?: Json | null
+          status?: string | null
+          test_scenarios?: Json[] | null
+          total_vote_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          agent_votes?: Json
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          implementation_plan?: Json
+          pattern_id?: string | null
+          required_approval_score?: number | null
+          requires_testing?: boolean | null
+          risk_factors?: Json[] | null
+          risk_level?: string | null
+          rollback_plan?: Json | null
+          status?: string | null
+          test_scenarios?: Json[] | null
+          total_vote_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "improvement_decisions_pattern_id_fkey"
+            columns: ["pattern_id"]
+            isOneToOne: false
+            referencedRelation: "improvement_patterns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       improvement_events: {
         Row: {
           agent_id: string | null
@@ -622,6 +810,143 @@ export type Database = {
           id?: string
           impact?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      improvement_implementations: {
+        Row: {
+          can_rollback: boolean | null
+          changes_summary: string
+          created_at: string | null
+          decision_id: string | null
+          deployed: boolean | null
+          deployment_method: string | null
+          deployment_timestamp: string | null
+          diff_summary: string | null
+          id: string
+          implementation_type: string
+          improvement_percentage: number | null
+          modified_code: string | null
+          original_code: string | null
+          performance_after: Json | null
+          performance_before: Json | null
+          rollback_executed: boolean | null
+          rollback_timestamp: string | null
+          sandbox_tested: boolean | null
+          target_files: string[] | null
+          test_passed: boolean | null
+          test_results: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          can_rollback?: boolean | null
+          changes_summary: string
+          created_at?: string | null
+          decision_id?: string | null
+          deployed?: boolean | null
+          deployment_method?: string | null
+          deployment_timestamp?: string | null
+          diff_summary?: string | null
+          id?: string
+          implementation_type: string
+          improvement_percentage?: number | null
+          modified_code?: string | null
+          original_code?: string | null
+          performance_after?: Json | null
+          performance_before?: Json | null
+          rollback_executed?: boolean | null
+          rollback_timestamp?: string | null
+          sandbox_tested?: boolean | null
+          target_files?: string[] | null
+          test_passed?: boolean | null
+          test_results?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          can_rollback?: boolean | null
+          changes_summary?: string
+          created_at?: string | null
+          decision_id?: string | null
+          deployed?: boolean | null
+          deployment_method?: string | null
+          deployment_timestamp?: string | null
+          diff_summary?: string | null
+          id?: string
+          implementation_type?: string
+          improvement_percentage?: number | null
+          modified_code?: string | null
+          original_code?: string | null
+          performance_after?: Json | null
+          performance_before?: Json | null
+          rollback_executed?: boolean | null
+          rollback_timestamp?: string | null
+          sandbox_tested?: boolean | null
+          target_files?: string[] | null
+          test_passed?: boolean | null
+          test_results?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "improvement_implementations_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "improvement_decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      improvement_patterns: {
+        Row: {
+          created_at: string | null
+          detected_in_events: string[] | null
+          estimated_effort: string | null
+          first_detected: string | null
+          id: string
+          impact_assessment: Json
+          last_detected: string | null
+          occurrence_count: number | null
+          pattern_signature: string
+          pattern_type: string
+          root_cause_analysis: Json | null
+          severity: string
+          status: string | null
+          suggested_actions: Json[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          detected_in_events?: string[] | null
+          estimated_effort?: string | null
+          first_detected?: string | null
+          id?: string
+          impact_assessment: Json
+          last_detected?: string | null
+          occurrence_count?: number | null
+          pattern_signature: string
+          pattern_type: string
+          root_cause_analysis?: Json | null
+          severity: string
+          status?: string | null
+          suggested_actions?: Json[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          detected_in_events?: string[] | null
+          estimated_effort?: string | null
+          first_detected?: string | null
+          id?: string
+          impact_assessment?: Json
+          last_detected?: string | null
+          occurrence_count?: number | null
+          pattern_signature?: string
+          pattern_type?: string
+          root_cause_analysis?: Json | null
+          severity?: string
+          status?: string | null
+          suggested_actions?: Json[] | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1185,6 +1510,78 @@ export type Database = {
           rule_name?: string
         }
         Relationships: []
+      }
+      safety_actions: {
+        Row: {
+          action_parameters: Json | null
+          action_type: string
+          affected_operations: number | null
+          created_at: string | null
+          error_message: string | null
+          executed: boolean | null
+          executed_at: string | null
+          execution_duration: number | null
+          id: string
+          result_details: Json | null
+          success: boolean | null
+          system_impact: string | null
+          target_agent: string
+          trigger_type: string
+          triggered_by_check: string | null
+          triggered_by_drift: string | null
+        }
+        Insert: {
+          action_parameters?: Json | null
+          action_type: string
+          affected_operations?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          executed?: boolean | null
+          executed_at?: string | null
+          execution_duration?: number | null
+          id?: string
+          result_details?: Json | null
+          success?: boolean | null
+          system_impact?: string | null
+          target_agent: string
+          trigger_type: string
+          triggered_by_check?: string | null
+          triggered_by_drift?: string | null
+        }
+        Update: {
+          action_parameters?: Json | null
+          action_type?: string
+          affected_operations?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          executed?: boolean | null
+          executed_at?: string | null
+          execution_duration?: number | null
+          id?: string
+          result_details?: Json | null
+          success?: boolean | null
+          system_impact?: string | null
+          target_agent?: string
+          trigger_type?: string
+          triggered_by_check?: string | null
+          triggered_by_drift?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safety_actions_triggered_by_check_fkey"
+            columns: ["triggered_by_check"]
+            isOneToOne: false
+            referencedRelation: "agent_health_checks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "safety_actions_triggered_by_drift_fkey"
+            columns: ["triggered_by_drift"]
+            isOneToOne: false
+            referencedRelation: "drift_corrections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_connections: {
         Row: {

@@ -1,5 +1,14 @@
 project_id = "xhhgaysawtaeimxeodfd"
 
+[functions.analyze-improvement-event]
+verify_jwt = false
+
+[functions.agent-health-monitor]
+verify_jwt = false
+
+[functions.drift-correction]
+verify_jwt = false
+
 [functions.create-checkout]
 verify_jwt = true
 
