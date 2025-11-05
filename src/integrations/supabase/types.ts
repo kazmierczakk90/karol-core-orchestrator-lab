@@ -517,6 +517,81 @@ export type Database = {
         }
         Relationships: []
       }
+      emotional_memories: {
+        Row: {
+          agent_id: string
+          created_at: string
+          emotional_context: Json
+          event_description: string
+          id: string
+          impact_score: number | null
+          intensity: number
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          emotional_context: Json
+          event_description: string
+          id?: string
+          impact_score?: number | null
+          intensity: number
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          emotional_context?: Json
+          event_description?: string
+          id?: string
+          impact_score?: number | null
+          intensity?: number
+        }
+        Relationships: []
+      }
+      emotional_states: {
+        Row: {
+          agent_id: string
+          confidence: number
+          context: Json | null
+          created_at: string
+          creativity: number
+          curiosity: number
+          empathy: number
+          energy_level: number
+          focus: number
+          id: string
+          stress_level: number
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          confidence?: number
+          context?: Json | null
+          created_at?: string
+          creativity?: number
+          curiosity?: number
+          empathy?: number
+          energy_level?: number
+          focus?: number
+          id?: string
+          stress_level?: number
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          confidence?: number
+          context?: Json | null
+          created_at?: string
+          creativity?: number
+          curiosity?: number
+          empathy?: number
+          energy_level?: number
+          focus?: number
+          id?: string
+          stress_level?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string | null
@@ -1113,6 +1188,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      message_emotional_context: {
+        Row: {
+          created_at: string
+          detected_sentiment: string
+          emotional_adjustments: Json | null
+          id: string
+          message_id: string | null
+          response_tone: string | null
+          sentiment_score: number
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detected_sentiment: string
+          emotional_adjustments?: Json | null
+          id?: string
+          message_id?: string | null
+          response_tone?: string | null
+          sentiment_score: number
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detected_sentiment?: string
+          emotional_adjustments?: Json | null
+          id?: string
+          message_id?: string | null
+          response_tone?: string | null
+          sentiment_score?: number
+          session_id?: string | null
+        }
+        Relationships: []
       }
       meta_decisions: {
         Row: {

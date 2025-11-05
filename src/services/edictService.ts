@@ -90,21 +90,35 @@ ENHANCED INSTRUCTION: Please process the original request following the analysis
     return data as EDICTPrompt[];
   }
 
-  async processPrompt(originalPrompt: string, mode: 'lite' | 'advanced' = 'lite'): Promise<EDICTPrompt | null> {
+  async processPrompt(originalPrompt: string, mode: 'lite' | 'advanced' = 'lite', userId?: string): Promise<EDICTPrompt | null> {
     try {
-      // Krok 1: Analiza intencji
-      const analysis = await this.analyzeIntention(originalPrompt);
+      console.log(`[EDICT] Processing prompt via edge function in ${mode} mode`);
       
-      // Krok 2: Wzbogacenie o reguły
-      const rules = await this.enrichWithRules(analysis, mode);
+      const { data, error } = await supabase.functions.invoke('edict-enhance-prompt', {
+        body: {
+          originalPrompt,
+          mode,
+          userId,
+        },
+      });
+
+      if (error) throw error;
       
-      // Krok 3: Generowanie final prompt
-      const generatedPrompt = await this.generatePrompt(originalPrompt, analysis, rules);
-      
-      // Krok 4: Zapis do bazy
-      return await this.createPrompt(originalPrompt, analysis, rules, generatedPrompt, mode);
+      if (data.success && data.result.id) {
+        // Fetch the saved prompt from database
+        const { data: prompt, error: fetchError } = await supabase
+          .from('edict_prompts')
+          .select('*')
+          .eq('id', data.result.id)
+          .single();
+
+        if (fetchError) throw fetchError;
+        return prompt as EDICTPrompt;
+      }
+
+      return null;
     } catch (error) {
-      console.error('Error processing EDICT prompt:', error);
+      console.error('[EDICT] Error processing prompt:', error);
       return null;
     }
   }
