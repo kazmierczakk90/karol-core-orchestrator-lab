@@ -421,6 +421,42 @@ export type Database = {
         }
         Relationships: []
       }
+      decision_trees: {
+        Row: {
+          available_paths: number
+          completed_at: string | null
+          confidence_score: number | null
+          created_at: string
+          decision_context: Json
+          explored_paths: number
+          id: string
+          optimal_path_id: string | null
+          root_decision_id: string | null
+        }
+        Insert: {
+          available_paths?: number
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          decision_context: Json
+          explored_paths?: number
+          id?: string
+          optimal_path_id?: string | null
+          root_decision_id?: string | null
+        }
+        Update: {
+          available_paths?: number
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          decision_context?: Json
+          explored_paths?: number
+          id?: string
+          optimal_path_id?: string | null
+          root_decision_id?: string | null
+        }
+        Relationships: []
+      }
       drift_corrections: {
         Row: {
           agent_id: string
@@ -1318,6 +1354,45 @@ export type Database = {
         }
         Relationships: []
       }
+      monte_carlo_simulations: {
+        Row: {
+          average_outcome: number
+          created_at: string
+          decision_tree_id: string
+          id: string
+          iterations: number
+          path_id: string
+          risk_score: number | null
+          simulation_data: Json
+          success_rate: number
+          variance: number
+        }
+        Insert: {
+          average_outcome: number
+          created_at?: string
+          decision_tree_id: string
+          id?: string
+          iterations?: number
+          path_id: string
+          risk_score?: number | null
+          simulation_data: Json
+          success_rate: number
+          variance: number
+        }
+        Update: {
+          average_outcome?: number
+          created_at?: string
+          decision_tree_id?: string
+          id?: string
+          iterations?: number
+          path_id?: string
+          risk_score?: number | null
+          simulation_data?: Json
+          success_rate?: number
+          variance?: number
+        }
+        Relationships: []
+      }
       openai_agents: {
         Row: {
           assistant_id: string | null
@@ -1381,6 +1456,111 @@ export type Database = {
           timestamp?: string | null
           tokens_used?: number | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      optimization_tasks: {
+        Row: {
+          analysis_result: Json | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          current_metrics: Json
+          estimated_impact: string | null
+          id: string
+          improvement_percentage: number | null
+          optimization_strategy: string
+          priority: number
+          started_at: string | null
+          status: string
+          target_component: string
+          target_metrics: Json
+          task_type: string
+          test_results: Json | null
+        }
+        Insert: {
+          analysis_result?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_metrics: Json
+          estimated_impact?: string | null
+          id?: string
+          improvement_percentage?: number | null
+          optimization_strategy: string
+          priority?: number
+          started_at?: string | null
+          status?: string
+          target_component: string
+          target_metrics: Json
+          task_type: string
+          test_results?: Json | null
+        }
+        Update: {
+          analysis_result?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_metrics?: Json
+          estimated_impact?: string | null
+          id?: string
+          improvement_percentage?: number | null
+          optimization_strategy?: string
+          priority?: number
+          started_at?: string | null
+          status?: string
+          target_component?: string
+          target_metrics?: Json
+          task_type?: string
+          test_results?: Json | null
+        }
+        Relationships: []
+      }
+      path_evaluations: {
+        Row: {
+          constraints: Json | null
+          created_at: string
+          decision_tree_id: string
+          dependencies: string[] | null
+          estimated_duration: number | null
+          evaluation_score: number
+          execution_complexity: string
+          expected_value: number
+          id: string
+          path_sequence: Json
+          recommendation: string | null
+          resource_requirements: Json
+          risk_adjusted_value: number
+        }
+        Insert: {
+          constraints?: Json | null
+          created_at?: string
+          decision_tree_id: string
+          dependencies?: string[] | null
+          estimated_duration?: number | null
+          evaluation_score: number
+          execution_complexity: string
+          expected_value: number
+          id?: string
+          path_sequence: Json
+          recommendation?: string | null
+          resource_requirements: Json
+          risk_adjusted_value: number
+        }
+        Update: {
+          constraints?: Json | null
+          created_at?: string
+          decision_tree_id?: string
+          dependencies?: string[] | null
+          estimated_duration?: number | null
+          evaluation_score?: number
+          execution_complexity?: string
+          expected_value?: number
+          id?: string
+          path_sequence?: Json
+          recommendation?: string | null
+          resource_requirements?: Json
+          risk_adjusted_value?: number
         }
         Relationships: []
       }
