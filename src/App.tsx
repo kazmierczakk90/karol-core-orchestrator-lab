@@ -12,6 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import KarolCore10Dashboard from "./components/KarolCore10Dashboard";
+import KarolCoreCommandCenter from "./pages/KarolCoreCommandCenter";
 import AuthPage from "./pages/AuthPage";
 import ChatTest from '@/pages/ChatTest';
 import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
@@ -30,15 +31,16 @@ const AppContent = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/command-center" element={<KarolCoreCommandCenter />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/chat-test" element={<ChatTest />} />
         <Route path="/extended-agi-panel" element={<ExtendedAGIPanelPage />} />
         <Route path="/karol-extensions" element={<KarolCoreExtensionsPage />} />
         <Route path="/advanced-modules" element={<AdvancedModulesPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/routing" element={<RoutingPage />} />
-          <Route path="/karol-core-10" element={<KarolCore10Dashboard />} />
-          <Route path="*" element={<NotFound />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/routing" element={<RoutingPage />} />
+        <Route path="/karol-core-10" element={<KarolCore10Dashboard />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
