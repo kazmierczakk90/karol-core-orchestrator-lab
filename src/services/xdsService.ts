@@ -3,24 +3,31 @@ import { supabase } from '@/integrations/supabase/client';
 import type { XdSResearch, XdSContent, ResearchPipeline } from '@/types/xds';
 
 class XdSService {
-  async createResearch(query: string, userId?: string): Promise<XdSResearch | null> {
+  async createResearch(query: string): Promise<XdSResearch | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase
       .from('xds_research')
       .insert({
         query,
-        user_id: userId || null,
+        user_id: user?.id,
         status: 'pending',
         pipeline_stage: 0
       })
       .select()
       .single();
 
-    if (error) {
-      console.error('Error creating research:', error);
-      return null;
-    }
-
+    if (error) throw error;
     return data as XdSResearch;
+  }
+
+  async processResearch(researchId: string): Promise<boolean> {
+    const { data, error } = await supabase.functions.invoke('xds-process-research', {
+      body: { researchId }
+    });
+
+    if (error) throw error;
+    return data?.success || false;
   }
 
   async getResearches(): Promise<XdSResearch[]> {
@@ -29,63 +36,13 @@ class XdSService {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching researches:', error);
-      return [];
-    }
-
-    return data as XdSResearch[];
-  }
-
-  async processResearch(researchId: string): Promise<boolean> {
-    try {
-      // Symulacja przetwarzania research pipeline
-      const stages = [
-        'Intention Analysis',
-        'Query Generation', 
-        'Content Extraction',
-        'Data Processing',
-        'Synthesis'
-      ];
-
-      for (let i = 0; i < stages.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Symulacja czasu przetwarzania
-        
-        await supabase
-          .from('xds_research')
-          .update({
-            pipeline_stage: i + 1,
-            status: i === stages.length - 1 ? 'completed' : 'processing'
-          })
-          .eq('id', researchId);
-      }
-
-      // Symulacyjny wynik
-      await supabase
-        .from('xds_research')
-        .update({
-          synthesis_result: 'Research completed successfully with comprehensive analysis.',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', researchId);
-
-      return true;
-    } catch (error) {
-      console.error('Error processing research:', error);
-      
-      await supabase
-        .from('xds_research')
-        .update({ status: 'failed' })
-        .eq('id', researchId);
-      
-      return false;
-    }
+    if (error) throw error;
+    return (data || []) as XdSResearch[];
   }
 
   async extractContent(url: string, type: 'web' | 'pdf' | 'document', researchId?: string): Promise<XdSContent | null> {
     try {
-      // Symulacja ekstrakcji treści
-      const mockContent = `Extracted content from ${url}. This would contain the actual scraped or processed content.`;
+      const mockContent = `Extracted content from ${url}`;
       
       const { data, error } = await supabase
         .from('xds_content')
@@ -108,11 +65,7 @@ class XdSService {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error extracting content:', error);
-        return null;
-      }
-
+      if (error) throw error;
       return data as XdSContent;
     } catch (error) {
       console.error('Error extracting content:', error);
