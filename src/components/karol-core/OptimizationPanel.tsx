@@ -11,7 +11,15 @@ export function OptimizationPanel() {
   useEffect(() => {
     loadTasks();
     loadStatistics();
-  }, []);
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadTasks();
+      loadStatistics();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [loadTasks, loadStatistics]);
 
   if (isCreating) {
     return (

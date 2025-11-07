@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEDICT } from "@/hooks/useEDICT";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,8 +7,19 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles } from "lucide-react";
 
 export function EDICTPanel() {
-  const { prompts, isProcessing, processPrompt } = useEDICT();
+  const { prompts, isProcessing, processPrompt, loadPrompts } = useEDICT();
   const [inputPrompt, setInputPrompt] = useState("");
+
+  useEffect(() => {
+    loadPrompts();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadPrompts();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [loadPrompts]);
 
   const handleProcess = async () => {
     if (!inputPrompt.trim()) return;

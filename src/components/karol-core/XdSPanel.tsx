@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useXdS } from "@/hooks/useXdS";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,19 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, Search } from "lucide-react";
 
 export function XdSPanel() {
-  const { researches, isProcessing, currentPipeline, createResearch } = useXdS();
+  const { researches, isProcessing, currentPipeline, createResearch, loadResearches } = useXdS();
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    loadResearches();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadResearches();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [loadResearches]);
 
   const handleCreate = async () => {
     if (!query.trim()) return;

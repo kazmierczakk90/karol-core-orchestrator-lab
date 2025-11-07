@@ -10,7 +10,14 @@ export function QuantumDecisionsPanel() {
 
   useEffect(() => {
     loadRecentTrees(10);
-  }, []);
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadRecentTrees(10);
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [loadRecentTrees]);
 
   if (isEvaluating) {
     return (
