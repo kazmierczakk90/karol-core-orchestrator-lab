@@ -1,0 +1,133 @@
+{
+  "navigation": {
+    "agiCore": "Noyau AGI",
+    "commander": "Commandant",
+    "miniAI": "Mini IA",
+    "browser": "Navigateur",
+    "links": "Liens",
+    "mindMaps": "Cartes mentales",
+    "dashboard": "Tableau de bord",
+    "liveChat": "Chat en direct",
+    "commandCenter": "Centre de commande",
+    "modules": "Modules",
+    "tools": "Outils",
+    "settings": "Paramètres",
+    "foundation": "P0: Fondation",
+    "intelligence": "P1: Intelligence",
+    "reasoning": "P2: Raisonnement",
+    "experimental": "P3: Expérimental",
+    "agents": "Simulateur d'agents",
+    "workflows": "Créateur de workflows",
+    "research": "Pipeline de recherche",
+    "routing": "Routage",
+    "pricing": "Tarifs"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "copy": "Copier",
+    "paste": "Coller",
+    "clear": "Effacer",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
+    "yes": "Oui",
+    "no": "Non",
+    "confirm": "Confirmer",
+    "reset": "Réinitialiser"
+  },
+  "dashboard": {
+    "title": "Tableau de bord Karol-Core AGI",
+    "subtitle": "Plateforme d'intelligence unifiée",
+    "quickStats": "Statistiques rapides",
+    "moduleStatus": "État des modules",
+    "recentActivity": "Activité récente",
+    "quickActions": "Actions rapides",
+    "activeAgents": "Agents actifs",
+    "todayDecisions": "Décisions aujourd'hui",
+    "chatSessions": "Sessions de chat",
+    "systemHealth": "Santé du système",
+    "startChat": "Démarrer le chat",
+    "compareModels": "Comparer les modèles",
+    "newResearch": "Nouvelle recherche",
+    "viewReports": "Voir les rapports"
+  },
+  "modules": {
+    "foundation": {
+      "title": "P0: Modules fondamentaux",
+      "description": "Infrastructure de base et systèmes de sécurité"
+    },
+    "intelligence": {
+      "title": "P1: Modules d'intelligence",
+      "description": "Intelligence émotionnelle et amélioration EDICT"
+    },
+    "reasoning": {
+      "title": "P2: Modules de raisonnement",
+      "description": "Systèmes avancés de décision et d'optimisation"
+    },
+    "experimental": {
+      "title": "P3: Modules expérimentaux",
+      "description": "IA multi-modèles et pipeline de recherche"
+    }
+  },
+  "agentCommander": {
+    "title": "Générateur de commandes d'agent IA",
+    "description": "Centre de commande - appeler des agents pour des actions spécifiques",
+    "businessContext": "Contexte commercial",
+    "industry": "Industrie/Secteur",
+    "selectIndustry": "Sélectionner l'industrie...",
+    "botFunction": "Fonction du bot",
+    "selectFunction": "Sélectionner la fonction...",
+    "agentAndTask": "Agent et type de tâche",
+    "selectAgent": "Agent à appeler",
+    "taskType": "Type de tâche",
+    "selectTaskType": "Sélectionner le type de tâche...",
+    "taskDefinition": "Définition de la tâche",
+    "taskDescription": "Description de la tâche",
+    "taskDescriptionPlaceholder": "Comment puis-je vous aider en tant qu'IA?",
+    "goal": "Votre objectif",
+    "goalPlaceholder": "Quel est le résultat attendu?",
+    "executionParameters": "Paramètres d'exécution",
+    "priority": "Priorité",
+    "tone": "Ton",
+    "timeScope": "Portée temps/action",
+    "format": "Format",
+    "executionMode": "Mode d'exécution",
+    "callAgent": "Appeler l'agent",
+    "callingAgent": "Appel de l'agent...",
+    "copyCommand": "Copier la commande",
+    "generatedCommand": "Commande d'agent générée",
+    "selectedAgent": "Agent sélectionné"
+  },
+  "status": {
+    "active": "Actif",
+    "allSystemsOperational": "Tous les systèmes opérationnels",
+    "ready": "Prêt",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "maintenance": "Maintenance"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "register": "S'inscrire",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "rememberMe": "Se souvenir de moi"
+  }
+}

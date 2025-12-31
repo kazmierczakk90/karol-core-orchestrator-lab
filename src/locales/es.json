@@ -1,0 +1,133 @@
+{
+  "navigation": {
+    "agiCore": "Núcleo AGI",
+    "commander": "Comandante",
+    "miniAI": "Mini IA",
+    "browser": "Navegador",
+    "links": "Enlaces",
+    "mindMaps": "Mapas mentales",
+    "dashboard": "Panel de control",
+    "liveChat": "Chat en vivo",
+    "commandCenter": "Centro de comando",
+    "modules": "Módulos",
+    "tools": "Herramientas",
+    "settings": "Configuración",
+    "foundation": "P0: Fundación",
+    "intelligence": "P1: Inteligencia",
+    "reasoning": "P2: Razonamiento",
+    "experimental": "P3: Experimental",
+    "agents": "Simulador de agentes",
+    "workflows": "Constructor de flujos",
+    "research": "Pipeline de investigación",
+    "routing": "Enrutamiento",
+    "pricing": "Precios"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "copy": "Copiar",
+    "paste": "Pegar",
+    "clear": "Limpiar",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "enabled": "Habilitado",
+    "disabled": "Deshabilitado",
+    "yes": "Sí",
+    "no": "No",
+    "confirm": "Confirmar",
+    "reset": "Restablecer"
+  },
+  "dashboard": {
+    "title": "Panel de Karol-Core AGI",
+    "subtitle": "Plataforma de inteligencia unificada",
+    "quickStats": "Estadísticas rápidas",
+    "moduleStatus": "Estado de módulos",
+    "recentActivity": "Actividad reciente",
+    "quickActions": "Acciones rápidas",
+    "activeAgents": "Agentes activos",
+    "todayDecisions": "Decisiones hoy",
+    "chatSessions": "Sesiones de chat",
+    "systemHealth": "Salud del sistema",
+    "startChat": "Iniciar chat",
+    "compareModels": "Comparar modelos",
+    "newResearch": "Nueva investigación",
+    "viewReports": "Ver informes"
+  },
+  "modules": {
+    "foundation": {
+      "title": "P0: Módulos de fundación",
+      "description": "Infraestructura central y sistemas de seguridad"
+    },
+    "intelligence": {
+      "title": "P1: Módulos de inteligencia",
+      "description": "Inteligencia emocional y mejora EDICT"
+    },
+    "reasoning": {
+      "title": "P2: Módulos de razonamiento",
+      "description": "Sistemas avanzados de decisión y optimización"
+    },
+    "experimental": {
+      "title": "P3: Módulos experimentales",
+      "description": "IA multi-modelo y pipeline de investigación"
+    }
+  },
+  "agentCommander": {
+    "title": "Generador de comandos de agente IA",
+    "description": "Centro de comando - llamar agentes para acciones específicas",
+    "businessContext": "Contexto empresarial",
+    "industry": "Industria/Sector",
+    "selectIndustry": "Seleccionar industria...",
+    "botFunction": "Función del bot",
+    "selectFunction": "Seleccionar función...",
+    "agentAndTask": "Agente y tipo de tarea",
+    "selectAgent": "Agente a llamar",
+    "taskType": "Tipo de tarea",
+    "selectTaskType": "Seleccionar tipo de tarea...",
+    "taskDefinition": "Definición de tarea",
+    "taskDescription": "Descripción de la tarea",
+    "taskDescriptionPlaceholder": "¿Cómo puedo ayudarte como IA?",
+    "goal": "Tu objetivo",
+    "goalPlaceholder": "¿Cuál es el resultado esperado?",
+    "executionParameters": "Parámetros de ejecución",
+    "priority": "Prioridad",
+    "tone": "Tono",
+    "timeScope": "Alcance de tiempo/acción",
+    "format": "Formato",
+    "executionMode": "Modo de ejecución",
+    "callAgent": "Llamar agente",
+    "callingAgent": "Llamando al agente...",
+    "copyCommand": "Copiar comando",
+    "generatedCommand": "Comando de agente generado",
+    "selectedAgent": "Agente seleccionado"
+  },
+  "status": {
+    "active": "Activo",
+    "allSystemsOperational": "Todos los sistemas operativos",
+    "ready": "Listo",
+    "online": "En línea",
+    "offline": "Fuera de línea",
+    "maintenance": "Mantenimiento"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme"
+  }
+}

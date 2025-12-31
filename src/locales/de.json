@@ -1,0 +1,133 @@
+{
+  "navigation": {
+    "agiCore": "AGI-Kern",
+    "commander": "Kommandant",
+    "miniAI": "Mini-KI",
+    "browser": "Browser",
+    "links": "Links",
+    "mindMaps": "Mindmaps",
+    "dashboard": "Dashboard",
+    "liveChat": "Live-Chat",
+    "commandCenter": "Kommandozentrale",
+    "modules": "Module",
+    "tools": "Werkzeuge",
+    "settings": "Einstellungen",
+    "foundation": "P0: Grundlagen",
+    "intelligence": "P1: Intelligenz",
+    "reasoning": "P2: Logik",
+    "experimental": "P3: Experimentell",
+    "agents": "Agenten-Simulator",
+    "workflows": "Workflow-Builder",
+    "research": "Forschungs-Pipeline",
+    "routing": "Routing",
+    "pricing": "Preise"
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "copy": "Kopieren",
+    "paste": "Einfügen",
+    "clear": "Löschen",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "yes": "Ja",
+    "no": "Nein",
+    "confirm": "Bestätigen",
+    "reset": "Zurücksetzen"
+  },
+  "dashboard": {
+    "title": "Karol-Core AGI Dashboard",
+    "subtitle": "Unified Intelligence Platform",
+    "quickStats": "Schnellstatistiken",
+    "moduleStatus": "Modulstatus",
+    "recentActivity": "Letzte Aktivität",
+    "quickActions": "Schnellaktionen",
+    "activeAgents": "Aktive Agenten",
+    "todayDecisions": "Entscheidungen heute",
+    "chatSessions": "Chat-Sitzungen",
+    "systemHealth": "Systemzustand",
+    "startChat": "Chat starten",
+    "compareModels": "Modelle vergleichen",
+    "newResearch": "Neue Forschung",
+    "viewReports": "Berichte anzeigen"
+  },
+  "modules": {
+    "foundation": {
+      "title": "P0: Grundlagenmodule",
+      "description": "Kerninfrastruktur und Sicherheitssysteme"
+    },
+    "intelligence": {
+      "title": "P1: Intelligenzmodule",
+      "description": "Emotionale Intelligenz und EDICT-Verbesserung"
+    },
+    "reasoning": {
+      "title": "P2: Logikmodule",
+      "description": "Erweiterte Entscheidungs- und Optimierungssysteme"
+    },
+    "experimental": {
+      "title": "P3: Experimentelle Module",
+      "description": "Multi-Modell-KI und Forschungs-Pipeline"
+    }
+  },
+  "agentCommander": {
+    "title": "KI-Agenten-Befehlsgenerator",
+    "description": "Kommandozentrale - Agenten für spezifische Aufgaben aufrufen",
+    "businessContext": "Geschäftskontext",
+    "industry": "Branche/Sektor",
+    "selectIndustry": "Branche auswählen...",
+    "botFunction": "Bot-Funktion",
+    "selectFunction": "Funktion auswählen...",
+    "agentAndTask": "Agent und Aufgabentyp",
+    "selectAgent": "Agent auswählen",
+    "taskType": "Aufgabentyp",
+    "selectTaskType": "Aufgabentyp auswählen...",
+    "taskDefinition": "Aufgabendefinition",
+    "taskDescription": "Aufgabenbeschreibung",
+    "taskDescriptionPlaceholder": "Wie kann ich Ihnen als KI helfen?",
+    "goal": "Ihr Ziel",
+    "goalPlaceholder": "Was ist das erwartete Ergebnis?",
+    "executionParameters": "Ausführungsparameter",
+    "priority": "Priorität",
+    "tone": "Tonfall",
+    "timeScope": "Zeit-/Aktionsumfang",
+    "format": "Format",
+    "executionMode": "Ausführungsmodus",
+    "callAgent": "Agent aufrufen",
+    "callingAgent": "Agent wird aufgerufen...",
+    "copyCommand": "Befehl kopieren",
+    "generatedCommand": "Generierter Agentenbefehl",
+    "selectedAgent": "Ausgewählter Agent"
+  },
+  "status": {
+    "active": "Aktiv",
+    "allSystemsOperational": "Alle Systeme betriebsbereit",
+    "ready": "Bereit",
+    "online": "Online",
+    "offline": "Offline",
+    "maintenance": "Wartung"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "rememberMe": "Angemeldet bleiben"
+  }
+}

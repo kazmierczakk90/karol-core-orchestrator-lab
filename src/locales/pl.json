@@ -1,12 +1,26 @@
-
 {
   "navigation": {
-    "agiCore": "AGI Core",
-    "commander": "Komandor",
+    "agiCore": "Rdzeń AGI",
+    "commander": "Komendant",
     "miniAI": "Mini AI",
     "browser": "Przeglądarka",
     "links": "Linki",
-    "mindMaps": "Mapy Myśli"
+    "mindMaps": "Mapy myśli",
+    "dashboard": "Panel główny",
+    "liveChat": "Czat na żywo",
+    "commandCenter": "Centrum dowodzenia",
+    "modules": "Moduły",
+    "tools": "Narzędzia",
+    "settings": "Ustawienia",
+    "foundation": "P0: Fundamenty",
+    "intelligence": "P1: Inteligencja",
+    "reasoning": "P2: Logika",
+    "experimental": "P3: Eksperymentalne",
+    "agents": "Symulator agentów",
+    "workflows": "Kreator workflow",
+    "research": "Pipeline badawczy",
+    "routing": "Routing",
+    "pricing": "Cennik"
   },
   "common": {
     "loading": "Ładowanie...",
@@ -26,100 +40,94 @@
     "import": "Importuj",
     "copy": "Kopiuj",
     "paste": "Wklej",
-    "clear": "Wyczyść"
+    "clear": "Wyczyść",
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "enabled": "Włączony",
+    "disabled": "Wyłączony",
+    "yes": "Tak",
+    "no": "Nie",
+    "confirm": "Potwierdź",
+    "reset": "Resetuj"
+  },
+  "dashboard": {
+    "title": "Panel Karol-Core AGI",
+    "subtitle": "Zunifikowana platforma inteligencji",
+    "quickStats": "Szybkie statystyki",
+    "moduleStatus": "Status modułów",
+    "recentActivity": "Ostatnia aktywność",
+    "quickActions": "Szybkie akcje",
+    "activeAgents": "Aktywni agenci",
+    "todayDecisions": "Decyzje dziś",
+    "chatSessions": "Sesje czatu",
+    "systemHealth": "Stan systemu",
+    "startChat": "Rozpocznij czat",
+    "compareModels": "Porównaj modele",
+    "newResearch": "Nowe badanie",
+    "viewReports": "Zobacz raporty"
+  },
+  "modules": {
+    "foundation": {
+      "title": "P0: Moduły fundamentalne",
+      "description": "Podstawowa infrastruktura i systemy bezpieczeństwa"
+    },
+    "intelligence": {
+      "title": "P1: Moduły inteligencji",
+      "description": "Inteligencja emocjonalna i ulepszenie EDICT"
+    },
+    "reasoning": {
+      "title": "P2: Moduły logiki",
+      "description": "Zaawansowane systemy decyzyjne i optymalizacyjne"
+    },
+    "experimental": {
+      "title": "P3: Moduły eksperymentalne",
+      "description": "Multi-model AI i pipeline badawczy"
+    }
   },
   "agentCommander": {
-    "title": "Generator Komend Agentów AI",
-    "description": "Centrum dowodzenia - wywoływanie agentów do konkretnych akcji jak żołnierzy w misji",
+    "title": "Generator komend agenta AI",
+    "description": "Centrum dowodzenia - wzywanie agentów do konkretnych akcji jak żołnierzy na misję",
     "businessContext": "Kontekst biznesowy",
     "industry": "Branża/Sektor",
     "selectIndustry": "Wybierz branżę...",
-    "botFunction": "Funkcja Bota",
+    "botFunction": "Funkcja bota",
     "selectFunction": "Wybierz funkcję...",
     "agentAndTask": "Agent i typ zadania",
-    "selectAgent": "Agent do wywołania",
+    "selectAgent": "Agent do wezwania",
     "taskType": "Typ zadania",
     "selectTaskType": "Wybierz typ zadania...",
     "taskDefinition": "Definicja zadania",
     "taskDescription": "Opis zadania",
-    "taskDescriptionPlaceholder": "W czym mogę Ci pomóc jako AI?",
-    "goal": "Cel jaki Cię interesuje",
+    "taskDescriptionPlaceholder": "Jak mogę Ci pomóc jako AI?",
+    "goal": "Cel, który Cię interesuje",
     "goalPlaceholder": "Jaki jest oczekiwany rezultat?",
     "executionParameters": "Parametry wykonania",
     "priority": "Priorytet",
     "tone": "Ton",
-    "timeScope": "Time/Zakres akcji",
+    "timeScope": "Zakres czasu/akcji",
     "format": "Format",
     "executionMode": "Tryb wykonania",
-    "callAgent": "Wywołaj agenta do akcji",
-    "callingAgent": "Wywołuję agenta...",
-    "copyCommand": "Skopiuj komendę",
+    "callAgent": "Wezwij agenta do akcji",
+    "callingAgent": "Wzywanie agenta...",
+    "copyCommand": "Kopiuj komendę",
     "generatedCommand": "Wygenerowana komenda agenta",
-    "selectedAgent": "Wybrany Agent",
-    "priorities": {
-      "critical": "Krytyczny (RED ALERT)",
-      "high": "Wysoki (HIGH)",
-      "normal": "Normalny (STANDARD)",
-      "low": "Niski (LOW)"
-    },
-    "tones": {
-      "professional": "Profesjonalny",
-      "direct": "Bezpośredni",
-      "analytical": "Analityczny",
-      "creative": "Kreatywny",
-      "technical": "Techniczny",
-      "friendly": "Przyjazny",
-      "formal": "Formalny"
-    },
-    "timeScopes": {
-      "quickAction": "Szybka akcja (5-15 min)",
-      "standardWork": "Standardowa praca (30-60 min)",
-      "deepAnalysis": "Głęboka analiza (1-3 h)",
-      "longTermProject": "Projekt długoterminowy (dni/tygodnie)"
-    },
-    "executionModes": {
-      "immediate": "Natychmiastowy (LIVE)",
-      "scheduled": "Zaplanowany (SCHEDULED)",
-      "analytical": "Analityczny (DEEP)",
-      "exploratory": "Eksploracyjny (SCOUT)"
-    },
-    "formats": {
-      "report": "Raport tekstowy",
-      "bulletList": "Lista punktowa",
-      "json": "Struktura JSON",
-      "table": "Tabela danych",
-      "schema": "Schemat/Diagram"
-    }
-  },
-  "browser": {
-    "title": "Browser Core",
-    "description": "Przeglądarka internetowa z ekstrakcją treści",
-    "ready": "Gotowy",
-    "urlPlaceholder": "Wpisz URL lub wyszukaj w Google...",
-    "history": "Historia",
-    "bookmarks": "Zakładki",
-    "extractedLinks": "Wyekstraktowane Linki",
-    "loadingContent": "Ładowanie zawartości...",
-    "openInNewTab": "Otwórz w nowej karcie",
-    "errorLoading": "Nie można załadować strony. Strona może blokować wyświetlanie w iframe.",
-    "features": [
-      "Renderowanie stron internetowych",
-      "Ekstrakcja treści dla AI",
-      "Integracja z Link Collector",
-      "Automatyczna ekstrakcja linków",
-      "Zoom i kontrola nawigacji"
-    ]
-  },
-  "miniAI": {
-    "title": "Mini AI Dashboard",
-    "myMiniAIs": "Moje Mini AI",
-    "executions": "Wykonania",
-    "memory": "Pamięć",
-    "creator": "Kreator"
+    "selectedAgent": "Wybrany agent"
   },
   "status": {
     "active": "Aktywny",
-    "allSystemsOperational": "Wszystkie systemy działają",
-    "ready": "Gotowy"
+    "allSystemsOperational": "Wszystkie systemy operacyjne",
+    "ready": "Gotowy",
+    "online": "Online",
+    "offline": "Offline",
+    "maintenance": "Konserwacja"
+  },
+  "auth": {
+    "login": "Zaloguj się",
+    "logout": "Wyloguj się",
+    "register": "Zarejestruj się",
+    "email": "E-mail",
+    "password": "Hasło",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "rememberMe": "Zapamiętaj mnie"
   }
 }

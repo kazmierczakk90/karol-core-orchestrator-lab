@@ -1,13 +1,25 @@
-
 import { useCallback } from 'react';
+import { useLanguage, Language } from '@/contexts/LanguageContext';
 import plTranslations from '@/locales/pl.json';
 import enTranslations from '@/locales/en.json';
+import deTranslations from '@/locales/de.json';
+import frTranslations from '@/locales/fr.json';
+import esTranslations from '@/locales/es.json';
 
 type TranslationKey = string;
-type Translations = typeof plTranslations;
+type Translations = typeof enTranslations;
 
-export const useTranslation = (language: 'pl' | 'en' = 'pl') => {
-  const translations: Translations = language === 'pl' ? plTranslations : enTranslations;
+const translationsMap: Record<Language, Translations> = {
+  en: enTranslations,
+  pl: plTranslations,
+  de: deTranslations,
+  fr: frTranslations,
+  es: esTranslations,
+};
+
+export const useTranslation = () => {
+  const { language } = useLanguage();
+  const translations = translationsMap[language];
 
   const t = useCallback((key: TranslationKey, fallback?: string): string => {
     const keys = key.split('.');
@@ -37,5 +49,5 @@ export const useTranslation = (language: 'pl' | 'en' = 'pl') => {
     return Array.isArray(value) ? value : [];
   }, [translations]);
 
-  return { t, tArray };
+  return { t, tArray, language };
 };

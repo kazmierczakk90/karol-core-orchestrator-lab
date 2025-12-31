@@ -1,7 +1,14 @@
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+export type Language = 'pl' | 'en' | 'de' | 'fr' | 'es';
 
-type Language = 'pl' | 'en';
+export const LANGUAGES: { code: Language; name: string; flag: string }[] = [
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+];
 
 interface LanguageContextType {
   language: Language;
@@ -15,7 +22,19 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-  const [language, setLanguage] = useState<Language>('pl');
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem('karol-core-language');
+    return (saved as Language) || 'en';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('karol-core-language', lang);
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>

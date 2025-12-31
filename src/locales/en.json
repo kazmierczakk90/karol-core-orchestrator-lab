@@ -1,4 +1,3 @@
-
 {
   "navigation": {
     "agiCore": "AGI Core",
@@ -6,7 +5,22 @@
     "miniAI": "Mini AI",
     "browser": "Browser",
     "links": "Links",
-    "mindMaps": "Mind Maps"
+    "mindMaps": "Mind Maps",
+    "dashboard": "Dashboard",
+    "liveChat": "Live Chat",
+    "commandCenter": "Command Center",
+    "modules": "Modules",
+    "tools": "Tools",
+    "settings": "Settings",
+    "foundation": "P0: Foundation",
+    "intelligence": "P1: Intelligence",
+    "reasoning": "P2: Reasoning",
+    "experimental": "P3: Experimental",
+    "agents": "Agent Simulator",
+    "workflows": "Workflow Builder",
+    "research": "Research Pipeline",
+    "routing": "Routing",
+    "pricing": "Pricing"
   },
   "common": {
     "loading": "Loading...",
@@ -26,7 +40,49 @@
     "import": "Import",
     "copy": "Copy",
     "paste": "Paste",
-    "clear": "Clear"
+    "clear": "Clear",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "reset": "Reset"
+  },
+  "dashboard": {
+    "title": "Karol-Core AGI Dashboard",
+    "subtitle": "Unified Intelligence Platform",
+    "quickStats": "Quick Stats",
+    "moduleStatus": "Module Status",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions",
+    "activeAgents": "Active Agents",
+    "todayDecisions": "Today's Decisions",
+    "chatSessions": "Chat Sessions",
+    "systemHealth": "System Health",
+    "startChat": "Start Chat",
+    "compareModels": "Compare Models",
+    "newResearch": "New Research",
+    "viewReports": "View Reports"
+  },
+  "modules": {
+    "foundation": {
+      "title": "P0: Foundation Modules",
+      "description": "Core infrastructure and safety systems"
+    },
+    "intelligence": {
+      "title": "P1: Intelligence Modules",
+      "description": "Emotional intelligence and EDICT enhancement"
+    },
+    "reasoning": {
+      "title": "P2: Reasoning Modules",
+      "description": "Advanced decision and optimization systems"
+    },
+    "experimental": {
+      "title": "P3: Experimental Modules",
+      "description": "Multi-model AI and research pipeline"
+    }
   },
   "agentCommander": {
     "title": "AI Agent Command Generator",
@@ -55,71 +111,23 @@
     "callingAgent": "Calling agent...",
     "copyCommand": "Copy command",
     "generatedCommand": "Generated agent command",
-    "selectedAgent": "Selected Agent",
-    "priorities": {
-      "critical": "Critical (RED ALERT)",
-      "high": "High (HIGH)",
-      "normal": "Normal (STANDARD)",
-      "low": "Low (LOW)"
-    },
-    "tones": {
-      "professional": "Professional",
-      "direct": "Direct",
-      "analytical": "Analytical",
-      "creative": "Creative",
-      "technical": "Technical",
-      "friendly": "Friendly",
-      "formal": "Formal"
-    },
-    "timeScopes": {
-      "quickAction": "Quick action (5-15 min)",
-      "standardWork": "Standard work (30-60 min)",
-      "deepAnalysis": "Deep analysis (1-3 h)",
-      "longTermProject": "Long-term project (days/weeks)"
-    },
-    "executionModes": {
-      "immediate": "Immediate (LIVE)",
-      "scheduled": "Scheduled (SCHEDULED)",
-      "analytical": "Analytical (DEEP)",
-      "exploratory": "Exploratory (SCOUT)"
-    },
-    "formats": {
-      "report": "Text report",
-      "bulletList": "Bullet list",
-      "json": "JSON structure",
-      "table": "Data table",
-      "schema": "Schema/Diagram"
-    }
-  },
-  "browser": {
-    "title": "Browser Core",
-    "description": "Web browser with content extraction",
-    "ready": "Ready",
-    "urlPlaceholder": "Enter URL or search in Google...",
-    "history": "History",
-    "bookmarks": "Bookmarks",
-    "extractedLinks": "Extracted Links",
-    "loadingContent": "Loading content...",
-    "openInNewTab": "Open in new tab",
-    "errorLoading": "Cannot load page. Page may block iframe display.",
-    "features": [
-      "Web page rendering",
-      "Content extraction for AI",
-      "Link Collector integration",
-      "Automatic link extraction",
-      "Zoom and navigation control"
-    ]
-  },
-  "miniAI": {
-    "title": "Mini AI Dashboard",
-    "myMiniAIs": "My Mini AIs",
-    "executions": "Executions",
-    "memory": "Memory",
-    "creator": "Creator"
+    "selectedAgent": "Selected Agent"
   },
   "status": {
     "active": "Active",
     "allSystemsOperational": "All systems operational",
-    "ready": "Ready"
+    "ready": "Ready",
+    "online": "Online",
+    "offline": "Offline",
+    "maintenance": "Maintenance"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "rememberMe": "Remember me"
   }
 }
