@@ -9,37 +9,60 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalLoadingProvider } from "@/contexts/GlobalLoadingContext";
 import { useAutoImprovement } from "@/hooks/useAutoImprovement";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import KarolCore10Dashboard from "./components/KarolCore10Dashboard";
+
+// Layout
+import { MainLayout } from "@/components/layout/MainLayout";
+
+// Pages
+import Dashboard from "./pages/Dashboard";
+import LiveChatPage from "./pages/LiveChatPage";
 import KarolCoreCommandCenter from "./pages/KarolCoreCommandCenter";
+import FoundationModulesPage from "./pages/modules/FoundationModulesPage";
+import IntelligenceModulesPage from "./pages/modules/IntelligenceModulesPage";
+import ReasoningModulesPage from "./pages/modules/ReasoningModulesPage";
+import ExperimentalModulesPage from "./pages/modules/ExperimentalModulesPage";
+import AgentToolsPage from "./pages/tools/AgentToolsPage";
+import WorkflowToolsPage from "./pages/tools/WorkflowToolsPage";
+import ResearchToolsPage from "./pages/tools/ResearchToolsPage";
+import RoutingPage from "./pages/RoutingPage";
+import PricingPage from "./pages/PricingPage";
+import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
-import ChatTest from '@/pages/ChatTest';
-import ExtendedAGIPanelPage from './pages/ExtendedAGIPanelPage';
-import KarolCoreExtensionsPage from './pages/KarolCoreExtensionsPage';
-import AdvancedModulesPage from './pages/AdvancedModulesPage';
-import PricingPage from './pages/PricingPage';
-import RoutingPage from './pages/RoutingPage';
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  // Inicjalizacja Auto-Improvement System
   useAutoImprovement();
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/command-center" element={<KarolCoreCommandCenter />} />
+        {/* Main Layout with Sidebar */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/chat" element={<LiveChatPage />} />
+          <Route path="/command-center" element={<KarolCoreCommandCenter />} />
+          
+          {/* Modules P0-P3 */}
+          <Route path="/modules/foundation" element={<FoundationModulesPage />} />
+          <Route path="/modules/intelligence" element={<IntelligenceModulesPage />} />
+          <Route path="/modules/reasoning" element={<ReasoningModulesPage />} />
+          <Route path="/modules/experimental" element={<ExperimentalModulesPage />} />
+          
+          {/* Tools */}
+          <Route path="/tools/agents" element={<AgentToolsPage />} />
+          <Route path="/tools/workflows" element={<WorkflowToolsPage />} />
+          <Route path="/tools/research" element={<ResearchToolsPage />} />
+          
+          {/* Admin */}
+          <Route path="/routing" element={<RoutingPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
+        
+        {/* Auth (no sidebar) */}
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/chat-test" element={<ChatTest />} />
-        <Route path="/extended-agi-panel" element={<ExtendedAGIPanelPage />} />
-        <Route path="/karol-extensions" element={<KarolCoreExtensionsPage />} />
-        <Route path="/advanced-modules" element={<AdvancedModulesPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/routing" element={<RoutingPage />} />
-        <Route path="/karol-core-10" element={<KarolCore10Dashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
@@ -54,7 +77,7 @@ function App() {
           <LanguageProvider>
             <SimplifiedAuthProvider>
               <ErrorBoundary>
-                <div className="min-h-screen bg-gray-100">
+                <div className="min-h-screen bg-background dark">
                   <AppContent />
                   <Toaster />
                   <Sonner />
