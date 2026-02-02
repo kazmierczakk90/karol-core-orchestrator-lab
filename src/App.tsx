@@ -29,6 +29,7 @@ import PricingPage from "./pages/PricingPage";
 import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import LabObservatory from "./pages/lab/LabObservatory";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,10 @@ const AppContent = () => {
         
         {/* Auth (no sidebar) */}
         <Route path="/auth" element={<AuthPage />} />
+        
+        {/* Lab Observatory - Standalone, no sidebar */}
+        <Route path="/lab" element={<div className="lab"><LabObservatory /></div>} />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
