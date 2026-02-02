@@ -12,6 +12,7 @@ import {
   Settings,
   CreditCard,
   Route,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,6 +37,12 @@ export const navigationConfig: NavGroup[] = [
         url: "/",
         icon: LayoutDashboard,
         description: "Overview and quick stats",
+      },
+      {
+        title: "Lab Observatory",
+        url: "/lab",
+        icon: Activity,
+        description: "Decision intelligence observatory",
       },
       {
         title: "Live Chat",

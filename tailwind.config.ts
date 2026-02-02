@@ -62,6 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				lab: {
+					background: 'hsl(var(--lab-background))',
+					foreground: 'hsl(var(--lab-foreground))',
+					surface: 'hsl(var(--lab-surface))',
+					border: 'hsl(var(--lab-border))',
+					muted: 'hsl(var(--lab-muted))',
+					accent: 'hsl(var(--lab-accent))',
+					narrative: 'hsl(var(--lab-narrative))',
+					warning: 'hsl(var(--lab-warning))',
+					danger: 'hsl(var(--lab-danger))'
 				}
 			},
 			backgroundImage: {

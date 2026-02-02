@@ -82,6 +82,19 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* Lab Observatory Design System */
+  .lab {
+    --lab-background: 240 10% 4%;
+    --lab-foreground: 0 0% 93%;
+    --lab-surface: 240 6% 8%;
+    --lab-border: 240 5% 16%;
+    --lab-muted: 240 4% 46%;
+    --lab-accent: 180 100% 45%;
+    --lab-narrative: 240 8% 6%;
+    --lab-warning: 38 92% 50%;
+    --lab-danger: 0 72% 51%;
+  }
 }
 
 @layer base {
