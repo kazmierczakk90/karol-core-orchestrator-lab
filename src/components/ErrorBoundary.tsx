@@ -144,7 +144,7 @@ class ErrorBoundary extends Component<Props, State> {
                   Go Home
                 </Button>
 
-                {process.env.NODE_ENV === 'development' && (
+                {import.meta.env.DEV && (
                   <Button
                     onClick={this.handleReportBug}
                     variant="outline"
