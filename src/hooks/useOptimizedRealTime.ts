@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { toast } from 'sonner';
 
 interface RealTimeConfig {

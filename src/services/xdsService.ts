@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import type { XdSResearch, XdSContent, ResearchPipeline } from '@/types/xds';
 
 class XdSService {

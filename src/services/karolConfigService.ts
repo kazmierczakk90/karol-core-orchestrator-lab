@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import type { KarolConfig, PlatformConfig } from '@/types/karolConfig';
 
 class KarolConfigService {
