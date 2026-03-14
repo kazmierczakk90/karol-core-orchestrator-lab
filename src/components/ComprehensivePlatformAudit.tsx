@@ -11,7 +11,7 @@ import {
   Settings, FileText, Download, RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { useAuth } from '@/contexts/SimplifiedAuthContext';
 import { errorLogger } from './ErrorLogger';
 
