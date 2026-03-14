@@ -14,7 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agent_owners: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          id: string
+          max_agents: number
+          name: string
+          organization: string | null
+          tier: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          max_agents?: number
+          name: string
+          organization?: string | null
+          tier?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          max_agents?: number
+          name?: string
+          organization?: string | null
+          tier?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      agent_passports: {
+        Row: {
+          agent_id: string
+          capabilities: Json | null
+          created_at: string
+          display_name: string
+          expires_at: string | null
+          id: string
+          identity_hash: string
+          issued_at: string
+          last_verified_at: string | null
+          metadata: Json | null
+          owner_id: string | null
+          passport_number: string
+          signature: string | null
+          status: string
+          trust_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          capabilities?: Json | null
+          created_at?: string
+          display_name: string
+          expires_at?: string | null
+          id?: string
+          identity_hash: string
+          issued_at?: string
+          last_verified_at?: string | null
+          metadata?: Json | null
+          owner_id?: string | null
+          passport_number: string
+          signature?: string | null
+          status?: string
+          trust_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          capabilities?: Json | null
+          created_at?: string
+          display_name?: string
+          expires_at?: string | null
+          id?: string
+          identity_hash?: string
+          issued_at?: string
+          last_verified_at?: string | null
+          metadata?: Json | null
+          owner_id?: string | null
+          passport_number?: string
+          signature?: string | null
+          status?: string
+          trust_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_passports_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "agent_owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_versions: {
+        Row: {
+          agent_id: string
+          capabilities: Json | null
+          changelog: string | null
+          created_at: string
+          id: string
+          released_at: string
+          status: string
+          version: string
+        }
+        Insert: {
+          agent_id: string
+          capabilities?: Json | null
+          changelog?: string | null
+          created_at?: string
+          id?: string
+          released_at?: string
+          status?: string
+          version: string
+        }
+        Update: {
+          agent_id?: string
+          capabilities?: Json | null
+          changelog?: string | null
+          created_at?: string
+          id?: string
+          released_at?: string
+          status?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      compliance_records: {
+        Row: {
+          agent_id: string
+          check_type: string
+          checked_at: string
+          created_at: string
+          details: Json | null
+          expires_at: string | null
+          id: string
+          passport_id: string | null
+          result: string
+        }
+        Insert: {
+          agent_id: string
+          check_type: string
+          checked_at?: string
+          created_at?: string
+          details?: Json | null
+          expires_at?: string | null
+          id?: string
+          passport_id?: string | null
+          result: string
+        }
+        Update: {
+          agent_id?: string
+          check_type?: string
+          checked_at?: string
+          created_at?: string
+          details?: Json | null
+          expires_at?: string | null
+          id?: string
+          passport_id?: string | null
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_records_passport_id_fkey"
+            columns: ["passport_id"]
+            isOneToOne: false
+            referencedRelation: "agent_passports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
