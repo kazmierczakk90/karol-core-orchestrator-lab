@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import type { FukoMessage } from '@/types/fuko';
 import type { FukoAgent } from '@/types/agent';
 import { v4 as uuidv4 } from 'uuid';

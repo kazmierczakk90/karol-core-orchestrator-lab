@@ -224,7 +224,7 @@ const ComprehensivePlatformAudit = () => {
       
       try {
         // Test basic OpenAI integration availability
-        const openAIKey = process.env.VITE_OPENAI_API_KEY;
+        const openAIKey = import.meta.env.VITE_OPENAI_API_KEY;
         if (!openAIKey) {
           foundIssues.push({
             id: 'openai-key-missing',

@@ -9,7 +9,7 @@ import {
   Database, Brain, Shield, Code, Activity 
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 
 interface OptimizationTask {
   id: string;

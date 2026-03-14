@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Activity, Database, Zap, Clock, Brain } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 
 const SystemOverview = () => {
   const [agents, setAgents] = useState<any[]>([]);

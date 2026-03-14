@@ -13,7 +13,7 @@ import {
   Clock, Users, Globe, Brain, Network
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 
 interface AuditIssue {
   id: string;
