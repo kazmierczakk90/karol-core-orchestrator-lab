@@ -32,7 +32,7 @@ export const usePerformanceMonitor = () => {
   });
 
   const [cache] = useState<Map<string, CacheEntry>>(() => new Map());
-  const cacheCleanupIntervalRef = useRef<NodeJS.Timeout>();
+  const cacheCleanupIntervalRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Memory usage monitoring z alertami
   const measureMemoryUsage = useCallback(() => {

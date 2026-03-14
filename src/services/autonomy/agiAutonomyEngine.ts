@@ -40,7 +40,7 @@ class AGIAutonomyEngine {
   private decisions: AutonomousDecision[] = [];
   private tests: Map<string, AutonomyTest> = new Map();
   private isRunning: boolean = false;
-  private autonomyInterval: NodeJS.Timeout | null = null;
+  private autonomyInterval: ReturnType<typeof setTimeout> | null = null;
   private listeners: Set<(metrics: AutonomyMetrics) => void> = new Set();
 
   start(): void {

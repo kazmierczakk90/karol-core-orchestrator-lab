@@ -30,7 +30,7 @@ const FukoAnalytics = () => {
         <CardContent>
           {isLoadingKpi && <p className="text-slate-300">Loading KPIs...</p>}
           <div className="space-y-4">
-            {Object.entries(kpiData).map(([key, data]) => (
+            {Object.entries(kpiData).map(([key, data]: [string, any]) => (
               <div key={key} className="p-3 bg-slate-900/50 rounded">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-white capitalize truncate" title={key}>{key.replace(/_/g, ' ')}</span>
