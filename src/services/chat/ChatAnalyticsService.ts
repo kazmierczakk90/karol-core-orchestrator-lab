@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import type { ChatSession, ChatMessage } from '@/types/chat';
 
 export class ChatAnalyticsService {

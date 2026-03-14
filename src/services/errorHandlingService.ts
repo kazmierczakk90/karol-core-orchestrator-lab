@@ -93,7 +93,7 @@ export class ErrorHandlingService {
       });
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       this.storeErrorForDebugging(error, context);
     }
   }

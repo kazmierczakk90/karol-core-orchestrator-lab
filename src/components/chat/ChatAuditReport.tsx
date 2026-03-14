@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useCommands } from '@/hooks/useCommands';
 import { useChatSessions } from '@/hooks/useChatSessions';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 
 interface AuditResult {
   category: string;

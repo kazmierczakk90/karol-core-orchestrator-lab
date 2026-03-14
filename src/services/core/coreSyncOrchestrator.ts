@@ -30,7 +30,7 @@ export interface SyncMetrics {
 
 class CoreSyncOrchestrator {
   private missions: Map<string, Mission> = new Map();
-  private syncInterval: NodeJS.Timeout | null = null;
+  private syncInterval: ReturnType<typeof setTimeout> | null = null;
   private syncFrequencyMs: number = 5000; // 5s
   private listeners: Set<(metrics: SyncMetrics) => void> = new Set();
 

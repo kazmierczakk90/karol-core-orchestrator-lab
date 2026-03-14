@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { useToast } from "@/components/ui/use-toast";
-import { Database } from '@/integrations/supabase/types';
 
-export type FUKOMessage = Database['public']['Tables']['fuko_messages']['Row'];
-export type CreateFUKOMessageData = Database['public']['Tables']['fuko_messages']['Insert'];
-export type FukoAgent = Database['public']['Tables']['fuko_agents']['Row'];
-export type KpiData = Database['public']['Tables']['kpi_data']['Row'];
+export type FUKOMessage = any;
+export type CreateFUKOMessageData = any;
+export type FukoAgent = any;
+export type KpiData = any;
 
 const fetchFukoMessages = async (): Promise<FUKOMessage[]> => {
   const { data, error } = await supabase

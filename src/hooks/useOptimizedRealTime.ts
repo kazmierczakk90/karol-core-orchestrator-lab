@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { toast } from 'sonner';
 
 interface RealTimeConfig {
@@ -39,9 +39,9 @@ export const useOptimizedRealTime = (config: RealTimeConfig = {}) => {
   });
 
   const channelsRef = useRef<Map<string, any>>(new Map());
-  const heartbeatRef = useRef<NodeJS.Timeout>();
+  const heartbeatRef = useRef<ReturnType<typeof setTimeout>>();
   const messageQueueRef = useRef<any[]>([]);
-  const batchTimeoutRef = useRef<NodeJS.Timeout>();
+  const batchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const reconnectAttemptsRef = useRef<number>(0);
 
   const processMessageBatch = useCallback(() => {

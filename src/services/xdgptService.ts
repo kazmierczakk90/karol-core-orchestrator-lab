@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import type { XdGPTModel, XdGPTFile, XdGPTMacro, ModelComparison } from '@/types/xdgpt';
 
 class XdGPTService {

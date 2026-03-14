@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { CoreCommand, CommandExecutionResult, CommandContext } from '@/types/commands';
 import { ParsedCommand } from './CommandParser';
 import { toast } from 'sonner';

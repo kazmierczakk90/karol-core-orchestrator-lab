@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAIOrchestrator } from '@/hooks/useAIOrchestrator';
 import { useOpenAI } from '@/hooks/useOpenAI';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { 
   CheckCircle, 
   AlertTriangle, 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { MetaDecision, AgentState, RoutingRule, PriorityQueueItem, AuditLog, FukoMemory, FukoIdentity } from '@/types/metaDecision';
 import { errorHandlingService } from '@/services/errorHandlingService';
 import { 

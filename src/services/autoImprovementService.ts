@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/db';
 import { loggingService } from './loggingService';
 import { CreateImprovementEventSchema, validateDataSafe } from '@/lib/validation';
 import { errorHandlingService } from './errorHandlingService';
