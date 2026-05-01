@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import StartupLab from '@/components/StartupLab';
 import CommandRoom from '@/components/CommandRoom';
 import DeveloperConsole from '@/components/DeveloperConsole';
 import FUKOConsole from '@/components/FUKOConsole';
+import FunctionPanel from '@/components/FunctionPanel';
 
 const Index = () => {
   const [activeModule, setActiveModule] = useState('agi-core');
@@ -49,7 +49,7 @@ const Index = () => {
       {/* Main Navigation */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeModule} onValueChange={setActiveModule} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-blue-800/30">
+          <TabsList className="grid w-full grid-cols-6 bg-slate-800/50 border border-blue-800/30">
             <TabsTrigger value="agi-core" className="flex items-center space-x-2">
               <Brain className="h-4 w-4" />
               <span>AGI Core</span>
@@ -69,6 +69,10 @@ const Index = () => {
             <TabsTrigger value="dev-console" className="flex items-center space-x-2">
               <Terminal className="h-4 w-4" />
               <span>Dev Console</span>
+            </TabsTrigger>
+            <TabsTrigger value="functions" className="flex items-center space-x-2">
+              <Database className="h-4 w-4" />
+              <span>Funkcje</span>
             </TabsTrigger>
           </TabsList>
 
@@ -90,6 +94,10 @@ const Index = () => {
 
           <TabsContent value="dev-console" className="mt-6">
             <DeveloperConsole />
+          </TabsContent>
+
+          <TabsContent value="functions" className="mt-6">
+            <FunctionPanel />
           </TabsContent>
         </Tabs>
       </div>
