@@ -6,9 +6,10 @@ import { NarrativeLayer } from '@/components/lab/NarrativeLayer';
 import { ScenarioSandbox } from '@/components/lab/ScenarioSandbox';
 import { LabHeader } from '@/components/lab/LabHeader';
 import { AIPassportPanel } from '@/components/lab/AIPassportPanel';
+import { IDFCPanel } from '@/components/lab/IDFCPanel';
 
 export default function LabObservatory() {
-  const [activeView, setActiveView] = useState<'timeline' | 'agents' | 'sandbox' | 'passport'>('timeline');
+  const [activeView, setActiveView] = useState<'timeline' | 'agents' | 'sandbox' | 'passport' | 'idfc'>('timeline');
   const [systemNarrative, setSystemNarrative] = useState<string>(
     "The system is currently stabilizing after recent context integration. Decision pathways are converging toward long-term coherence."
   );
@@ -28,6 +29,7 @@ export default function LabObservatory() {
             { id: 'agents', label: 'Agent Orchestration' },
             { id: 'sandbox', label: 'Scenario Simulation' },
             { id: 'passport', label: 'AI Passport & Register' },
+            { id: 'idfc', label: 'IDFC Fusion (L3⊕L5)' },
           ].map((view) => (
             <button
               key={view.id}
@@ -48,6 +50,7 @@ export default function LabObservatory() {
           {activeView === 'agents' && <AgentOrchestration />}
           {activeView === 'sandbox' && <ScenarioSandbox />}
           {activeView === 'passport' && <AIPassportPanel />}
+          {activeView === 'idfc' && <IDFCPanel />}
         </div>
         
         <footer className="mt-16 pt-8 border-t border-lab-border">
