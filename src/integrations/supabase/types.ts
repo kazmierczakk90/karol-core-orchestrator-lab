@@ -192,6 +192,146 @@ export type Database = {
           },
         ]
       }
+      idfc_bindings: {
+        Row: {
+          bound_at: string
+          descriptor_id: string
+          id: string
+          instance_id: string
+          weight: number
+        }
+        Insert: {
+          bound_at?: string
+          descriptor_id: string
+          id?: string
+          instance_id: string
+          weight?: number
+        }
+        Update: {
+          bound_at?: string
+          descriptor_id?: string
+          id?: string
+          instance_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idfc_bindings_descriptor_id_fkey"
+            columns: ["descriptor_id"]
+            isOneToOne: false
+            referencedRelation: "idfc_descriptors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idfc_bindings_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "idfc_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idfc_descriptors: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          value: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          value: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      idfc_instances: {
+        Row: {
+          created_at: string
+          fuko_module: string
+          id: string
+          metadata: Json | null
+          owner_id: string | null
+          started_at: string
+          status: string
+          stopped_at: string | null
+          ttl_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fuko_module: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string | null
+          started_at?: string
+          status?: string
+          stopped_at?: string | null
+          ttl_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fuko_module?: string
+          id?: string
+          metadata?: Json | null
+          owner_id?: string | null
+          started_at?: string
+          status?: string
+          stopped_at?: string | null
+          ttl_seconds?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      idfc_provenance: {
+        Row: {
+          action: string
+          descriptor_snapshot: Json | null
+          id: string
+          instance_id: string | null
+          payload: Json | null
+          ts: string
+        }
+        Insert: {
+          action: string
+          descriptor_snapshot?: Json | null
+          id?: string
+          instance_id?: string | null
+          payload?: Json | null
+          ts?: string
+        }
+        Update: {
+          action?: string
+          descriptor_snapshot?: Json | null
+          id?: string
+          instance_id?: string | null
+          payload?: Json | null
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idfc_provenance_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "idfc_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
