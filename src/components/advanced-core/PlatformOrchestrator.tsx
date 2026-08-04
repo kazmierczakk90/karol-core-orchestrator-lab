@@ -11,7 +11,7 @@ import {
 // Import our advanced services
 import { cognitiveCore } from '@/services/cognitiveCore';
 import { decisionEngine } from '@/services/decisionEngine';
-import { orchestrationEngine } from '@/services/orchestrationEngine';
+import { orchestrationEngineV2 as orchestrationEngine } from '@/services/orchestrationEngineV2';
 import { errorLogger } from '@/components/ErrorLogger';
 
 // Import advanced components
@@ -125,7 +125,7 @@ const PlatformOrchestrator = () => {
         // Initialize core services
         const agents = orchestrationEngine.getAgents();
         const events = orchestrationEngine.getEvents();
-        const health = orchestrationEngine.healthCheck();
+        const health = await orchestrationEngine.performHealthCheck();
         
         // Create some sample agents if none exist
         if (agents.length === 0) {

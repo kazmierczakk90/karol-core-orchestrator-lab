@@ -13,7 +13,7 @@ import {
 
 import { cognitiveCore } from '@/services/cognitiveCore';
 import { decisionEngine } from '@/services/decisionEngine';
-import { orchestrationEngine } from '@/services/orchestrationEngine';
+import { orchestrationEngineV2 as orchestrationEngine } from '@/services/orchestrationEngineV2';
 
 const ComprehensiveDashboard = () => {
   const [systemMetrics, setSystemMetrics] = useState<any>({});
@@ -30,7 +30,7 @@ const ComprehensiveDashboard = () => {
         const orchestrationMetrics = orchestrationEngine.collectMetrics();
         const agents = orchestrationEngine.getAgents();
         const events = orchestrationEngine.getEvents(50);
-        const healthStatus = orchestrationEngine.healthCheck();
+        const healthStatus = await orchestrationEngine.performHealthCheck();
 
         setSystemMetrics({
           totalAgents: orchestrationMetrics.totalAgents,
